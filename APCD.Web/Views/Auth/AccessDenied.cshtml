@@ -1,0 +1,24 @@
+@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<div class="container py-5 text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 p-5">
+                <div class="mb-4">
+                    <i class="bi bi-shield-lock text-danger" style="font-size: 5rem;"></i>
+                </div>
+                <h2 class="fw-bold text-dark mb-3">Access Denied</h2>
+                <p class="text-muted mb-4">
+                    You do not have permission to access this resource. This area is restricted to OEM users only.
+                </p>
+                <div class="d-grid gap-2">
+                    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-gov-primary px-4">
+                        <i class="bi bi-house-door me-1"></i> Return to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

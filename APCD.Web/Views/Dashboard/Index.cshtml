@@ -1,0 +1,214 @@
+@model APCD.Web.Models.EmpanelmentApplication
+@{
+    ViewData["Title"] = "OEM Dashboard";
+    var user = ViewBag.User as APCD.Web.Models.ApplicationUser;
+}
+
+<div class="container py-5 animate-fade-in">
+    <!-- Welcome Header -->
+    <div class="row align-items-center mb-5">
+        <div class="col-md-8">
+            <h1 class="fw-bold text-gov-blue mb-2">Welcome, @user?.FullName</h1>
+            <p class="text-muted fs-5">Track and manage your APCD empanelment journey from your central command center.</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            @if (User.IsInRole("OEM") && (Model == null || Model.Status == "Submitted"))
+            {
+                <a asp-controller="Application" asp-action="Index" class="btn btn-gov-primary px-4 py-2 shadow-sm rounded-pill">
+                    <i class="bi bi-plus-circle me-1"></i> Start New Application
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0 overflow-hidden" style="border-left: 5px solid var(--gov-blue) !important;">
+                <div class="card-body p-4 text-center">
+                    <div class="icon-box mb-3 mx-auto bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                        <i class="bi bi-building text-gov-blue fs-3"></i>
+                    </div>
+                    <h6 class="text-uppercase small fw-bold text-muted mb-2">Company Profile</h6>
+                    @if (user?.CompanyProfile != null)
+                    {
+                        <h5 class="fw-bold mb-1 truncate">@user.CompanyProfile.CompanyName</h5>
+                        <p class="small text-muted mb-3">GST: @user.CompanyProfile.GSTNumber</p>
+                        <a asp-controller="Application" asp-action="Profile" class="btn btn-sm btn-link text-decoration-none">View Profile <i class="bi bi-arrow-right"></i></a>
+                    }
+                    else
+                    {
+                        <h5 class="fw-bold text-danger mb-3">Incomplete</h5>
+                        <a asp-controller="Application" asp-action="Profile" class="btn btn-outline-primary btn-sm rounded-pill px-4">Complete Now</a>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0 overflow-hidden" style="border-left: 5px solid #198754 !important;">
+                <div class="card-body p-4 text-center">
+                    <div class="icon-box mb-3 mx-auto bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                        <i class="bi bi-file-earmark-text text-success fs-3"></i>
+                    </div>
+                    <h6 class="text-uppercase small fw-bold text-muted mb-2">Active Application</h6>
+                    @if (Model != null)
+                    {
+                        <h5 class="fw-bold mb-1">@Model.Status</h5>
+                        <p class="small text-muted mb-3">ID: #@Model.Id.ToString("0000")</p>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">In Progress</span>
+                    }
+                    else
+                    {
+                        <h5 class="fw-bold text-muted mb-3">No Active Session</h5>
+                        <p class="small text-muted">Initialize your first application today.</p>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0 overflow-hidden" style="border-left: 5px solid var(--gov-gold) !important;">
+                <div class="card-body p-4 text-center">
+                    <div class="icon-box mb-3 mx-auto bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                        <i class="bi bi-patch-check text-warning fs-3"></i>
+                    </div>
+                    <h6 class="text-uppercase small fw-bold text-muted mb-2">Certifications</h6>
+                    <h4 class="fw-bold mb-1">0</h4>
+                    <p class="small text-muted mb-0">Active Empanelments</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application List -->
+    @if (Model != null)
+    {
+        <div class="card shadow-sm border-0 mb-5">
+            <div class="card-header bg-white py-4 px-4 border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2"></i>Recent Application</h5>
+                    <span class="small text-muted">Created on @Model.CreatedAt.ToString("D")</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="bg-light">
+                            <tr class="small text-uppercase text-muted">
+                                <th class="ps-4 py-3">ID</th>
+                                <th>Categories</th>
+                                <th>Status</th>
+                                <th class="text-end pe-4">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="ps-4">
+                                    <span class="fw-bold text-gov-blue">#@Model.Id.ToString("0000")</span>
+                                    @if(Model.SubmittedAt.HasValue) {
+                                        <div class="extra-small text-muted mt-1">Submitted: @Model.SubmittedAt.Value.ToShortDateString()</div>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (var cat in (Model.SelectedAPCDCategories ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries))
+                                        {
+                                            <span class="badge bg-light text-dark border fw-normal">@cat</span>
+                                        }
+                                        @if(string.IsNullOrEmpty(Model.SelectedAPCDCategories)) {
+                                            <span class="text-muted small italic">None selected</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    @switch (Model.Status)
+                                    {
+                                        case "Draft":
+                                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-3">Draft</span>
+                                            break;
+                                        case "Submitted":
+                                            <span class="badge bg-info-subtle text-info-emphasis border border-info-emphasis rounded-pill px-3">Under Document Verification</span>
+                                            break;
+                                        case "DocumentApproved":
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3">Under Technical Review</span>
+                                            break;
+                                        case "ProvisionalGranted":
+                                            <span class="badge bg-indigo-subtle text-indigo border border-indigo-subtle rounded-pill px-3">Provisional (Site Visit Pending)</span>
+                                            break;
+                                        case "FieldVerified":
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">Field Inspection Completed</span>
+                                            break;
+                                        case "CommitteeReviewPending":
+                                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3">Awaiting Committee Approval</span>
+                                            break;
+                                        case "Empaneled":
+                                            <span class="badge bg-success text-white px-3 fw-bold">FINAL EMPANELED</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle rounded-pill px-3">@Model.Status</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    @if (Model.Status == "Draft")
+                                    {
+                                        <a asp-controller="Application" asp-action="Step1" asp-route-id="@Model.Id" class="btn btn-sm btn-gov-primary rounded-pill px-4">Continue <i class="bi bi-chevron-right ms-1"></i></a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="Application" asp-action="Review" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary rounded-pill px-4">Review <i class="bi bi-eye ms-1"></i></a>
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5 bg-white shadow-sm border-0 rounded-4">
+            <div class="mb-4">
+                <i class="bi bi-folder2-open text-muted" style="font-size: 5rem; opacity: 0.2;"></i>
+            </div>
+            <h4 class="fw-bold text-dark">No Applications Found</h4>
+            <p class="text-muted mb-4 mx-auto" style="max-width: 400px;">It seems you haven't started your empanelment process yet. Click the button below to begin Step 1.</p>
+            <a asp-controller="Application" asp-action="Index" class="btn btn-gov-primary px-5 py-2 rounded-pill shadow-sm">
+                Get Started Now <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    }
+
+    <!-- Help Section -->
+    <div class="mt-5 pt-5 row">
+        <div class="col-md-6 mb-4">
+            <div class="d-flex align-items-start gap-3 p-4 bg-white shadow-sm rounded-3 h-100">
+                <div class="bg-gov-light-blue p-3 rounded-circle">
+                    <i class="bi bi-headset text-gov-blue fs-4"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold">Need Technical Support?</h6>
+                    <p class="small text-muted mb-2">Facing issues with document uploads or payment verification?</p>
+                    <a href="mailto:support@npcindia.gov.in" class="small text-decoration-none fw-bold">Contact Ground Team <i class="bi bi-envelope ms-1"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="d-flex align-items-start gap-3 p-4 bg-white shadow-sm rounded-3 h-100">
+                <div class="bg-success-subtle p-3 rounded-circle text-success">
+                    <i class="bi bi-book fs-4"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold">Empanelment Guidelines</h6>
+                    <p class="small text-muted mb-2">Read the detailed eligibility criteria and document checklists.</p>
+                    <a href="#" class="small text-decoration-none fw-bold text-success">Download PDF <i class="bi bi-download ms-1"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .extra-small { font-size: 0.65rem; }
+    .truncate { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+</style>

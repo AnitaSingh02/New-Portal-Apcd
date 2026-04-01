@@ -1,0 +1,51 @@
+@model APCD.Web.Models.CompanyProfile
+
+@{
+    ViewData["Title"] = "Company Profile";
+}
+
+<div class="container py-5">
+    <partial name="_Stepper" model="1" />
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <div class="card shadow-sm border-0 animate-fade-in">
+                <div class="card-header bg-gov-blue text-white py-3">
+                    <h5 class="mb-0 fw-bold">Company Profile</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-4">Please provide your company's official registration details. This information will be used for all empanelment certifications.</p>
+                    
+                    <form asp-action="Profile" method="post">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label asp-for="CompanyName" class="form-label fw-bold">Company Name (as per GST)</label>
+                                <input asp-for="CompanyName" class="form-control" placeholder="Acme Technologies Pvt Ltd" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="GSTNumber" class="form-label fw-bold">GST Number</label>
+                                <input asp-for="GSTNumber" class="form-control" placeholder="07AAAAA0000A1Z5" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="PANNumber" class="form-label fw-bold">PAN Number</label>
+                                <input asp-for="PANNumber" class="form-control" placeholder="AAAAA0000A" required />
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="OfficeAddress" class="form-label fw-bold">Registered Office Address</label>
+                                <textarea asp-for="OfficeAddress" class="form-control" rows="3" required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="FactoryAddress" class="form-label fw-bold">Manufacturing Factory Address</label>
+                                <textarea asp-for="FactoryAddress" class="form-control" rows="3" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 d-flex justify-content-between">
+                            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary px-5">Save & Continue</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,160 @@
+:root {
+    --gov-blue: #003366;
+    --gov-blue-dark: #002244;
+    --gov-gold: #FFCC00;
+    --gov-gold-dark: #ccaa00;
+    --gov-light-blue: #E6F0F9;
+    --gov-accent: #0056b3;
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.3);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f4f7fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Navbar */
+.navbar-gov {
+    background-color: var(--gov-blue);
+    border-bottom: 4px solid var(--gov-gold);
+    padding: 0.8rem 0;
+}
+
+.navbar-gov .navbar-brand {
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: white !important;
+}
+
+.navbar-gov .nav-link {
+    color: rgba(255,255,255,0.8) !important;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.navbar-gov .nav-link:hover {
+    color: var(--gov-gold) !important;
+    transform: translateY(-1px);
+}
+
+/* Buttons */
+.btn-gov-primary {
+    background-color: var(--gov-blue);
+    color: white;
+    border: 1px solid var(--gov-blue);
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-gov-primary:hover {
+    background-color: var(--gov-blue-dark);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 51, 102, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Cards */
+.card {
+    border-radius: 12px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card.shadow-sm:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important;
+}
+
+/* Stepper */
+.stepper {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.stepper::before {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #dee2e6;
+    z-index: 0;
+}
+
+.step-item {
+    z-index: 1;
+    text-align: center;
+    background: #f4f7fa;
+    padding: 0 10px;
+}
+
+.step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.5rem;
+    font-weight: bold;
+    color: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.step-item.active .step-circle {
+    background: var(--gov-blue);
+    border-color: var(--gov-blue);
+    color: white;
+    box-shadow: 0 0 0 4px var(--gov-light-blue);
+}
+
+.step-item.completed .step-circle {
+    background: #198754;
+    border-color: #198754;
+    color: white;
+}
+
+.step-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.step-item.active .step-label {
+    color: var(--gov-blue);
+}
+
+/* Footer */
+.footer-gov {
+    background-color: #0c1c2c;
+    color: #a0aec0;
+    padding: 60px 0 20px;
+    margin-top: 80px;
+}
+
+.footer-gov h5 {
+    color: white;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.gov-stripe {
+    height: 4px;
+    background: linear-gradient(to right, #FF9933, #FFFFFF, #138808);
+}
+
+/* Utility Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}

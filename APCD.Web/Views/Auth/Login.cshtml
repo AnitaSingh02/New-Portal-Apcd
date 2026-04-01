@@ -1,0 +1,77 @@
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="container py-5 mt-5 animate-fade-in">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-gov-blue text-white text-center py-5 border-0">
+                    <div class="mb-3">
+                        <i class="bi bi-shield-lock-fill fs-1"></i>
+                    </div>
+                    <h3 class="fw-bold mb-0">OEM Login</h3>
+                    <p class="mb-0 opacity-75">APCD OEM Empanelment Portal</p>
+                </div>
+                <div class="card-body p-5 bg-white">
+                    @if (ViewBag.ErrorMessage != null)
+                    {
+                        <div class="alert alert-danger border-0 shadow-sm small py-2 mb-4" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> @ViewBag.ErrorMessage
+                        </div>
+                    }
+                    
+                    <form asp-action="Login" method="post">
+                        <div class="mb-4">
+                            <label for="inputEmail" class="form-label small fw-bold text-muted">EMAIL ADDRESS</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+                                <input type="email" name="email" class="form-control border-start-0 bg-light" id="inputEmail" placeholder="name@company.com" required />
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="inputPassword" class="form-label small fw-bold text-muted">PASSWORD</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-key text-muted"></i></span>
+                                <input type="password" name="password" class="form-control border-start-0 bg-light" id="inputPassword" placeholder="••••••••" required />
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" id="inputRememberPassword" type="checkbox" value="" />
+                                <label class="form-check-label small text-muted" for="inputRememberPassword">Keep me logged in</label>
+                            </div>
+                            <a href="#" class="small text-decoration-none">Forgot Password?</a>
+                        </div>
+
+                        <div class="d-grid gap-2 pt-2">
+                            <button type="submit" class="btn btn-gov-primary btn-lg shadow-sm rounded-pill fw-bold">
+                                Login to Portal <i class="bi bi-arrow-right-short ms-1"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center py-4 bg-light border-0">
+                    <p class="small text-muted mb-0">
+                        Don't have an account? <a asp-action="Register" class="fw-bold text-decoration-none text-gov-blue">Register Your Company</a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Footer Small Links -->
+            <div class="text-center mt-4 small">
+                <a href="/" class="text-muted text-decoration-none">← Back to Homepage</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body { background-color: #f0f4f8; }
+    .card-header { 
+        position: relative; 
+        background: linear-gradient(45deg, var(--gov-blue), var(--gov-accent)) !important;
+    }
+</style>

@@ -1,0 +1,66 @@
+@model APCD.Web.Models.EmpanelmentApplication
+
+@{
+    ViewData["Title"] = "Upload Documents";
+    var requiredDocs = new[] { "GST Registration", "PAN Card", "Certificate of Incorporation", "Technical Spec Sheets", "ISO Quality Certificates" };
+}
+
+<div class="container py-5">
+    <partial name="_Stepper" model="3" />
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm border-0 animate-fade-in">
+                <div class="card-header bg-gov-blue text-white py-3">
+                    <h5 class="mb-0 fw-bold">Document Uploads</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-4">Please upload scanned copies of the following documents. Only PDF and JPG formats are accepted (max 5MB each).</p>
+                    
+                    <div class="table-responsive mb-4">
+                        <table class="table table-hover align-middle">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Document Type</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var docType in requiredDocs)
+                                {
+                                    var existing = Model.Documents.FirstOrDefault(d => d.DocumentType == docType);
+                                    <tr>
+                                        <td>@docType</td>
+                                        <td>
+                                            @if (existing != null)
+                                            {
+                                                <span class="badge bg-success">Uploaded</span>
+                                                <br /><small class="text-muted">@existing.FileName</small>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Missing</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <form asp-action="UploadDocument" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="d-flex gap-2">
+                                                <input type="hidden" name="type" value="@docType" />
+                                                <input type="file" name="file" class="form-control form-control-sm" required />
+                                                <button type="submit" class="btn btn-sm btn-primary">Upload</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-5 d-flex justify-content-between">
+                        <a asp-action="Step1" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Previous</a>
+                        <a asp-action="Step3" asp-route-id="@Model.Id" class="btn btn-primary px-5">Continue</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

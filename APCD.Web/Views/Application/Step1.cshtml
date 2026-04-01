@@ -1,0 +1,43 @@
+@model APCD.Web.Models.EmpanelmentApplication
+
+@{
+    ViewData["Title"] = "Select Categories";
+    var categories = new[] { "ESP Systems", "Bag Filters", "Scrubbers", "Cyclones", "Fume Extraction" };
+    var selected = Model.SelectedAPCDCategories?.Split(',') ?? Array.Empty<string>();
+}
+
+<div class="container py-5">
+    <partial name="_Stepper" model="2" />
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <div class="card shadow-sm border-0 animate-fade-in">
+                <div class="card-header bg-gov-blue text-white py-3">
+                    <h5 class="mb-0 fw-bold">APCD Categories</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-4">Choose the categories of Air Pollution Control Devices (APCD) your company manufactures and seeks empanelment for.</p>
+                    
+                    <form asp-action="Step1" asp-route-id="@Model.Id" method="post">
+                        <div class="list-group">
+                            @foreach (var cat in categories)
+                            {
+                                <label class="list-group-item d-flex gap-3 py-3">
+                                    <input class="form-check-input flex-shrink-0" type="checkbox" name="categories" value="@cat" @(selected.Contains(cat) ? "checked" : "") />
+                                    <span>
+                                        <strong>@cat</strong>
+                                        <small class="d-block text-muted">Certification for @cat manufacturing.</small>
+                                    </span>
+                                </label>
+                            }
+                        </div>
+
+                        <div class="mt-5 d-flex justify-content-between">
+                            <a asp-action="Profile" class="btn btn-outline-secondary">Previous</a>
+                            <button type="submit" class="btn btn-primary px-5">Continue</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
