@@ -1,39 +1,132 @@
-@model APCD.Web.Models.EmpanelmentApplication
-
+@model APCD.Web.Models.CompanyProfile
 @{
-    ViewData["Title"] = "Select Categories";
-    var categories = new[] { "ESP Systems", "Bag Filters", "Scrubbers", "Cyclones", "Fume Extraction" };
-    var selected = Model.SelectedAPCDCategories?.Split(',') ?? Array.Empty<string>();
+    ViewData["Title"] = "Applicant Details";
+    int currentStep = 1;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/application-form.css" asp-append-version="true" />
 }
 
 <div class="container py-5">
-    <partial name="_Stepper" model="2" />
-    <div class="row justify-content-center">
-        <div class="col-md-9">
-            <div class="card shadow-sm border-0 animate-fade-in">
-                <div class="card-header bg-gov-blue text-white py-3">
-                    <h5 class="mb-0 fw-bold">APCD Categories</h5>
-                </div>
-                <div class="card-body p-4">
-                    <p class="text-muted small mb-4">Choose the categories of Air Pollution Control Devices (APCD) your company manufactures and seeks empanelment for.</p>
-                    
-                    <form asp-action="Step1" asp-route-id="@Model.Id" method="post">
-                        <div class="list-group">
-                            @foreach (var cat in categories)
-                            {
-                                <label class="list-group-item d-flex gap-3 py-3">
-                                    <input class="form-check-input flex-shrink-0" type="checkbox" name="categories" value="@cat" @(selected.Contains(cat) ? "checked" : "") />
-                                    <span>
-                                        <strong>@cat</strong>
-                                        <small class="d-block text-muted">Certification for @cat manufacturing.</small>
-                                    </span>
-                                </label>
-                            }
+    <div class="card wizard-container border-0 shadow-lg">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-lg-3">
+                <partial name="_WizardSidebar" model="currentStep" />
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9 bg-white">
+                <div class="wizard-main">
+                    <form asp-action="Step1" method="post" asp-route-id="@ViewBag.AppId">
+                        <div class="form-section-title">Step 1: Applicant Details</div>
+                        <p class="text-muted small mb-4">(To whom certification will be provided)</p>
+
+                        <div class="row g-4">
+                            <!-- Basic Info -->
+                            <div class="col-md-12">
+                                <label asp-for="CompanyName" class="form-group-label">1. Company Name</label>
+                                <input asp-for="CompanyName" class="form-control custom-input" placeholder="Enter company name" required />
+                            </div>
+
+                            <div class="col-md-12">
+                                <label asp-for="OfficeAddress" class="form-group-label">2. Full Address (Office)</label>
+                                <textarea asp-for="OfficeAddress" class="form-control custom-input" rows="2" placeholder="Full office address" required></textarea>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label asp-for="State" class="form-group-label">3. State</label>
+                                <input asp-for="State" class="form-control custom-input" placeholder="e.g. Haryana" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Country" class="form-group-label">4. Country</label>
+                                <input asp-for="Country" class="form-control custom-input" value="India" readonly />
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="PinCode" class="form-group-label">5. PIN Code</label>
+                                <input asp-for="PinCode" class="form-control custom-input" placeholder="6-digit PIN" required />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ContactNo" class="form-group-label">6. Contact No.</label>
+                                <input asp-for="ContactNo" class="form-control custom-input" placeholder="Phone or Mobile" required />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="GSTNumber" class="form-group-label">7. GST Registration No.</label>
+                                <input asp-for="GSTNumber" class="form-control custom-input" placeholder="15-digit GSTIN" required />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="PANNumber" class="form-group-label">8. PAN No.</label>
+                                <input asp-for="PANNumber" class="form-control custom-input" placeholder="10-digit PAN" required />
+                            </div>
+
+                            <!-- Firm Details -->
+                            <div class="col-md-6">
+                                <label asp-for="FirmType" class="form-group-label">9. Type of Firm</label>
+                                <select asp-for="FirmType" class="form-select custom-input" required>
+                                    <option value="">Select type</option>
+                                    <option value="Proprietary">Proprietary</option>
+                                    <option value="Limited">Limited Company</option>
+                                    <option value="Society">Society</option>
+                                    <option value="PSU">PSU</option>
+                                </select>
+                                <span class="help-text">Proprietary/ Limited Company/ Society/ PSU</span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="AreaSqm" class="form-group-label">10. Area of the firm (sqm)</label>
+                                <input asp-for="AreaSqm" type="number" step="0.01" class="form-control custom-input" placeholder="e.g. 500" required />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="EmployeeCount" class="form-group-label">11. No. of workers/employees</label>
+                                <input asp-for="EmployeeCount" type="number" class="form-control custom-input" placeholder="Including contractual staff" required />
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-group-label">12. GPS Locations of the Unit</label>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-end-0">Latitude:</span>
+                                            <input asp-for="Latitude" class="form-control border-start-0 custom-input" placeholder="e.g. 28.5912" required />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-end-0">Longitude:</span>
+                                            <input asp-for="Longitude" class="form-control border-start-0 custom-input" placeholder="e.g. 77.2435" required />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="FirmSize" class="form-group-label">13. Size</label>
+                                <select asp-for="FirmSize" class="form-select custom-input" required>
+                                    <option value="">Select size</option>
+                                    <option value="Micro">Micro</option>
+                                    <option value="Small">Small</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Large">Large</option>
+                                </select>
+                                <span class="help-text">Based on investment/turnover</span>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label asp-for="FactoryAddress" class="form-group-label">Factory Address (Same as unit location)</label>
+                                <textarea asp-for="FactoryAddress" class="form-control custom-input" rows="2" placeholder="Full factory address" required></textarea>
+                            </div>
                         </div>
 
-                        <div class="mt-5 d-flex justify-content-between">
-                            <a asp-action="Profile" class="btn btn-outline-secondary">Previous</a>
-                            <button type="submit" class="btn btn-primary px-5">Continue</button>
+                        <!-- Form Actions -->
+                        <div class="mt-5 pt-4 border-top d-flex justify-content-end">
+                            <button type="submit" class="btn btn-wizard-next">
+                                Next Step: Classification <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
                         </div>
                     </form>
                 </div>

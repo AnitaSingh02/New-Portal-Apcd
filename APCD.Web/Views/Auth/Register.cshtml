@@ -1,96 +1,134 @@
 @model APCD.Web.Models.ApplicationUser
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "OEM Registration";
+    Layout = null; // No layout for full-screen auth page
 }
 
-<div class="container py-5 mt-5 animate-fade-in">
-    <div class="row justify-content-center">
-        <div class="col-md-7">
-            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
-                <div class="card-header bg-gov-blue text-white text-center py-5 border-0">
-                    <div class="mb-3">
-                        <i class="bi bi-briefcase-fill fs-1"></i>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - APCD Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+
+<div class="auth-split-wrapper">
+    <!-- Left Branding Section -->
+    <div class="auth-left-brand d-none d-lg-flex">
+        <div class="auth-logo-container text-center">
+                <img src="~/images/apcd-logo.png" alt="APCDES Logo" class="img-fluid">
+        </div>
+    </div>
+
+    <!-- Right Form Section -->
+    <div class="auth-right-form">
+        <div class="auth-card">
+            <div class="auth-header text-center">
+                <h2 class="fw-bold">OEM Registration</h2>
+                <p class="text-muted small">Register as an Air Pollution Control Device manufacturer to start your empanelment application</p>
+            </div>
+
+            <div class="auth-tab-group mb-4">
+                <a asp-action="Login" class="auth-tab">Login</a>
+                <a href="#" class="auth-tab active">OEM Register</a>
+            </div>
+
+            @if (ViewBag.ErrorMessage != null)
+            {
+                <div class="alert alert-danger border-0 small py-2 mb-4" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> @ViewBag.ErrorMessage
+                </div>
+            }
+
+            <form asp-action="Register" method="post" id="registerForm">
+                <input type="hidden" asp-for="FullName" id="hiddenFullName" />
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="auth-label">First Name</label>
+                        <div class="auth-input-group">
+                            <input type="text" id="firstName" class="auth-input" placeholder="User Name" required oninput="updateFullName()" />
+                        </div>
                     </div>
-                    <h3 class="fw-bold mb-0">OEM Registration</h3>
-                    <p class="mb-0 opacity-75">Register your company to the APCD Empanelment Portal</p>
-                </div>
-                <div class="card-body p-5 bg-white">
-                    @if (ViewBag.ErrorMessage != null)
-                    {
-                        <div class="alert alert-danger border-0 shadow-sm small py-2 mb-4" role="alert">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i> @ViewBag.ErrorMessage
+                    <div class="col-md-6">
+                        <label class="auth-label">Last Name</label>
+                        <div class="auth-input-group">
+                            <input type="text" id="lastName" class="auth-input" placeholder="User Last Name" required oninput="updateFullName()" />
                         </div>
-                    }
-                    
-                    <form asp-action="Register" method="post">
-                        <div class="row g-4">
-                            <div class="col-md-12">
-                                <label asp-for="FullName" class="form-label small fw-bold text-muted text-uppercase">Full Name / Primary Contact</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
-                                    <input asp-for="FullName" class="form-control border-start-0 bg-light" placeholder="e.g. John Doe" required />
-                                </div>
-                                <span asp-validation-for="FullName" class="text-danger extra-small"></span>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label asp-for="Email" class="form-label small fw-bold text-muted text-uppercase">Official Email address</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
-                                    <input asp-for="Email" class="form-control border-start-0 bg-light" placeholder="j.doe@company.com" required />
-                                </div>
-                                <span asp-validation-for="Email" class="text-danger extra-small"></span>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label asp-for="MobileNumber" class="form-label small fw-bold text-muted text-uppercase">Mobile Number</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-phone text-muted"></i></span>
-                                    <input asp-for="MobileNumber" class="form-control border-start-0 bg-light" placeholder="98XXXXXXXX" required />
-                                </div>
-                                <span asp-validation-for="MobileNumber" class="text-danger extra-small"></span>
-                            </div>
-
-                            <div class="col-md-12">
-                                <label for="inputPassword" class="form-label small fw-bold text-muted text-uppercase">Create Password</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-key text-muted"></i></span>
-                                    <input type="password" name="password" class="form-control border-start-0 bg-light" id="inputPassword" placeholder="Minimum 6 characters" required />
-                                </div>
-                            </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="auth-label">Email Address</label>
+                        <div class="auth-input-group">
+                            <input asp-for="Email" class="auth-input" placeholder="example@gmail.com" required />
                         </div>
-
-                        <div class="mt-5 d-grid gap-2">
-                            <button type="submit" class="btn btn-gov-primary btn-lg shadow-sm rounded-pill fw-bold py-3">
-                                Create Account & Continue <i class="bi bi-arrow-right-short ms-1"></i>
-                            </button>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="MobileNumber" class="auth-label">Mobile Number</label>
+                        <div class="auth-input-group">
+                            <input asp-for="MobileNumber" class="auth-input" placeholder="+919859698545" required />
                         </div>
-
-                        <p class="mt-4 text-center small text-muted px-lg-5">
-                            By registering, you agree to the <a href="#">Terms of Use</a> and <a href="#">Privacy Policy</a> of NP-CPCB.
-                        </p>
-                    </form>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="auth-label">Password</label>
+                        <div class="auth-input-group">
+                            <input type="password" name="password" id="password" class="auth-input" placeholder="@@#*%" required />
+                            <i class="bi bi-eye password-toggle" onclick="togglePassword('password')"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="auth-label">Confirm Password</label>
+                        <div class="auth-input-group">
+                            <input type="password" id="confirmPassword" class="auth-input" placeholder="@@#*%" required />
+                            <i class="bi bi-eye password-toggle" onclick="togglePassword('confirmPassword')"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-footer text-center py-4 bg-light border-0">
-                    <p class="small text-muted mb-0">
-                        Already have an account? <a asp-action="Login" class="fw-bold text-decoration-none text-gov-blue">Login Now</a>
-                    </p>
-                </div>
-            </div>
 
-            <div class="text-center mt-4 small mb-5">
-                <a href="/" class="text-muted text-decoration-none">← Back to Homepage</a>
-            </div>
+                <p class="extra-small text-muted mt-2 mb-4" style="font-size: 0.75rem;">
+                    Must contain: 8+ chars, uppercase, lowercase, number, special char (!@@#$%^&*)
+                </p>
+
+                <button type="submit" class="auth-btn-primary">
+                    Create account & Start Application
+                </button>
+
+                <p class="text-center mt-4 small text-muted">
+                    By registering, you agree to our <a href="#" class="text-decoration-none">Terms of Service</a> and <a href="#" class="text-decoration-none">Privacy Policy</a>
+                </p>
+
+                <div class="text-center mt-4">
+                    <a href="/" class="text-muted text-decoration-none d-flex align-items-center justify-content-center small">
+                        <i class="bi bi-arrow-left me-2"></i> Back to home
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
-<style>
-    body { background-color: #f0f4f8; }
-    .card-header { 
-        position: relative; 
-        background: linear-gradient(45deg, var(--gov-blue), var(--gov-accent)) !important;
+<script>
+    function updateFullName() {
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        document.getElementById('hiddenFullName').value = `${firstName} ${lastName}`.trim();
     }
-    .extra-small { font-size: 0.7rem; }
-    .fw-600 { font-weight: 600; }
-</style>
+
+    function togglePassword(id) {
+        const input = document.getElementById(id);
+        const icon = event.target;
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.replace("bi-eye", "bi-eye-slash");
+        } else {
+            input.type = "password";
+            icon.classList.replace("bi-eye-slash", "bi-eye");
+        }
+    }
+</script>
+
+</body>
+</html>

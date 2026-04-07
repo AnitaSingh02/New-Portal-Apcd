@@ -1,0 +1,133 @@
+@model List<APCD.Web.Models.APCDCapability>
+@{
+    ViewData["Title"] = "Technical Scope";
+    int currentStep = 4;
+    var appId = ViewBag.AppId;
+
+    var technologies = new[] {
+        new { Main = "ESP", Subs = new[] { "Dry ESP (Plate/Tube Type)", "Wet ESP" } },
+        new { Main = "Bag Filter/ Baghouse Systems", Subs = new[] { "Pulse Jet Baghouse", "Reverse Air Baghouse", "Mechanical Shaker Baghouse" } },
+        new { Main = "Cyclones", Subs = new[] { "Single Cyclone", "Twin Cyclone", "Multi Cyclone / Multi-Clone", "High-Efficiency Cyclone" } },
+        new { Main = "Wet Scrubber", Subs = new[] { "Venturi Scrubber", "Spray Tower / Spray Scrubber", "Packed Bed Scrubber", "Submerged Scrubber", "Multi-Stage Wet Scrubber" } },
+        new { Main = "Dry Scrubber", Subs = new[] { "Dry Sorbent Injection", "Semi-Dry Scrubber" } },
+        new { Main = "Hybrid/ other", Subs = new[] { "Hybrid ESP–Baghouse", "Hybrid Wet–Dry Scrubbers", "Electrostatic Gravel Bed", "New advance/ patented /Hybrid technologies /Others" } },
+        new { Main = "Industrial fume/dust extraction system (except APCD)", Subs = new[] { "Standard System" } }
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/application-form.css" asp-append-version="true" />
+}
+
+<div class="container py-4">
+    <div class="card wizard-container border-0 shadow-lg">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-lg-3">
+                <partial name="_WizardSidebar" model="currentStep" />
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9 bg-white">
+                <div class="wizard-main">
+                    <form asp-action="SaveCapabilities" asp-route-id="@appId" method="post">
+                        <div class="form-section-title">Step 4: Technical Scope (APCD Technologies)</div>
+                        <p class="text-muted small mb-4">Points 21 & 22: Specify the APCDs currently manufactured and those for which empanelment is sought.</p>
+
+                        <div class="table-responsive border rounded-4 overflow-hidden mb-4">
+                            <table class="table tech-matrix-table mb-0 align-middle">
+                                <thead style="background-color: #c9daf8;">
+                                    <tr>
+                                        <th style="width: 18%;">Sl. No. & Main Technology</th>
+                                        <th style="width: 25%;">Type of APCDs based on technology</th>
+                                        <th class="text-center bg-light text-dark" style="width: 12%;">Pt 21: Mfgr.<br/><small class="fw-normal">Yes/No</small></th>
+                                        <th class="text-center bg-light text-dark" style="width: 12%;">Pt 22: Apply<br/><small class="fw-normal">Yes/No</small></th>
+                                        <th class="text-center" style="width: 15%;">Pt 21: Category<br/><small class="fw-normal">(1/2/Both)</small></th>
+                                        <th style="width: 18%;">Designed Capacity<br/><small class="fw-normal">(give range)</small></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{ 
+                                        int i = 0; 
+                                        int mainTechCounter = 1;
+                                    }
+                                    @foreach (var tech in technologies)
+                                    {
+                                        bool isFirst = true;
+                                        @foreach (var sub in tech.Subs)
+                                        {
+                                            var existing = Model.FirstOrDefault(c => c.MainType == tech.Main && c.SubTech == sub);
+                                            <tr class="data-grid-row">
+                                                @if (isFirst)
+                                                {
+                                                    <td rowspan="@tech.Subs.Length" class="fw-bold bg-light">
+                                                        @mainTechCounter. @tech.Main
+                                                    </td>
+                                                    isFirst = false;
+                                                }
+                                                <td class="small pt-3 pb-3">
+                                                    @sub
+                                                    @if (sub.Contains("patented") || sub.Contains("Others"))
+                                                    {
+                                                        <div class="mt-2 pt-2 border-top border-light">
+                                                            <strong class="text-dark small mb-1 d-block">If yes, specify the type:</strong>
+                                                            <input type="text" name="capabilities[@i].TypeDetails" class="form-control form-control-sm" placeholder="__________________" value="@existing?.TypeDetails" />
+                                                        </div>
+                                                    }
+                                                </td>
+                                                <td class="text-center bg-light">
+                                                    <input type="hidden" name="capabilities[@i].MainType" value="@tech.Main" />
+                                                    <input type="hidden" name="capabilities[@i].SubTech" value="@sub" />
+                                                    <div class="form-check d-flex justify-content-center mb-0">
+                                                        <input type="checkbox" name="capabilities[@i].IsManufactured" value="true" class="form-check-input mt-0" style="width: 1.25em; height: 1.25em;" @(existing?.IsManufactured == true ? "checked" : "") />
+                                                        <input type="hidden" name="capabilities[@i].IsManufactured" value="false" />
+                                                    </div>
+                                                </td>
+                                                <td class="text-center bg-light">
+                                                    <div class="form-check d-flex justify-content-center mb-0">
+                                                        <input type="checkbox" name="capabilities[@i].IsAppliedForEmpanelment" value="true" class="form-check-input mt-0" style="width: 1.25em; height: 1.25em;" @(existing?.IsAppliedForEmpanelment == true ? "checked" : "") />
+                                                        <input type="hidden" name="capabilities[@i].IsAppliedForEmpanelment" value="false" />
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <select name="capabilities[@i].Category" class="form-select form-select-sm">
+                                                        <option value="">NA</option>
+                                                        <option value="1" selected="@(existing?.Category == "1")">1</option>
+                                                        <option value="2" selected="@(existing?.Category == "2")">2</option>
+                                                        <option value="both" selected="@(existing?.Category == "both")">Both</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input name="capabilities[@i].DesignedCapacity" class="form-control form-control-sm" placeholder="e.g. 500-2000 CFM" value="@existing?.DesignedCapacity" />
+                                                </td>
+                                            </tr>
+                                            i++;
+                                        }
+                                        mainTechCounter++;
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="alert alert-info py-3 small">
+                            <h6 class="fw-bold mb-2"><i class="bi bi-info-circle-fill me-2"></i>Note on Empanelment Categories:</h6>
+                            <b class="text-dark">Category 1:</b> APCDs installed on Boilers / Furnaces / Thermic Fluid Heaters (TFH) flue-gas emission control.<br/> 
+                            <b class="text-dark">Category 2:</b> APCDs installed on Non-Boiler / Non-Furnace / Non-TFH/ Non-heat dust/gas emission control.<br/>
+                            <span class="d-inline-block mt-2">If you have past experience in installing the relevant APCD under both Category 1 and Category 2, please select '<strong>Both</strong>' in the drop-down above. If not, please indicate category '1' or '2', as applicable.</span>
+                        </div>
+
+                        <!-- Navigation -->
+                        <div class="mt-5 pt-4 border-top d-flex justify-content-between">
+                            <a asp-action="Step3" asp-route-id="@appId" class="btn btn-wizard-prev">
+                                <i class="bi bi-arrow-left me-2"></i> Previous
+                            </a>
+                            <button type="submit" class="btn btn-wizard-next">
+                                Next Step: Financials <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

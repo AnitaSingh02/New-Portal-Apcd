@@ -1,64 +1,122 @@
 @model APCD.Web.Models.EmpanelmentApplication
-
 @{
-    ViewData["Title"] = "Upload Documents";
-    var requiredDocs = new[] { "GST Registration", "PAN Card", "Certificate of Incorporation", "Technical Spec Sheets", "ISO Quality Certificates" };
+    ViewData["Title"] = "Classifications";
+    int currentStep = 2;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/application-form.css" asp-append-version="true" />
 }
 
 <div class="container py-5">
-    <partial name="_Stepper" model="3" />
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card shadow-sm border-0 animate-fade-in">
-                <div class="card-header bg-gov-blue text-white py-3">
-                    <h5 class="mb-0 fw-bold">Document Uploads</h5>
-                </div>
-                <div class="card-body p-4">
-                    <p class="text-muted small mb-4">Please upload scanned copies of the following documents. Only PDF and JPG formats are accepted (max 5MB each).</p>
-                    
-                    <div class="table-responsive mb-4">
-                        <table class="table table-hover align-middle">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th>Document Type</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var docType in requiredDocs)
-                                {
-                                    var existing = Model.Documents.FirstOrDefault(d => d.DocumentType == docType);
-                                    <tr>
-                                        <td>@docType</td>
-                                        <td>
-                                            @if (existing != null)
-                                            {
-                                                <span class="badge bg-success">Uploaded</span>
-                                                <br /><small class="text-muted">@existing.FileName</small>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-danger">Missing</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            <form asp-action="UploadDocument" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="d-flex gap-2">
-                                                <input type="hidden" name="type" value="@docType" />
-                                                <input type="file" name="file" class="form-control form-control-sm" required />
-                                                <button type="submit" class="btn btn-sm btn-primary">Upload</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+    <div class="card wizard-container border-0 shadow-lg">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-lg-3">
+                <partial name="_WizardSidebar" model="currentStep" />
+            </div>
 
-                    <div class="mt-5 d-flex justify-content-between">
-                        <a asp-action="Step1" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Previous</a>
-                        <a asp-action="Step3" asp-route-id="@Model.Id" class="btn btn-primary px-5">Continue</a>
-                    </div>
+            <!-- Main Content -->
+            <div class="col-lg-9 bg-white">
+                <div class="wizard-main">
+                    <form asp-action="Step2" method="post" asp-route-id="@Model.Id" enctype="multipart/form-data">
+                        <div class="form-section-title">Step 2: Classifications & Certifications</div>
+                        <p class="text-muted small mb-4">Provide registration details and official certifications</p>
+
+                        <div class="row g-4">
+                            <!-- Registration Numbers -->
+                            <div class="col-md-6">
+                                <label class="form-group-label">7. GST Registration No.</label>
+                                <input type="text" class="form-control custom-input" value="@Model.User.CompanyProfile?.GSTNumber" readonly />
+                                <span class="help-text">Fetched from Company Profile</span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-group-label">8. PAN No.</label>
+                                <input type="text" class="form-control custom-input" value="@Model.User.CompanyProfile?.PANNumber" readonly />
+                                <span class="help-text">Fetched from Company Profile</span>
+                            </div>
+
+                            <!-- Special Status (Point 14 & Discount Logic) -->
+                            <div class="col-md-12 bg-light p-4 rounded-3 border">
+                                <h6 class="fw-bold mb-3"><i class="bi bi-tag-fill me-2 text-primary"></i> 14. Special Classifications (Eligible for 15% discount)</h6>
+                                <p class="extra-small text-muted mb-4">Select all applicable. Note: Benefits cannot be combined (Max 15%).</p>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="form-check form-switch mb-2">
+                                            <input asp-for="IsMSE" class="form-check-input" type="checkbox" id="mseSwitch">
+                                            <label class="form-check-label fw-semibold" for="mseSwitch">MSE (Micro/Small Enterprise)</label>
+                                        </div>
+                                        <input asp-for="UdyamRegistrationNo" class="form-control custom-input form-control-sm mt-2" placeholder="Udyam Registration No." />
+                                        <input type="file" name="mseFile" class="form-control form-control-sm mt-2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+                                        @if (Model.Documents != null && Model.Documents.Any(d => d.DocumentType == "MSECertificate")) {
+                                            <span class="badge bg-success-subtle text-success border border-success px-2 mt-1">Uploaded</span>
+                                        }
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="form-check form-switch mb-2">
+                                            <input asp-for="IsStartup" class="form-check-input" type="checkbox" id="startupSwitch">
+                                            <label class="form-check-label fw-semibold" for="startupSwitch">Recognized Startup</label>
+                                        </div>
+                                        <input asp-for="DPIITRecognitionNo" class="form-control custom-input form-control-sm mt-2" placeholder="DPIIT Recognition No." />
+                                        <input type="file" name="startupFile" class="form-control form-control-sm mt-2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+                                        @if (Model.Documents != null && Model.Documents.Any(d => d.DocumentType == "StartupCertificate")) {
+                                            <span class="badge bg-success-subtle text-success border border-success px-2 mt-1">Uploaded</span>
+                                        }
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="form-check form-switch mb-2">
+                                            <input asp-for="IsLocalSupplier" class="form-check-input" type="checkbox" id="localSwitch">
+                                            <label class="form-check-label fw-semibold" for="localSwitch">Class-I Local Supplier</label>
+                                        </div>
+                                        <span class="help-text small text-dark d-block">With ≥50% local content</span>
+                                        <input type="file" name="localSupplierFile" class="form-control form-control-sm mt-2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+                                        @if (Model.Documents != null && Model.Documents.Any(d => d.DocumentType == "LocalSupplierCertificate")) {
+                                            <span class="badge bg-success-subtle text-success border border-success px-2 mt-1">Uploaded</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Standards (Point 19) -->
+                            <div class="col-md-12">
+                                <label asp-for="ISOStandards" class="form-group-label">19. International Standards (ISO 9000/14000/etc.)</label>
+                                <textarea asp-for="ISOStandards" class="form-control custom-input mb-2" rows="2" placeholder="Please furnish details of standards qualified..."></textarea>
+                                <input type="file" name="isoStandardsFile" class="form-control form-control-sm" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+                                @if (Model.Documents != null && Model.Documents.Any(d => d.DocumentType == "ISOStandardsCertificate")) {
+                                    <span class="badge bg-success-subtle text-success border border-success px-2 mt-2">Uploaded</span>
+                                }
+                            </div>
+
+                            <!-- Blacklisting (Point 20) -->
+                            <div class="col-md-12 p-4 rounded-3 border bg-light-danger" style="background-color: #fff8f8;">
+                                <label class="form-group-label">20. Blacklisting Status</label>
+                                <div class="mb-3">
+                                    <div class="form-check form-check-inline me-4">
+                                        <input class="form-check-input" type="radio" value="false" asp-for="IsBlacklisted" id="notBlacklisted">
+                                        <label class="form-check-label" for="notBlacklisted">No, Not Blacklisted</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" value="true" asp-for="IsBlacklisted" id="isBlacklisted">
+                                        <label class="form-check-label text-danger fw-bold" for="isBlacklisted">Yes, Blacklisted</label>
+                                    </div>
+                                </div>
+                                <textarea asp-for="BlacklistDetails" class="form-control custom-input" rows="2" placeholder="If yes, provide details of government institution (Central/State) or Agency."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="mt-5 pt-4 border-top d-flex justify-content-between">
+                            <a asp-action="Step1" asp-route-id="@Model.Id" class="btn btn-wizard-prev">
+                                <i class="bi bi-arrow-left me-2"></i> Previous
+                            </a>
+                            <button type="submit" class="btn btn-wizard-next">
+                                Next Step: Key Personnel <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

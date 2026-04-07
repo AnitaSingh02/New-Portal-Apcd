@@ -1,79 +1,102 @@
-@model APCD.Web.Models.EmpanelmentApplication
-
+@model List<APCD.Web.Models.StaffDetail>
 @{
-    ViewData["Title"] = "Installation Experience";
+    ViewData["Title"] = "Key Personnel";
+    int currentStep = 3;
+    var appId = ViewBag.AppId;
+    var commercial = Model.FirstOrDefault(s => s.StaffType == "Commercial");
+    var technical = Model.FirstOrDefault(s => s.StaffType == "Technical");
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/application-form.css" asp-append-version="true" />
 }
 
 <div class="container py-5">
-    <partial name="_Stepper" model="4" />
-    <div class="row justify-content-center">
-        <div class="col-md-11">
-            <div class="card shadow-sm border-0 animate-fade-in">
-                <div class="card-header bg-gov-blue text-white py-3">
-                    <h5 class="mb-0 fw-bold">Installation Experience</h5>
-                </div>
-                <div class="card-body p-4">
-                    <p class="text-muted small mb-4">Provide details of at least 3 successful APCD installations completed by your company in the last 3 years.</p>
-                    
-                    <div class="row g-4 mb-5">
-                        <div class="col-lg-4">
-                            <div class="card bg-light border-0 p-3">
-                                <h6 class="fw-bold mb-3">Add New Record</h6>
-                                <form asp-action="AddInstallation" asp-route-id="@Model.Id" method="post">
-                                    <div class="mb-2">
-                                        <label class="form-label small fw-bold">Client Name</label>
-                                        <input type="text" name="ClientName" class="form-control form-control-sm" required />
-                                    </div>
-                                    <div class="mb-2">
-                                        <label class="form-label small fw-bold">Location (City, State)</label>
-                                        <input type="text" name="Location" class="form-control form-control-sm" required />
+    <div class="card wizard-container border-0 shadow-lg">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-lg-3">
+                <partial name="_WizardSidebar" model="currentStep" />
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9 bg-white">
+                <div class="wizard-main">
+                    <div class="form-section-title">Step 3: Details of Key Personnel</div>
+                    <p class="text-muted small mb-5">Please provide contact details of the authorized persons for Commercial and Technical matters.</p>
+
+                    <div class="row g-5">
+                        <!-- Commercial In-charge -->
+                        <div class="col-md-6">
+                            <div class="p-4 rounded-4 border h-100" style="background-color: #f8fbff;">
+                                <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-briefcase me-2"></i> 15. Commercial In-charge</h5>
+                                <form asp-action="AddStaff" asp-route-id="@appId" method="post">
+                                    <input type="hidden" name="StaffType" value="Commercial" />
+                                    <div class="mb-3">
+                                        <label class="form-group-label small">Full Name</label>
+                                        <input name="Name" class="form-control custom-input" placeholder="e.g. John Doe" value="@commercial?.Name" required />
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label small fw-bold">Installation Date</label>
-                                        <input type="date" name="InstallationDate" class="form-control form-control-sm" required />
+                                        <label class="form-group-label small">Designation</label>
+                                        <input name="Designation" class="form-control custom-input" placeholder="e.g. Manager (Sales)" value="@commercial?.Designation" required />
                                     </div>
-                                    <div class="d-grid">
-                                        <button type="submit" class="btn btn-primary btn-sm">Add Record</button>
+                                    <div class="mb-3">
+                                        <label class="form-group-label small">Mobile No.</label>
+                                        <input name="MobileNo" class="form-control custom-input" placeholder="10-digit number" value="@commercial?.MobileNo" required />
                                     </div>
+                                    <div class="mb-3">
+                                        <label class="form-group-label small">E-mail ID</label>
+                                        <input name="Email" type="email" class="form-control custom-input" placeholder="official@email.com" value="@commercial?.Email" required />
+                                    </div>
+                                    @if (commercial == null) {
+                                        <button type="submit" class="btn btn-primary btn-sm px-4">Save Commercial Details</button>
+                                    } else {
+                                        <div class="text-success small fw-bold"><i class="bi bi-check-circle-fill"></i> Details Saved</div>
+                                    }
                                 </form>
                             </div>
                         </div>
-                        <div class="col-lg-8">
-                            <h6 class="fw-bold mb-3">Recorded Installations (@Model.Installations.Count)</h6>
-                            @if (Model.Installations.Any())
-                            {
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Client</th>
-                                                <th>Location</th>
-                                                <th>Date</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var record in Model.Installations)
-                                            {
-                                                <tr>
-                                                    <td>@record.ClientName</td>
-                                                    <td>@record.Location</td>
-                                                    <td>@record.InstallationDate.ToShortDateString()</td>
-                                                </tr>
-                                            }
-                                        </tbody>
-                                    </table>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="alert alert-info py-2 small">No installation records added yet.</div>
-                            }
+
+                        <!-- Technical In-charge -->
+                        <div class="col-md-6">
+                            <div class="p-4 rounded-4 border h-100" style="background-color: #fdfdfd;">
+                                <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-tools me-2"></i> 16. Technical In-charge</h5>
+                                <form asp-action="AddStaff" asp-route-id="@appId" method="post">
+                                    <input type="hidden" name="StaffType" value="Technical" />
+                                    <div class="mb-3">
+                                        <label class="form-group-label small">Full Name</label>
+                                        <input name="Name" class="form-control custom-input" placeholder="e.g. Robert Smith" value="@technical?.Name" required />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-group-label small">Designation</label>
+                                        <input name="Designation" class="form-control custom-input" placeholder="e.g. Chief Engineer" value="@technical?.Designation" required />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-group-label small">Mobile No.</label>
+                                        <input name="MobileNo" class="form-control custom-input" placeholder="10-digit number" value="@technical?.MobileNo" required />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-group-label small">E-mail ID</label>
+                                        <input name="Email" type="email" class="form-control custom-input" placeholder="tech@email.com" value="@technical?.Email" required />
+                                    </div>
+                                    @if (technical == null) {
+                                        <button type="submit" class="btn btn-primary btn-sm px-4">Save Technical Details</button>
+                                    } else {
+                                        <div class="text-success small fw-bold"><i class="bi bi-check-circle-fill"></i> Details Saved</div>
+                                    }
+                                </form>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mt-5 d-flex justify-content-between">
-                        <a asp-action="Step2" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Previous</a>
-                        <a asp-action="Review" asp-route-id="@Model.Id" class="btn @(Model.Installations.Count >= 3 ? "btn-primary" : "btn-outline-primary disabled") px-5">Continue to Review</a>
+                    <!-- Navigation -->
+                    <div class="mt-5 pt-4 border-top d-flex justify-content-between">
+                        <a asp-action="Step2" asp-route-id="@appId" class="btn btn-wizard-prev">
+                            <i class="bi bi-arrow-left me-2"></i> Previous
+                        </a>
+                        <a asp-action="Step4" asp-route-id="@appId" class="btn btn-wizard-next">
+                            Next Step: Technical Scope <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
                     </div>
                 </div>
             </div>

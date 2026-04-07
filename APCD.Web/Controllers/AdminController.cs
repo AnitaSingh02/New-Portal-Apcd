@@ -22,7 +22,8 @@ namespace APCD.Web.Controllers
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
             IQueryable<EmpanelmentApplication> query = _context.Applications
                 .Include(a => a.User)
-                .Include(a => a.User.CompanyProfile);
+                .Include(a => a.User.CompanyProfile)
+                .Include(a => a.Payment);
 
             // Server-side filtering
             if (!string.IsNullOrEmpty(search))

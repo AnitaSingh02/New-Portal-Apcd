@@ -34,12 +34,12 @@
                     {
                         <h5 class="fw-bold mb-1 truncate">@user.CompanyProfile.CompanyName</h5>
                         <p class="small text-muted mb-3">GST: @user.CompanyProfile.GSTNumber</p>
-                        <a asp-controller="Application" asp-action="Profile" class="btn btn-sm btn-link text-decoration-none">View Profile <i class="bi bi-arrow-right"></i></a>
+                        <a asp-controller="Application" asp-action="Index" class="btn btn-sm btn-link text-decoration-none">View Profile <i class="bi bi-arrow-right"></i></a>
                     }
                     else
                     {
                         <h5 class="fw-bold text-danger mb-3">Incomplete</h5>
-                        <a asp-controller="Application" asp-action="Profile" class="btn btn-outline-primary btn-sm rounded-pill px-4">Complete Now</a>
+                        <a asp-controller="Application" asp-action="Index" class="btn btn-outline-primary btn-sm rounded-pill px-4">Complete Now</a>
                     }
                 </div>
             </div>

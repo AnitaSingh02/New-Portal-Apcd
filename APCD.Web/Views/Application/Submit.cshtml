@@ -1,56 +1,71 @@
 @model APCD.Web.Models.EmpanelmentApplication
 @{
     ViewData["Title"] = "Application Submitted";
+    int currentStep = 8;
 }
 
-<div class="container py-5 mt-5 animate-fade-in text-center">
-    <div class="row justify-content-center">
-        <div class="col-md-7">
-            <div class="card shadow border-0 rounded-4 p-5 overflow-hidden position-relative">
-                <div class="gov-stripe position-absolute top-0 start-0 end-0"></div>
-                
-                <div class="mb-4">
-                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center shadow-lg" style="width: 100px; height: 100px;">
-                        <i class="bi bi-check-lg" style="font-size: 4rem;"></i>
-                    </div>
-                </div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/application-form.css" asp-append-version="true" />
+}
 
-                <h2 class="fw-bold text-gov-blue mb-3">Application Submitted Successfully!</h2>
-                <p class="text-muted fs-5 mb-4 px-lg-5">Your empanelment application has been received. Our team will verify your details and payment information (UTR: <strong>@Model.Payment?.UTRNumber</strong>).</p>
+<div class="container py-5">
+    <div class="card wizard-container border-0 shadow-lg p-0">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-lg-3">
+                <partial name="_WizardSidebar" model="currentStep" />
+            </div>
 
-                <div class="bg-light rounded-3 p-4 mb-5 border border-success-subtle">
-                    <div class="row text-start align-items-center">
-                        <div class="col-sm-6 border-end-sm">
-                            <small class="text-muted d-block mb-1">Application ID</small>
-                            <h4 class="fw-bold text-gov-blue mb-0">#@Model.Id.ToString("0000")</h4>
-                        </div>
-                        <div class="col-sm-6 mt-3 mt-sm-0">
-                            <small class="text-muted d-block mb-1">Current Status</small>
-                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">Verification Pending</span>
+            <!-- Main Content -->
+            <div class="col-lg-9 bg-white">
+                <div class="wizard-main text-center py-5">
+                    <div class="mb-5">
+                        <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                            <i class="bi bi-check-circle-fill text-success" style="font-size: 3.5rem;"></i>
                         </div>
                     </div>
-                </div>
 
-                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
-                    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-gov-primary px-5 py-3 rounded-pill fw-bold shadow-sm">
-                        Go to Dashboard <i class="bi bi-house-door ms-1"></i>
-                    </a>
-                    <button onclick="window.print()" class="btn btn-outline-secondary px-5 py-3 rounded-pill">
-                        Print Acknowledgment <i class="bi bi-printer ms-1"></i>
-                    </button>
-                </div>
+                    <h2 class="fw-bold text-primary mb-3">Application Submitted Successfully!</h2>
+                    <p class="text-muted fs-5 mb-5 mx-lg-5 px-lg-4">Your empanelment application for the Air Pollution Control Device (APCD) Scheme has been received and is currently under review by the NPC Technical Committee.</p>
 
-                <div class="mt-5 pt-4 border-top">
-                    <p class="small text-muted">A confirmation email has been sent to <strong>@Model.User.Email</strong>.</p>
+                    <div class="row justify-content-center mb-5">
+                        <div class="col-md-6">
+                            <div class="p-4 rounded-4 border bg-light shadow-sm">
+                                <div class="small fw-bold text-muted mb-2 text-uppercase">Your Application ID</div>
+                                <h3 class="fw-bold text-dark mb-0">APC-@Model.Id.ToString("D5")</h3>
+                                <hr class="my-3">
+                                <div class="d-flex justify-content-between text-start mb-2">
+                                    <span class="small text-muted">Status</span>
+                                    <span class="badge bg-warning text-dark px-3 py-2">@Model.Status</span>
+                                </div>
+                                <div class="d-flex justify-content-between text-start">
+                                    <span class="small text-muted">Submitted On</span>
+                                    <span class="small fw-bold text-dark">@Model.SubmittedAt?.ToString("dd MMM yyyy, HH:mm")</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-primary bg-opacity-5 p-4 rounded-4 text-start mx-lg-5 mb-5">
+                        <h6 class="fw-bold mb-3">What happens next?</h6>
+                        <ul class="list-unstyled small text-dark mb-0">
+                            <li class="mb-2"><i class="bi bi-1-circle-fill text-primary me-2"></i> <strong>Document Verification:</strong> Our dealing hand will verify all your uploaded documents and payment UTR.</li>
+                            <li class="mb-2"><i class="bi bi-2-circle-fill text-primary me-2"></i> <strong>Desk Review:</strong> A technical committee will perform a desk review of your manufacturing capabilities.</li>
+                            <li class="mb-2"><i class="bi bi-3-circle-fill text-primary me-2"></i> <strong>Field Visit:</strong> A field verification team may schedule a visit to your unit location to confirm GPS and factory details.</li>
+                            <li><i class="bi bi-4-circle-fill text-primary me-2"></i> <strong>Empanelment Decision:</strong> Final empanelment status will be communicated via email and your dashboard.</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex gap-3 justify-content-center">
+                        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary-custom px-5 py-3">
+                            <i class="bi bi-speedometer2 me-2"></i> Go to Dashboard
+                        </a>
+                        <a href="javascript:window.print()" class="btn btn-outline-dark px-5 py-3">
+                            <i class="bi bi-printer me-2"></i> Print Application
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-    body { background-color: #f8f9fa; }
-    @@media (min-width: 576px) {
-        .border-end-sm { border-right: 1px solid #dee2e6 !important; }
-    }
-</style>

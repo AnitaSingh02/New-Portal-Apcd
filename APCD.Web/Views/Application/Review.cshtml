@@ -1,65 +1,87 @@
 @model APCD.Web.Models.EmpanelmentApplication
-
 @{
-    ViewData["Title"] = "Review & Submit";
+    ViewData["Title"] = "Application Review";
+    int currentStep = 6;
 }
 
-<div class="container py-5">
-    <partial name="_Stepper" model="5" />
-    <div class="row justify-content-center">
-        <div class="col-md-11">
-            <div class="card shadow-sm border-0 animate-fade-in">
-                <div class="card-header bg-gov-blue text-white py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">Final Review & Submission</h5>
-                    <span class="badge bg-warning text-dark">Status: @Model.Status</span>
-                </div>
-                <div class="card-body p-4">
-                    <div class="alert alert-warning mb-4 py-2 small">
-                        Please review all the information below carefully. Once submitted, you will not be able to edit your application.
-                    </div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/application-form.css" asp-append-version="true" />
+}
+
+<div class="container py-4">
+    <div class="card wizard-container border-0 shadow-lg">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-lg-3">
+                <partial name="_WizardSidebar" model="currentStep" />
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9 bg-white">
+                <div class="wizard-main">
+                    <div class="form-section-title">Step 6: Review Application Summary</div>
+                    <p class="text-muted small mb-5">Please verify all the details provided across the 25 points of the application.</p>
 
                     <div class="row g-4">
-                        <div class="col-md-6">
-                            <div class="border rounded p-3 h-100">
-                                <h6 class="fw-bold mb-3 border-bottom pb-2 text-primary">Company Info</h6>
-                                <p class="mb-1 small"><strong>Name:</strong> @Model.User.FullName</p>
-                                <p class="mb-1 small"><strong>Email:</strong> @Model.User.Email</p>
-                                <p class="mb-1 small"><strong>Categories:</strong> @Model.SelectedAPCDCategories</p>
+                        <!-- 1. Applicant Details Summary -->
+                        <div class="col-md-12">
+                            <div class="p-4 rounded-4 border bg-light shadow-sm mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h5 class="fw-bold text-primary mb-0"><i class="bi bi-info-circle me-2"></i> Company & Firm Details</h5>
+                                    <a asp-action="Step1" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary py-1 px-3">Edit</a>
+                                </div>
+                                <div class="row g-4">
+                                    <div class="col-md-4">
+                                        <span class="small text-muted d-block fw-bold">Company Name</span>
+                                        <span class="small">@Model.User.CompanyProfile?.CompanyName</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <span class="small text-muted d-block fw-bold">Firm Type</span>
+                                        <span class="small">@(Model.User.CompanyProfile?.FirmType ?? "-")</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <span class="small text-muted d-block fw-bold">Firm Size</span>
+                                        <span class="small">@(Model.User.CompanyProfile?.FirmSize ?? "-")</span>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <span class="small text-muted d-block fw-bold">Office Address</span>
+                                        <span class="small text-dark">@Model.User.CompanyProfile?.OfficeAddress, @Model.User.CompanyProfile?.State, PIN-@Model.User.CompanyProfile?.PinCode</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <span class="small text-muted d-block fw-bold">GPS Coordinates</span>
+                                        <span class="small text-dark">Lat: @Model.User.CompanyProfile?.Latitude, Long: @Model.User.CompanyProfile?.Longitude</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="border rounded p-3 h-100">
-                                <h6 class="fw-bold mb-3 border-bottom pb-2 text-primary">Documents (@Model.Documents.Count)</h6>
-                                <ul class="list-unstyled mb-0 small">
-                                    @foreach (var doc in Model.Documents)
-                                    {
-                                        <li class="d-flex justify-content-between align-items-center mb-1">
-                                            <span><i class="bi bi-file-earmark-check text-success me-1"></i> @doc.DocumentType</span>
-                                            <a href="@doc.FilePath" target="_blank" class="text-decoration-none extra-small"><i class="bi bi-eye"></i> View</a>
-                                        </li>
-                                    }
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="border rounded p-3">
-                                <h6 class="fw-bold mb-3 border-bottom pb-2 text-primary">Installation Records (@Model.Installations.Count)</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-sm text-muted small">
-                                        <thead>
+
+                        <!-- 2. Technical Capabilities Summary -->
+                        <div class="col-md-12">
+                            <div class="p-4 rounded-4 border bg-white shadow-sm mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="fw-bold text-primary mb-0"><i class="bi bi-tools me-2"></i> Selected APCD Technologies</h5>
+                                    <a asp-action="Step4" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary py-1 px-3">Edit</a>
+                                </div>
+                                <div class="table-responsive rounded-3 bg-white border">
+                                    <table class="table table-bordered mb-0 align-middle">
+                                        <thead class="bg-gov-blue text-white">
                                             <tr>
-                                                <th>Client</th>
-                                                <th>Location</th>
-                                                <th>Date</th>
+                                                <th class="small py-2">Technology</th>
+                                                <th class="small py-2 text-center">In Manufacturing</th>
+                                                <th class="small py-2 text-center">Applied for Empanelment</th>
+                                                <th class="small py-2 text-center">Category</th>
+                                                <th class="small py-2">Capacity</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach (var record in Model.Installations)
+                                            @foreach (var cap in Model.Capabilities.Where(c => c.IsManufactured || c.IsAppliedForEmpanelment))
                                             {
                                                 <tr>
-                                                    <td>@record.ClientName</td>
-                                                    <td>@record.Location</td>
-                                                    <td>@record.InstallationDate.ToShortDateString()</td>
+                                                    <td class="small fw-bold">@cap.MainType <br><small class="text-muted fw-normal">@cap.SubTech</small></td>
+                                                    <td class="text-center">@(cap.IsManufactured ? "Yes" : "No")</td>
+                                                    <td class="text-center text-primary fw-bold">@(cap.IsAppliedForEmpanelment ? "Yes" : "No")</td>
+                                                    <td class="text-center">@cap.Category</td>
+                                                    <td class="small">@cap.DesignedCapacity</td>
                                                 </tr>
                                             }
                                         </tbody>
@@ -67,33 +89,91 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="mt-5 p-4 bg-light rounded">
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="declaration" required />
-                            <label class="form-check-label small" for="declaration">
-                                I hereby declare that all information provided in this application is true and correct to the best of my knowledge and belief. I understand that any false information may lead to rejection of this application.
-                            </label>
+                        <!-- 3. Key Classifications Summary -->
+                        <div class="col-md-12">
+                            <div class="p-4 rounded-4 border bg-light shadow-sm mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h5 class="fw-bold text-primary mb-0"><i class="bi bi-patch-check me-2"></i> Classifications & Discounts</h5>
+                                    <a asp-action="Step2" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary py-1 px-3">Edit</a>
+                                </div>
+                                <div class="row g-4">
+                                    <div class="col-md-3">
+                                        <span class="small text-muted d-block fw-bold">MSE Status</span>
+                                        <span class="badge @(Model.IsMSE ? "bg-success" : "bg-secondary") py-2 px-3">@(Model.IsMSE ? "Enabled" : "Disabled")</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="small text-muted d-block fw-bold">Startup Status</span>
+                                        <span class="badge @(Model.IsStartup ? "bg-success" : "bg-secondary") py-2 px-3">@(Model.IsStartup ? "Enabled" : "Disabled")</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="small text-muted d-block fw-bold">Local Supplier Status</span>
+                                        <span class="badge @(Model.IsLocalSupplier ? "bg-success" : "bg-secondary") py-2 px-3">@(Model.IsLocalSupplier ? "Enabled" : "Disabled")</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="p-2 border border-primary rounded-3 text-center bg-white h-100">
+                                            <span class="small text-muted d-block fw-bold">Eligible Discount</span>
+                                            <h4 class="text-primary mb-0 fw-bold">@(Model.IsMSE || Model.IsStartup || Model.IsLocalSupplier ? "15%" : "0%")</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. Personnel Summary -->
+                        <div class="col-md-6">
+                            <div class="p-4 rounded-4 border bg-white shadow-sm h-100">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="fw-bold text-primary mb-0"><i class="bi bi-people me-2"></i> Personnel Summary</h5>
+                                    <a asp-action="Step3" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary py-1 px-3">Edit</a>
+                                </div>
+                                @foreach (var staff in Model.StaffDetails)
+                                {
+                                    <div class="mb-3 p-2 bg-light rounded-3">
+                                        <span class="small fw-bold d-block text-muted">@staff.StaffType In-charge</span>
+                                        <span class="small">@staff.Name (@staff.Designation)</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- 5. History & Certs Summary -->
+                        <div class="col-md-6">
+                            <div class="p-4 rounded-4 border bg-white shadow-sm h-100">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="fw-bold text-primary mb-0"><i class="bi bi-clipboard-check me-2"></i> Documents Submitted</h5>
+                                    <a asp-action="Step5" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary py-1 px-3">Edit</a>
+                                </div>
+                                <div class="small">
+                                    <ul class="list-unstyled mb-0">
+                                        @foreach (var doc in Model.Documents)
+                                        {
+                                            <li class="mb-2"><i class="bi bi-file-earmark-pdf me-2 text-danger"></i> @doc.DocumentType</li>
+                                        }
+                                        @if (!Model.Documents.Any())
+                                        {
+                                            <p class="text-muted italic">No documents uploaded yet.</p>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mt-4 d-flex justify-content-between">
-                        <a asp-action="Step3" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Previous</a>
-                        @if (Model.Payment == null)
-                        {
-                            <a asp-action="Payment" asp-route-id="@Model.Id" class="btn btn-gov-primary px-5 fw-bold shadow-sm">
-                                Proceed to Payment <i class="bi bi-arrow-right ms-1"></i>
-                            </a>
-                        }
-                        else
-                        {
-                            <form asp-action="Submit" asp-route-id="@Model.Id" method="post">
-                                <button type="submit" class="btn btn-success px-5 fw-bold shadow-sm">
-                                    Final Submit <i class="bi bi-send ms-1"></i>
-                                </button>
-                            </form>
-                        }
+                    <!-- Final Submission Notice -->
+                    <div class="alert alert-warning border-warning border-3 mt-5 p-4 rounded-4">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-exclamation-triangle-fill me-2"></i> Final Confirmation</h6>
+                        <p class="small mb-0 text-dark">By clicking 'Proceed to Payment', you confirm that all information provided is accurate and all supporting audited certificates are valid. Furnishing false information may lead to permanent blacklisting and legal action.</p>
+                    </div>
+
+                    <!-- Navigation -->
+                    <div class="mt-5 pt-4 border-top d-flex justify-content-between">
+                        <a asp-action="Step5" asp-route-id="@Model.Id" class="btn btn-wizard-prev">
+                            <i class="bi bi-arrow-left me-2"></i> Previous
+                        </a>
+                        <a asp-action="Payment" asp-route-id="@Model.Id" class="btn btn-wizard-next">
+                            Proceed to Payment <i class="bi bi-credit-card ms-2"></i>
+                        </a>
                     </div>
                 </div>
             </div>

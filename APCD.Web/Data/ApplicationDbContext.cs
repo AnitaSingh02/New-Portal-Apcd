@@ -17,6 +17,8 @@ namespace APCD.Web.Data
         public DbSet<StaffDetail> StaffDetails { get; set; }
         public DbSet<ApplicationDocument> ApplicationDocuments { get; set; }
         public DbSet<ApplicationRemark> ApplicationRemarks { get; set; }
+        public DbSet<TurnoverRecord> TurnoverRecords { get; set; }
+        public DbSet<APCDCapability> APCDCapabilities { get; set; }
         public DbSet<PaymentDetail> PaymentDetails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,87 +1,135 @@
 @model APCD.Web.Models.PaymentDetail
 @{
-    ViewData["Title"] = "Payment Acknowledgment";
+    ViewData["Title"] = "Fee Payment";
+    int currentStep = 7;
 }
 
-<div class="container py-5">
-    <partial name="_Stepper" model="6" />
-    <div class="row justify-content-center">
-        <div class="col-md-9">
-            <div class="card shadow border-0 rounded-4 overflow-hidden animate-fade-in">
-                <div class="card-header bg-gov-blue text-white py-3">
-                    <h5 class="mb-0 fw-bold">Empanelment Fee Acknowledgment</h5>
-                </div>
-                <div class="card-body p-4 p-lg-5">
-                    
-                    <!-- Invoice Breakdown -->
-                    <div class="row mb-5">
-                        <div class="col-lg-7">
-                            <h6 class="fw-bold text-muted mb-4 text-uppercase small letter-spacing">Invoice Summary</h6>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Base Application Fee</span>
-                                <span class="fw-600">₹@ViewBag.BaseFee.ToString("N0")</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
-                                <span>Product Fees (@ViewBag.CategoryCount categories)</span>
-                                <span class="fw-600">₹@ViewBag.ProductFees.ToString("N0")</span>
-                            </div>
-                            <div class="d-flex justify-content-between mt-2">
-                                <span class="text-muted">Subtotal</span>
-                                <span class="fw-bold">₹@((ViewBag.BaseFee + ViewBag.ProductFees).ToString("N0"))</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-4">
-                                <span class="text-muted">GST (18%)</span>
-                                <span class="text-muted">₹@ViewBag.GST.ToString("N0")</span>
-                            </div>
-                            <div class="d-flex justify-content-between p-3 bg-light rounded-3 border-start border-4 border-gov-gold">
-                                <span class="fw-bold">Total Amount Payable</span>
-                                <h4 class="fw-bold text-gov-blue mb-0">₹@ViewBag.Total.ToString("N0")</h4>
-                            </div>
-                        </div>
-                        <div class="col-lg-5 d-none d-lg-flex align-items-center justify-content-center">
-                            <div class="text-center p-4 bg-light rounded-4 w-100 border border-dashed">
-                                <i class="bi bi-receipt text-gov-blue opacity-25" style="font-size: 5rem;"></i>
-                            </div>
-                        </div>
-                    </div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/application-form.css" asp-append-version="true" />
+}
 
-                    <div class="row g-4 mb-5">
-                        <div class="col-md-7">
-                            <div class="p-4 bg-gov-light-blue rounded-4 border-0">
-                                <h6 class="fw-bold text-gov-blue mb-3"><i class="bi bi-bank me-2"></i>Bank Details for NEFT/RTGS</h6>
-                                <div class="small text-muted mb-1">Bank Name</div>
-                                <div class="fw-bold mb-2">State Bank of India</div>
-                                <div class="small text-muted mb-1">Account Name</div>
-                                <div class="fw-bold mb-2">National Productivity Council (NPC)</div>
-                                <div class="small text-muted mb-1">Account Number</div>
-                                <div class="fw-bold mb-2">1234567890</div>
-                                <div class="small text-muted mb-1">IFSC Code</div>
-                                <div class="fw-bold">SBIN0001234</div>
-                            </div>
-                        </div>
-                        <div class="col-md-5 text-center">
-                            <h6 class="fw-bold mb-3">Scan to pay via UPI</h6>
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=npcindia@sbi&pn=NPC&am=@ViewBag.Total" class="img-fluid rounded border p-2 mb-2 shadow-sm" alt="Payment QR" />
-                            <p class="extra-small text-muted mb-0">Powered by BharatQR</p>
-                        </div>
-                    </div>
+<div class="container py-4">
+    <div class="card wizard-container border-0 shadow-lg">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-lg-3">
+                <partial name="_WizardSidebar" model="currentStep" />
+            </div>
 
-                    <form asp-action="Payment" asp-route-id="@Model.ApplicationId" method="post">
-                        <input type="hidden" name="Amount" value="@ViewBag.Total" />
+            <!-- Main Content -->
+            <div class="col-lg-9 bg-white">
+                <div class="wizard-main">
+                    <form asp-action="Payment" method="post" asp-route-id="@Model.ApplicationId">
+                        <input type="hidden" asp-for="Amount" />
+                        <input type="hidden" asp-for="APCDTypesCount" />
                         
-                        <div class="mb-4">
-                            <label class="form-label fw-bold text-gov-blue">Transaction Reference / UTR Number</label>
-                            <div class="input-group input-group-lg shadow-sm">
-                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-hash text-muted"></i></span>
-                                <input type="text" name="UTRNumber" class="form-control border-start-0 fs-5" placeholder="Enter bank reference number" required />
-                            </div>
-                            <div class="form-text mt-2"><i class="bi bi-info-circle me-1"></i> Please provide the 12-digit UTR number shared by your bank for verification.</div>
+                        <div class="form-section-title">25. Online payment details</div>
+                        <p class="text-muted small mb-4">Provide details for both Application and Empanelment fee transactions.</p>
+
+                        <!-- APPLICATION FEES -->
+                        <div class="table-responsive mb-4 rounded border overflow-hidden">
+                            <table class="table table-bordered align-middle mb-0">
+                                <thead style="background-color: #c9daf8;">
+                                    <tr>
+                                        <th colspan="2" class="fw-bold py-2 text-dark border-0">
+                                            Application Fees (₹25,000 plus applicable GST @@ 18%, non-refundable) *
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if(ViewBag.AppFeeDiscount > 0)
+                                    {
+                                        <tr>
+                                            <td colspan="2" class="text-success small bg-success bg-opacity-10 py-1">
+                                                <i class="bi bi-info-circle-fill me-1"></i> Eligible for ₹@ViewBag.AppFeeDiscount.ToString("N2") GoI Policy Discount (15%) - <strong>Will be reimbursed later.</strong> Full amount required upfront.
+                                            </td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td style="width: 40%;">Amount required (in ₹)</td>
+                                        <td class="fw-bold text-primary">₹@ViewBag.AppFeeTotal.ToString("N2")</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Amount Deposited</td>
+                                        <td class="p-0"><input asp-for="AppFeeAmountDeposited" class="form-control border-0 rounded-0 shadow-none px-2" required /></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Name of the remitter Bank</td>
+                                        <td class="p-0"><input asp-for="AppFeeRemitterBank" class="form-control border-0 rounded-0 shadow-none px-2" required /></td>
+                                    </tr>
+                                    <tr>
+                                        <td>UTR / NEFT no</td>
+                                        <td class="p-0"><input asp-for="AppFeeUTRNumber" class="form-control border-0 rounded-0 shadow-none px-2 text-uppercase" required /></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Date of payment</td>
+                                        <td class="p-0"><input asp-for="AppFeePaymentDate" type="date" class="form-control border-0 rounded-0 shadow-none px-2" required /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
 
-                        <div class="d-flex justify-content-between mt-5 pt-3 border-top">
-                            <a asp-action="Review" asp-route-id="@Model.ApplicationId" class="btn btn-link text-muted text-decoration-none">← Back to Review</a>
-                            <button type="submit" class="btn btn-gov-primary btn-lg px-5 shadow-sm rounded-pill font-weight-bold">
-                                Confirm & Submit Application <i class="bi bi-arrow-right-short ms-1"></i>
+                        <!-- EMPANELMENT FEES -->
+                        <div class="table-responsive mb-4 rounded border overflow-hidden">
+                            <table class="table table-bordered align-middle mb-0">
+                                <thead style="background-color: #c9daf8;">
+                                    <tr>
+                                        <th colspan="2" class="fw-bold py-2 text-dark border-0">
+                                            Empanelment Fees (₹65,000 plus applicable GST @@ 18% per unit, non-refundable) *
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if(ViewBag.EmpFeeDiscount > 0)
+                                    {
+                                        <tr>
+                                            <td colspan="2" class="text-success small bg-success bg-opacity-10 py-1">
+                                                <i class="bi bi-info-circle-fill me-1"></i> Eligible for ₹@ViewBag.EmpFeeDiscount.ToString("N2") GoI Policy Discount (15%) - <strong>Will be reimbursed later.</strong> Full amount required upfront.
+                                            </td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td style="width: 40%;">Number of APCD types applied for empanelment.</td>
+                                        <td class="fw-bold fs-5 px-2">@ViewBag.APCDCount</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Amount required (in ₹)</td>
+                                        <td class="fw-bold text-primary px-2">₹@ViewBag.EmpFeeTotal.ToString("N2")</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Amount Deposited</td>
+                                        <td class="p-0"><input asp-for="EmpFeeAmountDeposited" class="form-control border-0 rounded-0 shadow-none px-2" required /></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Name of the remitter Bank</td>
+                                        <td class="p-0"><input asp-for="EmpFeeRemitterBank" class="form-control border-0 rounded-0 shadow-none px-2" required /></td>
+                                    </tr>
+                                    <tr>
+                                        <td>UTR / NEFT no</td>
+                                        <td class="p-0"><input asp-for="EmpFeeUTRNumber" class="form-control border-0 rounded-0 shadow-none px-2 text-uppercase" required /></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Date of payment</td>
+                                        <td class="p-0"><input asp-for="EmpFeePaymentDate" type="date" class="form-control border-0 rounded-0 shadow-none px-2" required /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="alert alert-info py-3 px-4 rounded-3 border-0 mt-2 small">
+                            <h6 class="fw-bold mb-2"><i class="bi bi-info-square-fill me-2"></i> Bank Details for Payment</h6>
+                            <p class="mb-1"><strong>Account Name:</strong> National Productivity Council</p>
+                            <p class="mb-1"><strong>Bank Name:</strong> Axis Bank Ltd, Lodhi Road, New Delhi</p>
+                            <p class="mb-1"><strong>Account Number:</strong> 911010041400000 | <strong>IFSC Code:</strong> UTIB0000007</p>
+                        </div>
+
+                        <!-- Navigation -->
+                        <div class="mt-5 pt-4 border-top d-flex justify-content-between">
+                            <a asp-action="Review" asp-route-id="@Model.ApplicationId" class="btn btn-wizard-prev">
+                                <i class="bi bi-arrow-left me-2"></i> Previous
+                            </a>
+                            <button type="submit" class="btn btn-wizard-next">
+                                Final Step: Finalize Submit <i class="bi bi-check2-all ms-2"></i>
                             </button>
                         </div>
                     </form>
@@ -90,8 +138,3 @@
         </div>
     </div>
 </div>
-
-<style>
-    .letter-spacing { letter-spacing: 1px; }
-    .extra-small { font-size: 0.75rem; }
-</style>
