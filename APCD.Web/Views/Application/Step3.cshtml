@@ -89,15 +89,45 @@
                         </div>
                     </div>
 
-                    <!-- Navigation -->
-                    <div class="mt-5 pt-4 border-top d-flex justify-content-between">
-                        <a asp-action="Step2" asp-route-id="@appId" class="btn btn-wizard-prev">
-                            <i class="bi bi-arrow-left me-2"></i> Previous
-                        </a>
-                        <a asp-action="Step4" asp-route-id="@appId" class="btn btn-wizard-next">
-                            Next Step: Technical Scope <i class="bi bi-arrow-right ms-2"></i>
-                        </a>
-                    </div>
+                    <!-- Organization Documents -->
+                    <form asp-action="SaveStep3Docs" asp-route-id="@appId" method="post" enctype="multipart/form-data">
+                        <div class="row g-4 mt-4">
+                            <div class="col-md-12">
+                                <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-diagram-3 me-2"></i> Section G: Organization Documents</h5>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded-3 bg-light h-100">
+                                    <label class="form-group-label">20. Organizational Chart</label>
+                                    <input type="file" name="orgChartFile" class="form-control form-control-sm mt-2" accept=".pdf" />
+                                    @{ var docs = ViewBag.Documents as List<APCD.Web.Models.ApplicationDocument>; }
+                                    @if (docs != null && docs.Any(d => d.DocumentType == "OrganizationalChart")) {
+    var tmpDoc = docs.First(d => d.DocumentType == "OrganizationalChart");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded-3 bg-light h-100">
+                                    <label class="form-group-label">21. Staff Qualification Details (Annexure-7)</label>
+                                    <input type="file" name="staffQualFile" class="form-control form-control-sm mt-2" accept=".pdf" />
+                                    @if (docs != null && docs.Any(d => d.DocumentType == "StaffQualification")) {
+    var tmpDoc = docs.First(d => d.DocumentType == "StaffQualification");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation -->
+                        <div class="mt-5 pt-4 border-top d-flex justify-content-between">
+                            <a asp-action="Step2" asp-route-id="@appId" class="btn btn-wizard-prev">
+                                <i class="bi bi-arrow-left me-2"></i> Previous
+                            </a>
+                            <button type="submit" class="btn btn-wizard-next">
+                                Save & Next Step: Technical Scope <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

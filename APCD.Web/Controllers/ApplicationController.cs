@@ -24,17 +24,46 @@ namespace APCD.Web.Controllers
         public async Task<IActionResult> Index()
         {
             var userId = GetUserId();
-            var application = await _context.Applications
-                .FirstOrDefaultAsync(a => a.UserId == userId && a.Status == "Draft");
+            
+            // Reject attempts to start new forms if they have an active running application
+            var existingActive = await _context.Applications
+                .Where(a => a.UserId == userId && a.Status != "Rejected")
+                .OrderByDescending(a => a.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            if (existingActive != null && existingActive.Status != "Draft")
+            {
+                return RedirectToAction("Index", "Dashboard");
+            }
+
+            var application = existingActive;
 
             if (application == null)
             {
-                application = new EmpanelmentApplication { UserId = userId, Status = "Draft" };
+                application = new EmpanelmentApplication { UserId = userId, Status = "Draft", CurrentStep = 1 };
                 _context.Applications.Add(application);
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction("Step1", new { id = application.Id });
+            return RedirectToAction("Resume", new { id = application.Id });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Resume(int id)
+        {
+            var application = await _context.Applications.FindAsync(id);
+            if (application == null || application.UserId != GetUserId()) return RedirectToAction("Index", "Dashboard");
+            if (application.Status != "Draft") return RedirectToAction("Review", new { id });
+
+            return application.CurrentStep switch
+            {
+                2 => RedirectToAction("Step2", new { id }),
+                3 => RedirectToAction("Step3", new { id }),
+                4 => RedirectToAction("Step4", new { id }),
+                5 => RedirectToAction("Step5", new { id }),
+                6 => RedirectToAction("Review", new { id }),
+                _ => RedirectToAction("Step1", new { id })
+            };
         }
 
         #region Step 1: Company Profile (Points 1-6, 9-13)
@@ -73,6 +102,11 @@ namespace APCD.Web.Controllers
             else
                 _context.CompanyProfiles.Add(profile);
 
+            var app = await _context.Applications.FindAsync(id);
+            if (app != null) {
+                app.CurrentStep = Math.Max(app.CurrentStep, 2);
+            }
+
             await _context.SaveChangesAsync();
             return RedirectToAction("Step2", new { id });
         }
@@ -106,34 +140,18 @@ namespace APCD.Web.Controllers
             application.IsLocalSupplier = model.IsLocalSupplier;
             application.IsStartup = model.IsStartup;
             application.DPIITRecognitionNo = model.DPIITRecognitionNo ?? string.Empty;
+            application.CurrentStep = Math.Max(application.CurrentStep, 3);
 
-            var isoStandardsFile = Request.Form.Files["isoStandardsFile"];
-            if (isoStandardsFile != null && isoStandardsFile.Length > 0)
-            {
-                var path = await SaveFileAsync(isoStandardsFile, "Certifications");
-                await AddOrUpdateDocument(id, "ISOStandardsCertificate", isoStandardsFile.FileName, path);
-            }
+            string oemFolder = await GetOEMFolderName(id);
 
-            var mseFile = Request.Form.Files["mseFile"];
-            if (mseFile != null && mseFile.Length > 0)
-            {
-                var path = await SaveFileAsync(mseFile, "Certifications");
-                await AddOrUpdateDocument(id, "MSECertificate", mseFile.FileName, path);
-            }
-
-            var startupFile = Request.Form.Files["startupFile"];
-            if (startupFile != null && startupFile.Length > 0)
-            {
-                var path = await SaveFileAsync(startupFile, "Certifications");
-                await AddOrUpdateDocument(id, "StartupCertificate", startupFile.FileName, path);
-            }
-
-            var localSupplierFile = Request.Form.Files["localSupplierFile"];
-            if (localSupplierFile != null && localSupplierFile.Length > 0)
-            {
-                var path = await SaveFileAsync(localSupplierFile, "Certifications");
-                await AddOrUpdateDocument(id, "LocalSupplierCertificate", localSupplierFile.FileName, path);
-            }
+            await ProcessFileUpload(id, "isoStandardsFile", "ISOStandardsCertificate", oemFolder);
+            await ProcessFileUpload(id, "mseFile", "MSECertificate", oemFolder);
+            await ProcessFileUpload(id, "startupFile", "StartupCertificate", oemFolder);
+            await ProcessFileUpload(id, "localSupplierFile", "LocalSupplierCertificate", oemFolder);
+            await ProcessFileUpload(id, "coRegFile", "CompanyRegistration", oemFolder);
+            await ProcessFileUpload(id, "gstinFile", "GSTINCertificate", oemFolder);
+            await ProcessFileUpload(id, "panFile", "PANCard", oemFolder);
+            await ProcessFileUpload(id, "ctoFile", "CTOCertificate", oemFolder);
 
             await _context.SaveChangesAsync();
             return RedirectToAction("Step3", new { id });
@@ -146,6 +164,7 @@ namespace APCD.Web.Controllers
         {
             var staff = await _context.StaffDetails.Where(s => s.ApplicationId == id).ToListAsync();
             ViewBag.AppId = id;
+            ViewBag.Documents = await _context.ApplicationDocuments.Where(d => d.ApplicationId == id).ToListAsync();
             return View(staff);
         }
 
@@ -181,6 +200,18 @@ namespace APCD.Web.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction("Step3", new { id });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveStep3Docs(int id)
+        {
+            string oemFolder = await GetOEMFolderName(id);
+            await ProcessFileUpload(id, "orgChartFile", "OrganizationalChart", oemFolder);
+            await ProcessFileUpload(id, "staffQualFile", "StaffQualification", oemFolder);
+            var application = await _context.Applications.FindAsync(id);
+            if (application != null) application.CurrentStep = Math.Max(application.CurrentStep, 4);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Step4", new { id });
+        }
         #endregion
 
         #region Step 4: Technical Scope (Points 21, 22)
@@ -188,12 +219,15 @@ namespace APCD.Web.Controllers
         public async Task<IActionResult> Step4(int id)
         {
             var capabilities = await _context.APCDCapabilities.Where(c => c.ApplicationId == id).ToListAsync();
+            var installations = await _context.InstallationRecords.Where(i => i.ApplicationId == id).ToListAsync();
             ViewBag.AppId = id;
+            ViewBag.Documents = await _context.ApplicationDocuments.Where(d => d.ApplicationId == id).ToListAsync();
+            ViewBag.Installations = installations;
             return View(capabilities);
         }
 
         [HttpPost]
-        public async Task<IActionResult> SaveCapabilities(int id, List<APCDCapability> capabilities)
+        public async Task<IActionResult> SaveCapabilities(int id, List<APCDCapability> capabilities, List<InstallationRecord> installations)
         {
             var existing = await _context.APCDCapabilities.Where(c => c.ApplicationId == id).ToListAsync();
             _context.APCDCapabilities.RemoveRange(existing);
@@ -203,10 +237,65 @@ namespace APCD.Web.Controllers
                 if (!string.IsNullOrWhiteSpace(cap.DesignedCapacity))
                 {
                     cap.ApplicationId = id;
+                    cap.MainType = cap.MainType ?? string.Empty;
+                    cap.SubTech = cap.SubTech ?? string.Empty;
+                    cap.Category = cap.Category ?? string.Empty;
+                    cap.TypeDetails = cap.TypeDetails ?? string.Empty;
                     _context.APCDCapabilities.Add(cap);
                 }
             }
+
+            // Save installations
+            if (installations != null && installations.Any())
+            {
+                var existingInstalls = await _context.InstallationRecords.Where(i => i.ApplicationId == id).ToListAsync();
+                _context.InstallationRecords.RemoveRange(existingInstalls);
+
+                string oemFolderInner = await GetOEMFolderName(id);
+
+                int j = 0;
+                foreach (var inst in installations)
+                {
+                    if (!string.IsNullOrWhiteSpace(inst.ClientName) || 
+                        !string.IsNullOrWhiteSpace(inst.ApcdType) || 
+                        inst.Year.HasValue)
+                    {
+                        var certFile = Request.Form.Files[$"PerformanceCertFile_{j}"];
+                        if (certFile != null && certFile.Length > 0)
+                        {
+                            var path = await SaveFileAsync(certFile, oemFolderInner);
+                            inst.PerformanceCertPath = path;
+                        }
+
+                        // Protect against NULL constraint crashes from empty bounds
+                        inst.ClientName = inst.ClientName ?? string.Empty;
+                        inst.ApcdType = inst.ApcdType ?? string.Empty;
+                        inst.Capacity = inst.Capacity ?? string.Empty;
+                        inst.PerformanceResult = inst.PerformanceResult ?? string.Empty;
+                        inst.PerformanceCertPath = inst.PerformanceCertPath ?? string.Empty;
+                        inst.Location = inst.Location ?? string.Empty;
+
+                        inst.ApplicationId = id;
+                        _context.InstallationRecords.Add(inst);
+                    }
+                    j++;
+                }
+            }
             
+            string oemFolder = await GetOEMFolderName(id);
+            
+            await ProcessFileUpload(id, "productDatasheetFile", "ProductDatasheet", oemFolder);
+            await ProcessFileUpload(id, "gaDrawingFile", "GADrawing", oemFolder);
+            await ProcessFileUpload(id, "processFlowFile", "ProcessFlowDiagram", oemFolder);
+            await ProcessFileUpload(id, "techCatalogueFile", "TechnicalCatalogue", oemFolder);
+            await ProcessFileUpload(id, "designCalcFile", "DesignCalculation", oemFolder);
+            await ProcessFileUpload(id, "materialConstructionFile", "MaterialOfConstruction", oemFolder);
+            await ProcessFileUpload(id, "warrantyFile", "WarrantyDocument", oemFolder);
+            await ProcessFileUpload(id, "installationExpFile", "InstallationExperience", oemFolder);
+
+            var appModel = await _context.Applications.FindAsync(id);
+            if (appModel != null) appModel.CurrentStep = Math.Max(appModel.CurrentStep, 5);
+
             await _context.SaveChangesAsync();
             return RedirectToAction("Step5", new { id });
         }
@@ -238,6 +327,8 @@ namespace APCD.Web.Controllers
             application.HasGrievanceSystem = hasGrievance;
 
             var turnoverYears = new[] { "2022-23", "2023-24", "2024-25" };
+            string oemFolder = await GetOEMFolderName(id);
+
             foreach (var year in turnoverYears)
             {
                 var amountStr = Request.Form[$"TurnoverAmount_{year}"];
@@ -252,52 +343,51 @@ namespace APCD.Web.Controllers
                     }
                     turnover.Amount = amount;
                 }
-
-                var certFile = Request.Form.Files[$"TurnoverCert_{year}"];
-                if (certFile != null && certFile.Length > 0)
-                {
-                    var path = await SaveFileAsync(certFile, "TurnoverCerts");
-                    await AddOrUpdateDocument(id, $"TurnoverCert_{year}", certFile.FileName, path);
-                    var turnover = application.Turnovers.FirstOrDefault(t => t.FinancialYear == year);
-                    if(turnover != null) turnover.AuditCertificatePath = path;
-                }
             }
 
-            var bankSolvencyFile = Request.Form.Files["bankSolvencyFile"];
-            if (bankSolvencyFile != null && bankSolvencyFile.Length > 0)
+            // Save single consolidated turnover document
+            await ProcessFileUpload(id, "consolidatedTurnoverFile", "ConsolidatedTurnover", oemFolder);
+
+            await ProcessFileUpload(id, "bankSolvencyFile", "BankSolvency", oemFolder);
+            await ProcessFileUpload(id, "bankAccountFile", "BankAccountDetails", oemFolder);
+            await ProcessFileUpload(id, "serviceSupportFile", "ServiceSupportUndertaking", oemFolder);
+            await ProcessFileUpload(id, "nonBlacklistingFile", "NonBlacklistingUndertaking", oemFolder);
+            await ProcessFileUpload(id, "testCertificateFile", "TestCertificate", oemFolder);
+            await ProcessFileUpload(id, "gstFilingFile", "GSTFiling", oemFolder);
+            await ProcessFileUpload(id, "noLegalDisputesFile", "NoLegalDisputes", oemFolder);
+            await ProcessFileUpload(id, "complaintPolicyFile", "ComplaintPolicy", oemFolder);
+            await ProcessFileUpload(id, "escalationMechFile", "EscalationMechanism", oemFolder);
+            await ProcessFileUpload(id, "unitPhotographsFile", "UnitPhotographs", oemFolder);
+
+            for (int i = 1; i <= 3; i++)
             {
-                var path = await SaveFileAsync(bankSolvencyFile, "BankSolvency");
-                await AddOrUpdateDocument(id, "BankSolvency", bankSolvencyFile.FileName, path);
+                await ProcessFileUpload(id, $"testimonialFile_{i}", $"ClientTestimonial_{i}", oemFolder);
             }
 
-            var testimonialFiles = Request.Form.Files.GetFiles("testimonialFiles");
-            if (testimonialFiles != null && testimonialFiles.Count > 0)
-            {
-                var existingTestimonials = await _context.ApplicationDocuments
-                    .Where(d => d.ApplicationId == id && d.DocumentType == "ClientTestimonial")
-                    .ToListAsync();
-                _context.ApplicationDocuments.RemoveRange(existingTestimonials);
-
-                foreach (var file in testimonialFiles)
-                {
-                    var path = await SaveFileAsync(file, "Testimonials");
-                    _context.ApplicationDocuments.Add(new ApplicationDocument
-                    {
-                        ApplicationId = id,
-                        DocumentType = "ClientTestimonial",
-                        FileName = file.FileName,
-                        FilePath = path
-                    });
-                }
-            }
-
+            application.CurrentStep = Math.Max(application.CurrentStep, 6);
             await _context.SaveChangesAsync();
             return RedirectToAction("Review", new { id });
         }
 
-        private async Task<string> SaveFileAsync(IFormFile file, string folder)
+        private async Task<string> GetOEMFolderName(int applicationId)
         {
-            var uploadDir = Path.Combine(_environment.WebRootPath, "uploads", folder);
+            var app = await _context.Applications
+                .Include(a => a.User)
+                .ThenInclude(u => u.CompanyProfile)
+                .FirstOrDefaultAsync(a => a.Id == applicationId);
+            
+            string companyName = app?.User?.CompanyProfile?.CompanyName;
+            if (string.IsNullOrWhiteSpace(companyName))
+                companyName = $"OEM_{app?.UserId ?? 0}";
+                
+            var invalidChars = Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()).Concat(new[] { ' ' }).ToArray();
+            string safeName = new string(companyName.Select(c => invalidChars.Contains(c) ? '_' : c).ToArray());
+            return safeName;
+        }
+
+        private async Task<string> SaveFileAsync(IFormFile file, string folderName)
+        {
+            var uploadDir = Path.Combine(_environment.WebRootPath, "uploads", folderName);
             if (!Directory.Exists(uploadDir))
                 Directory.CreateDirectory(uploadDir);
 
@@ -309,7 +399,17 @@ namespace APCD.Web.Controllers
                 await file.CopyToAsync(stream);
             }
 
-            return $"/uploads/{folder}/{fileName}";
+            return $"/uploads/{folderName}/{fileName}";
+        }
+
+        private async Task ProcessFileUpload(int id, string fileKey, string docType, string folderName)
+        {
+            var file = Request.Form.Files[fileKey];
+            if (file != null && file.Length > 0)
+            {
+                var path = await SaveFileAsync(file, folderName);
+                await AddOrUpdateDocument(id, docType, file.FileName, path);
+            }
         }
 
         private async Task AddOrUpdateDocument(int applicationId, string documentType, string fileName, string filePath)
@@ -359,6 +459,8 @@ namespace APCD.Web.Controllers
         {
             var application = await _context.Applications
                 .Include(a => a.Capabilities)
+                .Include(a => a.Payment)
+                .Include(a => a.Documents)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (application == null) return NotFound();
@@ -396,14 +498,15 @@ namespace APCD.Web.Controllers
             ViewBag.EmpFeeDiscount = empFeeDiscount; // For reimbursement info
             ViewBag.EmpFeeTotal = empFeeTotal;
 
-            var paymentDetail = new PaymentDetail 
-            { 
-                ApplicationId = id, 
-                Amount = total,
-                APCDTypesCount = apcdCount,
-                AppFeeAmountDeposited = appFeeTotal,
-                EmpFeeAmountDeposited = empFeeTotal
-            };
+            var paymentDetail = application.Payment ?? new PaymentDetail { ApplicationId = id, Application = application };
+            
+            // Repopulate exact system calculations dynamically in case early form configurations changed
+            paymentDetail.Amount = total;
+            paymentDetail.APCDTypesCount = apcdCount;
+            
+            // Only initialize defaults if user hasn't overridden them with manual values yet
+            if (paymentDetail.AppFeeAmountDeposited == 0) paymentDetail.AppFeeAmountDeposited = appFeeTotal;
+            if (paymentDetail.EmpFeeAmountDeposited == 0) paymentDetail.EmpFeeAmountDeposited = empFeeTotal;
 
             return View(paymentDetail);
         }
@@ -411,6 +514,9 @@ namespace APCD.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Payment(int id, PaymentDetail payment)
         {
+            var appStatusGuard = await _context.Applications.FindAsync(id);
+            if (appStatusGuard == null || appStatusGuard.Status != "Draft") return RedirectToAction("Review", new { id });
+            
             payment.ApplicationId = id;
             payment.PaymentDate = DateTime.UtcNow;
             payment.Status = "Pending";
@@ -428,6 +534,9 @@ namespace APCD.Web.Controllers
             {
                 _context.PaymentDetails.Add(payment);
             }
+
+            string oemFolder = await GetOEMFolderName(id);
+            await ProcessFileUpload(id, "paymentReceiptFile", "PaymentReceipt", oemFolder);
 
             var application = await _context.Applications.FindAsync(id);
             application.Status = "Submitted";

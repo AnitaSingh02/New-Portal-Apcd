@@ -100,9 +100,30 @@
                                         @foreach (var doc in Model.Documents)
                                         {
                                             <tr>
-                                                <td class="ps-4 fw-bold small text-gov-blue">@doc.DocumentType</td>
+                                                <td class="ps-4 fw-bold small text-gov-blue">
+                                                    @doc.DocumentType
+                                                    @if (doc.IsVerified)
+                                                    {
+                                                        <span class="badge bg-success ms-2"><i class="bi bi-check-circle me-1"></i>Verified</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-danger ms-2"><i class="bi bi-x-circle me-1"></i>Not Verified</span>
+                                                    }
+                                                </td>
                                                 <td class="text-muted small">@doc.FileName</td>
-                                                <td class="text-end pe-4"><a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-gov-blue"><i class="bi bi-eye me-1"></i>View</a></td>
+                                                <td class="text-end pe-4">
+                                                    <div class="d-flex justify-content-end gap-2">
+                                                        <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-gov-blue"><i class="bi bi-eye me-1"></i>View</a>
+                                                        <form asp-action="VerifyDocument" method="post" class="d-inline">
+                                                            <input type="hidden" name="docId" value="@doc.Id" />
+                                                            <input type="hidden" name="appId" value="@Model.Id" />
+                                                            <button type="submit" class="btn btn-sm @(doc.IsVerified ? "btn-outline-danger" : "btn-outline-success")">
+                                                                <i class="bi @(doc.IsVerified ? "bi-x-circle" : "bi-check-circle") me-1"></i>@(doc.IsVerified ? "Unverify" : "Verify")
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
                                             </tr>
                                         }
                                     </tbody>
@@ -125,7 +146,7 @@
                                         <div class="p-3 bg-light rounded-4 border-0">
                                             <div class="fw-bold text-gov-blue">@inst.ClientName</div>
                                             <div class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>@inst.Location</div>
-                                            <div class="extra-small text-muted fw-bold text-uppercase">Completed @@ @inst.InstallationDate.ToShortDateString()</div>
+                                            <div class="extra-small text-muted fw-bold text-uppercase">Completed @@ @(inst.Year?.ToString() ?? inst.InstallationDate?.ToShortDateString() ?? "N/A")</div>
                                         </div>
                                     </div>
                                 }
@@ -156,8 +177,10 @@
                             <div class="d-grid gap-2">
                                 @if (nextStatus != "Manual-Review-Required")
                                 {
+                                    bool allDocsVerified = Model.Documents.Any() && Model.Documents.All(d => d.IsVerified);
+                                    bool isVerifyAction = actionLabel == "Verify Documents";
                                     <input type="hidden" name="nextStatus" value="@nextStatus" />
-                                    <button type="submit" class="btn btn-gov-primary btn-lg py-3 rounded-pill fw-bold shadow-sm">
+                                    <button type="submit" class="btn btn-gov-primary btn-lg py-3 rounded-pill fw-bold shadow-sm" @Html.Raw(isVerifyAction && !allDocsVerified ? "disabled title=\"Please verify all documents first\"" : "")>
                                         @actionLabel <i class="bi bi-shield-check ms-1"></i>
                                     </button>
                                 }

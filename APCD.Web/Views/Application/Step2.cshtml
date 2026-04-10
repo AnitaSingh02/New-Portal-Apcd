@@ -24,16 +24,48 @@
                         <p class="text-muted small mb-4">Provide registration details and official certifications</p>
 
                         <div class="row g-4">
-                            <!-- Registration Numbers -->
-                            <div class="col-md-6">
-                                <label class="form-group-label">7. GST Registration No.</label>
-                                <input type="text" class="form-control custom-input" value="@Model.User.CompanyProfile?.GSTNumber" readonly />
-                                <span class="help-text">Fetched from Company Profile</span>
+                            <!-- Registration Numbers & Certificates -->
+                            <div class="col-md-12 mb-3">
+                                <h6 class="fw-bold mb-3"><i class="bi bi-building me-2 text-primary"></i> 1. Company Legal Certificates</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-group-label">Company Registration Cert.</label>
+                                        <input type="file" name="coRegFile" class="form-control form-control-sm" accept=".pdf" />
+                                        @if (Model.Documents != null && Model.Documents.Any(d => d.DocumentType == "CompanyRegistration")) {
+    var tmpDoc = Model.Documents.First(d => d.DocumentType == "CompanyRegistration");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-group-label">7. GST Registration</label>
+                                        <input type="text" class="form-control custom-input form-control-sm mb-1" value="@Model.User.CompanyProfile?.GSTNumber" readonly />
+                                        <input type="file" name="gstinFile" class="form-control form-control-sm" accept=".pdf" />
+                                        @if (Model.Documents != null && Model.Documents.Any(d => d.DocumentType == "GSTINCertificate")) {
+    var tmpDoc = Model.Documents.First(d => d.DocumentType == "GSTINCertificate");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-group-label">8. PAN Card</label>
+                                        <input type="text" class="form-control custom-input form-control-sm mb-1" value="@Model.User.CompanyProfile?.PANNumber" readonly />
+                                        <input type="file" name="panFile" class="form-control form-control-sm" accept=".pdf" />
+                                        @if (Model.Documents != null && Model.Documents.Any(d => d.DocumentType == "PANCard")) {
+    var tmpDoc = Model.Documents.First(d => d.DocumentType == "PANCard");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-group-label">8. PAN No.</label>
-                                <input type="text" class="form-control custom-input" value="@Model.User.CompanyProfile?.PANNumber" readonly />
-                                <span class="help-text">Fetched from Company Profile</span>
+                            
+                            <!-- CTO (Point 9) -->
+                            <div class="col-md-12 mt-3 mb-3">
+                                <h6 class="fw-bold mb-2"><i class="bi bi-file-earmark-check me-2 text-primary"></i> 9. Consent to Operate (CTO)</h6>
+                                <p class="small text-muted mb-2">Attach Consent to Operate Certificate, Intimation letter to SPCB, or Undertaking for Non-Applicability (Annexure-9)</p>
+                                <input type="file" name="ctoFile" class="form-control form-control-sm w-50" accept=".pdf" />
+                                @if (Model.Documents != null && Model.Documents.Any(d => d.DocumentType == "CTOCertificate")) {
+    var tmpDoc = Model.Documents.First(d => d.DocumentType == "CTOCertificate");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
                             </div>
 
                             <!-- Special Status (Point 14 & Discount Logic) -->
@@ -50,8 +82,9 @@
                                         <input asp-for="UdyamRegistrationNo" class="form-control custom-input form-control-sm mt-2" placeholder="Udyam Registration No." />
                                         <input type="file" name="mseFile" class="form-control form-control-sm mt-2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
                                         @if (Model.Documents != null && Model.Documents.Any(d => d.DocumentType == "MSECertificate")) {
-                                            <span class="badge bg-success-subtle text-success border border-success px-2 mt-1">Uploaded</span>
-                                        }
+    var tmpDoc = Model.Documents.First(d => d.DocumentType == "MSECertificate");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
                                     </div>
 
                                     <div class="col-md-4">
@@ -62,8 +95,9 @@
                                         <input asp-for="DPIITRecognitionNo" class="form-control custom-input form-control-sm mt-2" placeholder="DPIIT Recognition No." />
                                         <input type="file" name="startupFile" class="form-control form-control-sm mt-2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
                                         @if (Model.Documents != null && Model.Documents.Any(d => d.DocumentType == "StartupCertificate")) {
-                                            <span class="badge bg-success-subtle text-success border border-success px-2 mt-1">Uploaded</span>
-                                        }
+    var tmpDoc = Model.Documents.First(d => d.DocumentType == "StartupCertificate");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
                                     </div>
 
                                     <div class="col-md-4">
@@ -74,8 +108,9 @@
                                         <span class="help-text small text-dark d-block">With ≥50% local content</span>
                                         <input type="file" name="localSupplierFile" class="form-control form-control-sm mt-2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
                                         @if (Model.Documents != null && Model.Documents.Any(d => d.DocumentType == "LocalSupplierCertificate")) {
-                                            <span class="badge bg-success-subtle text-success border border-success px-2 mt-1">Uploaded</span>
-                                        }
+    var tmpDoc = Model.Documents.First(d => d.DocumentType == "LocalSupplierCertificate");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
                                     </div>
                                 </div>
                             </div>
@@ -86,8 +121,9 @@
                                 <textarea asp-for="ISOStandards" class="form-control custom-input mb-2" rows="2" placeholder="Please furnish details of standards qualified..."></textarea>
                                 <input type="file" name="isoStandardsFile" class="form-control form-control-sm" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
                                 @if (Model.Documents != null && Model.Documents.Any(d => d.DocumentType == "ISOStandardsCertificate")) {
-                                    <span class="badge bg-success-subtle text-success border border-success px-2 mt-2">Uploaded</span>
-                                }
+    var tmpDoc = Model.Documents.First(d => d.DocumentType == "ISOStandardsCertificate");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
                             </div>
 
                             <!-- Blacklisting (Point 20) -->

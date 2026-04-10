@@ -97,5 +97,17 @@ namespace APCD.Web.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyDocument(int docId, int appId)
+        {
+            var doc = await _context.ApplicationDocuments.FirstOrDefaultAsync(d => d.Id == docId && d.ApplicationId == appId);
+            if (doc != null)
+            {
+                doc.IsVerified = !doc.IsVerified;
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Details", new { id = appId });
+        }
     }
 }

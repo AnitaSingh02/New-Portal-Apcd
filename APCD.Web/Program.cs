@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using APCD.Web.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using APCD.Web.Models;
+using APCD.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,13 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Core Infrastructure
+builder.Services.AddTransient<IEmailService, EmailService>();
+
+// Force session tokens to be completely obliterated anytime the application restarts
+builder.Services.AddDataProtection()
+    .UseEphemeralDataProtectionProvider();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -121,8 +130,20 @@ using (var scope = app.Services.CreateScope())
                 );
             END";
 
+        var sqlAddResetTokens = @"
+            IF COL_LENGTH('Users', 'ResetPasswordToken') IS NULL
+            BEGIN
+                ALTER TABLE [Users] ADD [ResetPasswordToken] nvarchar(max) NULL;
+            END
+
+            IF COL_LENGTH('Users', 'ResetPasswordTokenExpiry') IS NULL
+            BEGIN
+                ALTER TABLE [Users] ADD [ResetPasswordTokenExpiry] datetime2 NULL;
+            END";
+
         context.Database.ExecuteSqlRaw(sqlRemarks);
         context.Database.ExecuteSqlRaw(sqlPayment);
+        context.Database.ExecuteSqlRaw(sqlAddResetTokens);
         // ---------------------------------------------------------
     } catch (Exception ex) {
         // Log error if table doesn't exist yet
@@ -147,6 +168,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Auth}/{action=Login}/{id?}");
 
 app.Run();

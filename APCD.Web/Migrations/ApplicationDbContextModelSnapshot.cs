@@ -89,6 +89,9 @@ namespace APCD.Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("UploadedAt")
                         .HasColumnType("datetime2");
 
@@ -270,6 +273,9 @@ namespace APCD.Web.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("CurrentStep")
+                        .HasColumnType("int");
+
                     b.Property<string>("DPIITRecognitionNo")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -327,14 +333,22 @@ namespace APCD.Web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<string>("ApcdType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("ApplicationId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Capacity")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ClientName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("InstallationDate")
+                    b.Property<DateTime?>("InstallationDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Location")
@@ -344,6 +358,13 @@ namespace APCD.Web.Migrations
                     b.Property<string>("PerformanceCertPath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PerformanceResult")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Year")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

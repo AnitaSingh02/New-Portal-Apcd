@@ -33,6 +33,25 @@ namespace APCD.Web.Controllers
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null) return Unauthorized();
+            
+            // Auto-cleanup: If an OEM holds a formally submitted application matrix, aggressively wipe any accidental orphaned Drafts crafted by the deprecated UI flaw
+            var submittedApp = await _context.Applications
+                .Where(a => a.UserId == userId && a.Status != "Draft" && a.Status != "Rejected")
+                .OrderByDescending(a => a.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            if (submittedApp != null)
+            {
+                var orphanedDrafts = await _context.Applications
+                    .Where(a => a.UserId == userId && a.Status == "Draft")
+                    .ToListAsync();
+                    
+                if (orphanedDrafts.Any())
+                {
+                    _context.Applications.RemoveRange(orphanedDrafts);
+                    await _context.SaveChangesAsync();
+                }
+            }
 
             var application = await _context.Applications
                 .Include(a => a.Payment)

@@ -72,6 +72,8 @@ namespace APCD.Web.Models
         [StringLength(50)]
         public string Status { get; set; } = "Draft"; // Draft, Submitted, PendingVerification, Provisional, Final, Rejected
 
+        public int CurrentStep { get; set; } = 1; // Tracks the resume step
+
         public string SelectedAPCDCategories { get; set; } = ""; // Comma-separated list for step 1
 
         // Official Form Points
@@ -163,12 +165,16 @@ namespace APCD.Web.Models
         public int Id { get; set; }
         public int ApplicationId { get; set; }
 
-        [Required]
-        public string ClientName { get; set; }
-        [Required]
-        public string Location { get; set; }
-        public DateTime InstallationDate { get; set; }
-        public string PerformanceCertPath { get; set; } // Annexure-12
+        public string ClientName { get; set; } = string.Empty;
+        public int? Year { get; set; }
+        public string ApcdType { get; set; } = string.Empty;
+        public string Capacity { get; set; } = string.Empty;
+        public string PerformanceResult { get; set; } = string.Empty;
+
+        // Legacy/Optional fields
+        public string Location { get; set; } = string.Empty;
+        public DateTime? InstallationDate { get; set; }
+        public string PerformanceCertPath { get; set; } = string.Empty;
 
         public virtual EmpanelmentApplication Application { get; set; }
     }
@@ -195,6 +201,7 @@ namespace APCD.Web.Models
         public string DocumentType { get; set; }
         public string FileName { get; set; }
         public string FilePath { get; set; }
+        public bool IsVerified { get; set; }
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
 
         public virtual EmpanelmentApplication Application { get; set; }

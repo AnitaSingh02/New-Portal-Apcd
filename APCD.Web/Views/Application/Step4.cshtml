@@ -30,9 +30,9 @@
             <!-- Main Content -->
             <div class="col-lg-9 bg-white">
                 <div class="wizard-main">
-                    <form asp-action="SaveCapabilities" asp-route-id="@appId" method="post">
+                    <form asp-action="SaveCapabilities" asp-route-id="@appId" method="post" enctype="multipart/form-data">
                         <div class="form-section-title">Step 4: Technical Scope (APCD Technologies)</div>
-                        <p class="text-muted small mb-4">Points 21 & 22: Specify the APCDs currently manufactured and those for which empanelment is sought.</p>
+                        <p class="text-muted small mb-4">Point 21: Specify the APCDs currently manufactured and those for which empanelment is sought.</p>
 
                         <div class="table-responsive border rounded-4 overflow-hidden mb-4">
                             <table class="table tech-matrix-table mb-0 align-middle">
@@ -109,11 +109,147 @@
                             </table>
                         </div>
 
-                        <div class="alert alert-info py-3 small">
+                        <div class="alert alert-info py-3 small mb-5">
                             <h6 class="fw-bold mb-2"><i class="bi bi-info-circle-fill me-2"></i>Note on Empanelment Categories:</h6>
                             <b class="text-dark">Category 1:</b> APCDs installed on Boilers / Furnaces / Thermic Fluid Heaters (TFH) flue-gas emission control.<br/> 
                             <b class="text-dark">Category 2:</b> APCDs installed on Non-Boiler / Non-Furnace / Non-TFH/ Non-heat dust/gas emission control.<br/>
                             <span class="d-inline-block mt-2">If you have past experience in installing the relevant APCD under both Category 1 and Category 2, please select '<strong>Both</strong>' in the drop-down above. If not, please indicate category '1' or '2', as applicable.</span>
+                        </div>
+
+                        <!-- Point 22: Installations Table -->
+                        <div class="mb-5">
+                            <h5 class="fw-bold text-dark mb-3">22. Provide details of installations completed in the last three (3) years (minimun five) including:</h5>
+                            <div class="table-responsive border rounded-4 overflow-hidden shadow-sm">
+                                <table class="table table-bordered mb-0 align-middle">
+                                    <thead style="background-color: #f1f3f4;">
+                                        <tr class="text-center text-dark">
+                                            <th style="width: 5%;">SN</th>
+                                            <th style="width: 20%;">Client Name</th>
+                                            <th style="width: 10%;">Year</th>
+                                            <th style="width: 17%;">Type of APCD</th>
+                                            <th style="width: 16%;">Capacity/Size</th>
+                                            <th style="width: 15%;">Performance Result<br/><small>(if any)</small></th>
+                                            <th style="width: 17%;">Upload Certificate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            var instList = ViewBag.Installations as List<APCD.Web.Models.InstallationRecord> ?? new List<APCD.Web.Models.InstallationRecord>();
+                                            int maxRows = Math.Max(5, instList.Count);
+                                        }
+                                        @for (int j = 0; j < maxRows; j++)
+                                        {
+                                            var inst = j < instList.Count ? instList[j] : null;
+                                            <tr>
+                                                <td class="text-center fw-bold bg-light">
+                                                    @(j + 1)
+                                                </td>
+                                                <td><input type="text" name="installations[@j].ClientName" class="form-control form-control-sm border-0" value="@inst?.ClientName" @(j < 5 ? "required" : "") /></td>
+                                                <td><input type="number" name="installations[@j].Year" class="form-control form-control-sm border-0 text-center" value="@inst?.Year" @(j < 5 ? "required" : "") /></td>
+                                                <td><input type="text" name="installations[@j].ApcdType" class="form-control form-control-sm border-0" value="@inst?.ApcdType" @(j < 5 ? "required" : "") /></td>
+                                                <td><input type="text" name="installations[@j].Capacity" class="form-control form-control-sm border-0" value="@inst?.Capacity" @(j < 5 ? "required" : "") /></td>
+                                                <td><input type="text" name="installations[@j].PerformanceResult" class="form-control form-control-sm border-0" value="@inst?.PerformanceResult" /></td>
+                                                <td>
+                                                    <input type="hidden" name="installations[@j].PerformanceCertPath" value="@inst?.PerformanceCertPath" />
+                                                    <input type="file" name="PerformanceCertFile_@j" class="form-control form-control-sm border-0" accept=".pdf" @(j < 5 && string.IsNullOrEmpty(inst?.PerformanceCertPath) ? "required" : "") />
+                                                    @if (!string.IsNullOrEmpty(inst?.PerformanceCertPath)) {
+                                                        <a href="@inst.PerformanceCertPath" target="_blank" class="extra-small text-success mt-1 d-inline-block text-decoration-none"><i class="bi bi-file-earmark-check me-1"></i>View Uploaded</a>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Technical Documents Section -->
+                        <div class="row g-4 mt-5">
+                            <div class="col-md-12">
+                                <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-file-earmark-pdf me-2"></i> Section E & F: Technical Documents & Experience</h5>
+                            </div>
+                            @{ var docs = ViewBag.Documents as List<APCD.Web.Models.ApplicationDocument>; }
+                            
+                            <div class="col-md-6">
+                                                <div class="p-3 border rounded-3 bg-light h-100">
+                                                    <label class="form-group-label">10. Product Datasheets <span class="text-danger">*</span></label>
+                                                    <input type="file" name="productDatasheetFile" class="form-control form-control-sm mt-2" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "ProductDatasheet") ? "" : "required") />
+                                                    @if (docs != null && docs.Any(d => d.DocumentType == "ProductDatasheet")) {
+    var tmpDoc = docs.First(d => d.DocumentType == "ProductDatasheet");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="p-3 border rounded-3 bg-light h-100">
+                                                    <label class="form-group-label">11. General Arrangement (GA) Drawing <span class="text-danger">*</span></label>
+                                                    <input type="file" name="gaDrawingFile" class="form-control form-control-sm mt-2" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "GADrawing") ? "" : "required") />
+                                                    @if (docs != null && docs.Any(d => d.DocumentType == "GADrawing")) {
+    var tmpDoc = docs.First(d => d.DocumentType == "GADrawing");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="p-3 border rounded-3 bg-light h-100">
+                                                    <label class="form-group-label">12. Process Flow Diagram <span class="text-danger">*</span></label>
+                                                    <input type="file" name="processFlowFile" class="form-control form-control-sm mt-2" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "ProcessFlowDiagram") ? "" : "required") />
+                                                    @if (docs != null && docs.Any(d => d.DocumentType == "ProcessFlowDiagram")) {
+    var tmpDoc = docs.First(d => d.DocumentType == "ProcessFlowDiagram");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="p-3 border rounded-3 bg-light h-100">
+                                                    <label class="form-group-label">13. Technical Catalogues / Brochures <span class="text-danger">*</span></label>
+                                                    <input type="file" name="techCatalogueFile" class="form-control form-control-sm mt-2" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "TechnicalCatalogue") ? "" : "required") />
+                                                    @if (docs != null && docs.Any(d => d.DocumentType == "TechnicalCatalogue")) {
+    var tmpDoc = docs.First(d => d.DocumentType == "TechnicalCatalogue");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="p-3 border rounded-3 bg-light h-100">
+                                                    <label class="form-group-label">16. Design Calculations <span class="text-danger">*</span></label>
+                                                    <input type="file" name="designCalcFile" class="form-control form-control-sm mt-2" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "DesignCalculation") ? "" : "required") />
+                                                    @if (docs != null && docs.Any(d => d.DocumentType == "DesignCalculation")) {
+    var tmpDoc = docs.First(d => d.DocumentType == "DesignCalculation");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="p-3 border rounded-3 bg-light h-100">
+                                                    <label class="form-group-label">17. Material of Construction Certificates <span class="text-danger">*</span></label>
+                                                    <input type="file" name="materialConstructionFile" class="form-control form-control-sm mt-2" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "MaterialOfConstruction") ? "" : "required") />
+                                                    @if (docs != null && docs.Any(d => d.DocumentType == "MaterialOfConstruction")) {
+    var tmpDoc = docs.First(d => d.DocumentType == "MaterialOfConstruction");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="p-3 border rounded-3 bg-light h-100">
+                                                    <label class="form-group-label">18. Warranty Documents <span class="text-danger">*</span></label>
+                                                    <input type="file" name="warrantyFile" class="form-control form-control-sm mt-2" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "WarrantyDocument") ? "" : "required") />
+                                                    @if (docs != null && docs.Any(d => d.DocumentType == "WarrantyDocument")) {
+    var tmpDoc = docs.First(d => d.DocumentType == "WarrantyDocument");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="p-3 border rounded-3 bg-light h-100">
+                                                    <label class="form-group-label">19. Experience in Installation (Annexure-6a/6b) <span class="text-danger">*</span></label>
+                                                    <input type="file" name="installationExpFile" class="form-control form-control-sm mt-2" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "InstallationExperience") ? "" : "required") />
+                                    @if (docs != null && docs.Any(d => d.DocumentType == "InstallationExperience")) {
+    var tmpDoc = docs.First(d => d.DocumentType == "InstallationExperience");
+    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+}
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Navigation -->

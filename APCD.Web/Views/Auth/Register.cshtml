@@ -45,7 +45,7 @@
                 </div>
             }
 
-            <form asp-action="Register" method="post" id="registerForm">
+            <form asp-action="Register" method="post" id="registerForm" autocomplete="off">
                 <input type="hidden" asp-for="FullName" id="hiddenFullName" />
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -63,7 +63,7 @@
                     <div class="col-md-6">
                         <label asp-for="Email" class="auth-label">Email Address</label>
                         <div class="auth-input-group">
-                            <input asp-for="Email" class="auth-input" placeholder="example@gmail.com" required />
+                            <input asp-for="Email" class="auth-input" placeholder="example@gmail.com" required autocomplete="off" />
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -75,14 +75,14 @@
                     <div class="col-md-6">
                         <label class="auth-label">Password</label>
                         <div class="auth-input-group">
-                            <input type="password" name="password" id="password" class="auth-input" placeholder="@@#*%" required />
+                            <input type="password" name="password" id="password" class="auth-input" placeholder="@@#*%" required autocomplete="new-password" />
                             <i class="bi bi-eye password-toggle" onclick="togglePassword('password')"></i>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <label class="auth-label">Confirm Password</label>
                         <div class="auth-input-group">
-                            <input type="password" id="confirmPassword" class="auth-input" placeholder="@@#*%" required />
+                            <input type="password" id="confirmPassword" class="auth-input" placeholder="@@#*%" required autocomplete="new-password" />
                             <i class="bi bi-eye password-toggle" onclick="togglePassword('confirmPassword')"></i>
                         </div>
                     </div>

@@ -33,5 +33,8 @@ namespace APCD.Web.Models
 
         // Navigation property for company profile
         public virtual CompanyProfile? CompanyProfile { get; set; }
+
+        public string? ResetPasswordToken { get; set; }
+        public DateTime? ResetPasswordTokenExpiry { get; set; }
     }
 }

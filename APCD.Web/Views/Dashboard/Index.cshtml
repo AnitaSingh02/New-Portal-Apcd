@@ -12,7 +12,7 @@
             <p class="text-muted fs-5">Track and manage your APCD empanelment journey from your central command center.</p>
         </div>
         <div class="col-md-4 text-md-end">
-            @if (User.IsInRole("OEM") && (Model == null || Model.Status == "Submitted"))
+            @if (User.IsInRole("OEM") && (Model == null || Model.Status == "Rejected"))
             {
                 <a asp-controller="Application" asp-action="Index" class="btn btn-gov-primary px-4 py-2 shadow-sm rounded-pill">
                     <i class="bi bi-plus-circle me-1"></i> Start New Application
@@ -151,7 +151,7 @@
                                 <td class="text-end pe-4">
                                     @if (Model.Status == "Draft")
                                     {
-                                        <a asp-controller="Application" asp-action="Step1" asp-route-id="@Model.Id" class="btn btn-sm btn-gov-primary rounded-pill px-4">Continue <i class="bi bi-chevron-right ms-1"></i></a>
+                                        <a asp-controller="Application" asp-action="Resume" asp-route-id="@Model.Id" class="btn btn-sm btn-gov-primary rounded-pill px-4">Continue <i class="bi bi-chevron-right ms-1"></i></a>
                                     }
                                     else
                                     {
@@ -211,4 +211,7 @@
 <style>
     .extra-small { font-size: 0.65rem; }
     .truncate { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .text-indigo { color: #6610f2 !important; }
+    .bg-indigo-subtle { background-color: #e2d9f3 !important; }
+    .border-indigo-subtle { border-color: #e2d9f3 !important; }
 </style>

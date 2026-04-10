@@ -19,7 +19,7 @@
             <!-- Main Content -->
             <div class="col-lg-9 bg-white">
                 <div class="wizard-main">
-                    <form asp-action="Payment" method="post" asp-route-id="@Model.ApplicationId">
+                    <form asp-action="Payment" method="post" asp-route-id="@Model.ApplicationId" enctype="multipart/form-data">
                         <input type="hidden" asp-for="Amount" />
                         <input type="hidden" asp-for="APCDTypesCount" />
                         
@@ -116,21 +116,53 @@
                             </table>
                         </div>
 
-                        <div class="alert alert-info py-3 px-4 rounded-3 border-0 mt-2 small">
+                        <div class="alert alert-info py-3 px-4 rounded-3 border-0 mt-2 small mb-4">
                             <h6 class="fw-bold mb-2"><i class="bi bi-info-square-fill me-2"></i> Bank Details for Payment</h6>
                             <p class="mb-1"><strong>Account Name:</strong> National Productivity Council</p>
                             <p class="mb-1"><strong>Bank Name:</strong> Axis Bank Ltd, Lodhi Road, New Delhi</p>
                             <p class="mb-1"><strong>Account Number:</strong> 911010041400000 | <strong>IFSC Code:</strong> UTIB0000007</p>
                         </div>
 
+                        <!-- Payment Proof -->
+                        <div class="p-4 border rounded-3 bg-light mb-4 text-center">
+                            <h5 class="fw-bold text-dark mb-2"><i class="bi bi-receipt me-2 text-primary"></i> 3. Proof of Online Payment</h5>
+                            <p class="small text-muted mb-3">Please combine both Application and Empanelment fee payment receipts into a single PDF if paid separately.</p>
+                            
+                            @{
+                                var isUploaded = Model.Application?.Documents?.Any(d => d.DocumentType == "PaymentReceipt") == true;
+                                var paymentDoc = isUploaded ? Model.Application.Documents.First(d => d.DocumentType == "PaymentReceipt") : null;
+                            }
+                            
+                            <div class="d-flex flex-column align-items-center">
+                                <input type="file" name="paymentReceiptFile" class="form-control w-50 mb-2" accept=".pdf" @(isUploaded ? "" : "required") />
+                                @if (isUploaded)
+                                {
+                                    <div class="mt-2 text-center">
+                                        <i class="bi bi-check-circle-fill text-success"></i> 
+                                        <span class="small text-success fw-bold">Uploaded:</span> 
+                                        <a href="@paymentDoc.FilePath" target="_blank" class="small text-decoration-none">@paymentDoc.FileName</a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
                         <!-- Navigation -->
                         <div class="mt-5 pt-4 border-top d-flex justify-content-between">
                             <a asp-action="Review" asp-route-id="@Model.ApplicationId" class="btn btn-wizard-prev">
-                                <i class="bi bi-arrow-left me-2"></i> Previous
+                                <i class="bi bi-arrow-left me-2"></i> @(Model.Application?.Status == "Draft" ? "Previous" : "Back to Review")
                             </a>
-                            <button type="submit" class="btn btn-wizard-next">
-                                Final Step: Finalize Submit <i class="bi bi-check2-all ms-2"></i>
-                            </button>
+                            @if (Model.Application?.Status == "Draft")
+                            {
+                                <button type="submit" class="btn btn-wizard-next">
+                                    Final Step: Finalize Submit <i class="bi bi-check2-all ms-2"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-success px-4 rounded-pill">
+                                    <i class="bi bi-house-door me-1"></i> Return to Dashboard
+                                </a>
+                            }
                         </div>
                     </form>
                 </div>
