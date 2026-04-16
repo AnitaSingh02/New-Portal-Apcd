@@ -116,17 +116,77 @@
                             </table>
                         </div>
 
-                        <div class="alert alert-info py-3 px-4 rounded-3 border-0 mt-2 small mb-4">
+                        <!-- SUPPLEMENTAL PAYMENT SECTION -->
+                        @if (ViewBag.IsSupplemental == true)
+                        {
+                            <div class="alert alert-warning border-warning border-3 mb-4 rounded-4 shadow-sm animate-fade-in">
+                                <div class="d-flex">
+                                    <div class="me-3 fs-3 text-warning"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                                    <div>
+                                        <h6 class="fw-bold text-dark mb-1">Additional Fees Due (Amendment)</h6>
+                                        <p class="small text-dark mb-2">You previously paid for @ViewBag.PaidCount APCD unit(s). You are now applying for @ViewBag.NewCount unit(s). This requires a supplemental empanelment fee.</p>
+                                        <div class="bg-white p-2 border rounded-3 d-inline-block">
+                                            <span class="small fw-bold text-muted me-2">Balance Due:</span>
+                                            <span class="fs-5 fw-bold text-primary">₹@ViewBag.BalanceDue.ToString("N2")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive mb-4 rounded border overflow-hidden">
+                                <table class="table table-bordered align-middle mb-0">
+                                    <thead class="bg-warning-subtle">
+                                        <tr>
+                                            <th colspan="2" class="fw-bold py-2 text-dark border-0">Supplemental Payment Details</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="width: 40%;">Supplemental UTR / NEFT No</td>
+                                            <td class="p-0"><input asp-for="SupplementalUTR" class="form-control border-0 rounded-0 shadow-none px-2 text-uppercase" placeholder="ENTER UTR" /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Supplemental Amount Paid</td>
+                                            <td class="p-0"><input asp-for="SupplementalAmount" class="form-control border-0 rounded-0 shadow-none px-2" placeholder="0.00" /></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="p-4 border rounded-3 bg-light mb-4 text-center border-warning">
+                                <h5 class="fw-bold text-dark mb-2"><i class="bi bi-receipt-cutoff me-2 text-warning"></i> Proof of Supplemental Payment</h5>
+                                <p class="small text-muted mb-3">Upload the receipt for the additional balance payment.</p>
+                                
+                                @{
+                                    var isSuppUploaded = Model.Application?.Documents?.Any(d => d.DocumentType == "SupplementalReceipt") == true;
+                                    var suppDoc = isSuppUploaded ? Model.Application.Documents.First(d => d.DocumentType == "SupplementalReceipt") : null;
+                                }
+                                
+                                <div class="d-flex flex-column align-items-center">
+                                    <input type="file" name="supplementalReceiptFile" class="form-control w-50 mb-2" accept=".pdf" />
+                                    @if (isSuppUploaded)
+                                    {
+                                        <div class="mt-2">
+                                            <i class="bi bi-check-circle-fill text-success"></i> 
+                                            <span class="small text-success fw-bold">Uploaded:</span> 
+                                            <a href="@suppDoc.FilePath" target="_blank" class="small text-decoration-none">@suppDoc.FileName</a>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <div class="alert alert-info py-3 px-4 rounded-3 border-0 mt-2 small mb-4 shadow-sm">
                             <h6 class="fw-bold mb-2"><i class="bi bi-info-square-fill me-2"></i> Bank Details for Payment</h6>
                             <p class="mb-1"><strong>Account Name:</strong> National Productivity Council</p>
                             <p class="mb-1"><strong>Bank Name:</strong> Axis Bank Ltd, Lodhi Road, New Delhi</p>
                             <p class="mb-1"><strong>Account Number:</strong> 911010041400000 | <strong>IFSC Code:</strong> UTIB0000007</p>
                         </div>
 
-                        <!-- Payment Proof -->
-                        <div class="p-4 border rounded-3 bg-light mb-4 text-center">
-                            <h5 class="fw-bold text-dark mb-2"><i class="bi bi-receipt me-2 text-primary"></i> 3. Proof of Online Payment</h5>
-                            <p class="small text-muted mb-3">Please combine both Application and Empanelment fee payment receipts into a single PDF if paid separately.</p>
+                        <!-- Payment Proof (Base) -->
+                        <div class="p-4 border rounded-3 bg-light mb-4 text-center @(Model.Application?.Status == "Draft" ? "" : "opacity-75")">
+                            <h5 class="fw-bold text-dark mb-2"><i class="bi bi-receipt me-2 text-primary"></i> 3. Proof of Initial Online Payment</h5>
+                            <p class="small text-muted mb-3">Receipt uploaded during initial submission.</p>
                             
                             @{
                                 var isUploaded = Model.Application?.Documents?.Any(d => d.DocumentType == "PaymentReceipt") == true;
@@ -148,18 +208,18 @@
 
                         <!-- Navigation -->
                         <div class="mt-5 pt-4 border-top d-flex justify-content-between">
-                            <a asp-action="Review" asp-route-id="@Model.ApplicationId" class="btn btn-wizard-prev">
+                            <a asp-action="Review" asp-route-id="@Model.ApplicationId" class="btn btn-wizard-prev shadow-sm">
                                 <i class="bi bi-arrow-left me-2"></i> @(Model.Application?.Status == "Draft" ? "Previous" : "Back to Review")
                             </a>
-                            @if (Model.Application?.Status == "Draft")
+                            @if (Model.Application?.Status == "Draft" || (ViewBag.IsSupplemental == true))
                             {
-                                <button type="submit" class="btn btn-wizard-next">
-                                    Final Step: Finalize Submit <i class="bi bi-check2-all ms-2"></i>
+                                <button type="submit" class="btn btn-wizard-next shadow-sm">
+                                    @(Model.Application?.Status == "Draft" ? "Final Step: Finalize Submit" : "Save Supplemental Payment") <i class="bi bi-check2-all ms-2"></i>
                                 </button>
                             }
                             else
                             {
-                                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-success px-4 rounded-pill">
+                                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-success px-4 rounded-pill shadow-sm">
                                     <i class="bi bi-house-door me-1"></i> Return to Dashboard
                                 </a>
                             }

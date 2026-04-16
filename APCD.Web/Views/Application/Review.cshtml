@@ -178,30 +178,37 @@
                     @if (Model.Status == "Draft")
                     {
                         <!-- Final Submission Notice -->
-                        <div class="alert alert-warning border-warning border-3 mt-5 p-4 rounded-4">
+                        <div class="alert alert-warning border-warning border-3 mt-5 p-4 rounded-4 shadow-sm animate-fade-in">
                             <h6 class="fw-bold mb-3"><i class="bi bi-exclamation-triangle-fill me-2"></i> Final Confirmation</h6>
                             <p class="small mb-0 text-dark">By clicking 'Proceed to Payment', you confirm that all information provided is accurate and all supporting audited certificates are valid. Furnishing false information may lead to permanent blacklisting and legal action.</p>
                         </div>
 
                         <!-- Navigation -->
                         <div class="mt-5 pt-4 border-top d-flex justify-content-between">
-                            <a asp-action="Step5" asp-route-id="@Model.Id" class="btn btn-wizard-prev">
+                            <a asp-action="Step5" asp-route-id="@Model.Id" class="btn btn-wizard-prev shadow-sm">
                                 <i class="bi bi-arrow-left me-2"></i> Previous
                             </a>
-                            <a asp-action="Payment" asp-route-id="@Model.Id" class="btn btn-wizard-next">
+                            <a asp-action="Payment" asp-route-id="@Model.Id" class="btn btn-wizard-next shadow-sm">
                                 Proceed to Payment <i class="bi bi-credit-card ms-2"></i>
                             </a>
                         </div>
                     }
                     else
                     {
-                        <!-- Navigation for Submitted Apps -->
+                        <!-- Amendment Submission -->
+                        <div class="alert alert-gov-gold border-warning border-3 mt-5 p-4 rounded-4 shadow-sm animate-fade-in">
+                            <h6 class="fw-bold mb-3"><i class="bi bi-pencil-square me-2"></i> Finalize Amendment</h6>
+                            <p class="small mb-0 text-dark">You are finalizing an amendment to your application. Please ensure all newly added technologies and their documentation are correct before re-submitting for review.</p>
+                        </div>
+
                         <div class="mt-5 pt-4 border-top d-flex justify-content-center gap-3">
-                            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-lg btn-outline-primary px-5 rounded-pill shadow-sm">
-                                <i class="bi bi-house-door me-2"></i> Dashboard
-                            </a>
-                            <a asp-action="Payment" asp-route-id="@Model.Id" class="btn btn-lg btn-gov-primary px-5 rounded-pill shadow-sm">
-                                View Payment History <i class="bi bi-credit-card ms-2"></i>
+                            <form asp-action="SubmitAmendment" asp-route-id="@Model.Id" method="post">
+                                <button type="submit" class="btn btn-lg btn-gov-gold text-white px-5 rounded-pill shadow">
+                                    Final Submit Amendment <i class="bi bi-send-check ms-2"></i>
+                                </button>
+                            </form>
+                            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-lg btn-outline-secondary px-5 rounded-pill shadow-sm">
+                                Cancel & Return <i class="bi bi-x-circle ms-2"></i>
                             </a>
                         </div>
                     }

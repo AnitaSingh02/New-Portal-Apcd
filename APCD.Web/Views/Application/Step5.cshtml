@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Financials & History";
     int currentStep = 5;
-    var turnoverYears = new[] { "2022-23", "2023-24", "2024-25" };
+    var turnoverYears = ViewBag.FinancialYears as List<string> ?? new List<string> { "2023-24", "2024-25", "2025-26" };
 }
 
 @section Styles {

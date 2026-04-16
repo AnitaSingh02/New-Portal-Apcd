@@ -1,0 +1,129 @@
+/* APCD Categories Modern UI Section */
+:root {
+    --apcd-card-bg: #ffffff;
+    --apcd-primary: #003366; /* Matching project --primary-blue */
+    --apcd-secondary: #0056b3; /* Matching project --secondary-blue */
+    --apcd-accent: #00c0a3; /* Matching project --accent-teal */
+    --apcd-text: #2d3748;
+    --apcd-text-muted: #718096;
+    --apcd-transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.apcd-section {
+    background-color: #f8fbff;
+    padding: 100px 0;
+}
+
+.apcd-card {
+    background-color: var(--apcd-card-bg);
+    border: 1px solid rgba(0, 51, 102, 0.08);
+    border-radius: 20px;
+    padding: 30px;
+    height: 100%;
+    transition: var(--apcd-transition);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.apcd-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 20px 40px rgba(0, 51, 102, 0.12);
+    border-color: var(--apcd-secondary);
+}
+
+.apcd-icon-wrapper {
+    width: 65px;
+    height: 65px;
+    background: linear-gradient(135deg, var(--apcd-primary) 0%, var(--apcd-secondary) 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 16px rgba(0, 51, 102, 0.15);
+    transition: var(--apcd-transition);
+}
+
+.apcd-card:hover .apcd-icon-wrapper {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 10px 20px rgba(0, 51, 102, 0.25);
+}
+
+.apcd-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--apcd-primary);
+    margin-bottom: 12px;
+}
+
+.apcd-desc {
+    font-size: 0.95rem;
+    color: var(--apcd-text-muted);
+    margin-bottom: 20px;
+    flex-grow: 1;
+}
+
+.apcd-expand-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--apcd-secondary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--apcd-transition);
+}
+
+.apcd-expand-btn:hover {
+    color: var(--apcd-primary);
+}
+
+.apcd-expand-btn i {
+    transition: var(--apcd-transition);
+}
+
+.apcd-expand-btn:not(.collapsed) i {
+    transform: rotate(180deg);
+}
+
+.subtype-list {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0 0;
+    border-top: 1px dashed var(--border-color);
+    padding-top: 15px;
+}
+
+.subtype-item {
+    padding: 8px 0;
+    font-size: 0.88rem;
+    color: var(--apcd-text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.subtype-item i {
+    color: var(--apcd-accent);
+    font-size: 0.8rem;
+}
+
+/* Animations */
+.animate-fade-up {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeUp 0.8s forwards;
+}
+
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -201,6 +201,7 @@ namespace APCD.Web.Models
         public string DocumentType { get; set; }
         public string FileName { get; set; }
         public string FilePath { get; set; }
+        public string AssociatedTech { get; set; } = string.Empty; // Grouping by Tech for Step 4
         public bool IsVerified { get; set; }
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
 
@@ -230,6 +231,12 @@ namespace APCD.Web.Models
         public string EmpFeeRemitterBank { get; set; } = string.Empty;
         public string EmpFeeUTRNumber { get; set; } = string.Empty;
         public DateTime? EmpFeePaymentDate { get; set; }
+
+        // Supplemental / Amendment Fees
+        public decimal? SupplementalAmount { get; set; }
+        public string SupplementalUTR { get; set; } = string.Empty;
+        public string SupplementalReceiptPath { get; set; } = string.Empty;
+        public DateTime? SupplementalPayDate { get; set; }
 
         public virtual EmpanelmentApplication Application { get; set; }
     }

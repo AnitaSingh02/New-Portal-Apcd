@@ -57,7 +57,9 @@
                                         @foreach (var sub in tech.Subs)
                                         {
                                             var existing = Model.FirstOrDefault(c => c.MainType == tech.Main && c.SubTech == sub);
-                                            <tr class="data-grid-row">
+                                            bool isLocked = ViewBag.IsAddMoreMode == true && existing?.IsAppliedForEmpanelment == true;
+                                            
+                                            <tr class="data-grid-row @(isLocked ? "bg-light opacity-75" : "")">
                                                 @if (isFirst)
                                                 {
                                                     <td rowspan="@tech.Subs.Length" class="fw-bold bg-light">
@@ -71,7 +73,15 @@
                                                     {
                                                         <div class="mt-2 pt-2 border-top border-light">
                                                             <strong class="text-dark small mb-1 d-block">If yes, specify the type:</strong>
-                                                            <input type="text" name="capabilities[@i].TypeDetails" class="form-control form-control-sm" placeholder="__________________" value="@existing?.TypeDetails" />
+                                                            @if (isLocked)
+                                                            {
+                                                                <input type="text" class="form-control form-control-sm" value="@existing?.TypeDetails" disabled />
+                                                                <input type="hidden" name="capabilities[@i].TypeDetails" value="@existing?.TypeDetails" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <input type="text" name="capabilities[@i].TypeDetails" class="form-control form-control-sm" placeholder="__________________" value="@existing?.TypeDetails" />
+                                                            }
                                                         </div>
                                                     }
                                                 </td>
@@ -79,26 +89,60 @@
                                                     <input type="hidden" name="capabilities[@i].MainType" value="@tech.Main" />
                                                     <input type="hidden" name="capabilities[@i].SubTech" value="@sub" />
                                                     <div class="form-check d-flex justify-content-center mb-0">
-                                                        <input type="checkbox" name="capabilities[@i].IsManufactured" value="true" class="form-check-input mt-0" style="width: 1.25em; height: 1.25em;" @(existing?.IsManufactured == true ? "checked" : "") />
-                                                        <input type="hidden" name="capabilities[@i].IsManufactured" value="false" />
+                                                        @if (isLocked)
+                                                        {
+                                                            <input type="checkbox" class="form-check-input mt-0" style="width: 1.25em; height: 1.25em;" checked disabled />
+                                                            <input type="hidden" name="capabilities[@i].IsManufactured" value="true" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <input type="checkbox" name="capabilities[@i].IsManufactured" value="true" class="form-check-input mt-0" style="width: 1.25em; height: 1.25em;" @(existing?.IsManufactured == true ? "checked" : "") />
+                                                            <input type="hidden" name="capabilities[@i].IsManufactured" value="false" />
+                                                        }
                                                     </div>
                                                 </td>
                                                 <td class="text-center bg-light">
                                                     <div class="form-check d-flex justify-content-center mb-0">
-                                                        <input type="checkbox" name="capabilities[@i].IsAppliedForEmpanelment" value="true" class="form-check-input mt-0" style="width: 1.25em; height: 1.25em;" @(existing?.IsAppliedForEmpanelment == true ? "checked" : "") />
-                                                        <input type="hidden" name="capabilities[@i].IsAppliedForEmpanelment" value="false" />
+                                                        @if (isLocked)
+                                                        {
+                                                            <input type="checkbox" class="form-check-input mt-0" style="width: 1.25em; height: 1.25em;" checked disabled />
+                                                            <input type="hidden" name="capabilities[@i].IsAppliedForEmpanelment" value="true" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <input type="checkbox" name="capabilities[@i].IsAppliedForEmpanelment" value="true" class="form-check-input mt-0 tech-apply-checkbox" data-tech-name="@sub" style="width: 1.25em; height: 1.25em;" @(existing?.IsAppliedForEmpanelment == true ? "checked" : "") />
+                                                            <input type="hidden" name="capabilities[@i].IsAppliedForEmpanelment" value="false" />
+                                                        }
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <select name="capabilities[@i].Category" class="form-select form-select-sm">
-                                                        <option value="">NA</option>
-                                                        <option value="1" selected="@(existing?.Category == "1")">1</option>
-                                                        <option value="2" selected="@(existing?.Category == "2")">2</option>
-                                                        <option value="both" selected="@(existing?.Category == "both")">Both</option>
-                                                    </select>
+                                                    @if (isLocked)
+                                                    {
+                                                        <select class="form-select form-select-sm" disabled>
+                                                            <option value="@existing?.Category" selected>@existing?.Category</option>
+                                                        </select>
+                                                        <input type="hidden" name="capabilities[@i].Category" value="@existing?.Category" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <select name="capabilities[@i].Category" class="form-select form-select-sm">
+                                                            <option value="">NA</option>
+                                                            <option value="1" selected="@(existing?.Category == "1")">1</option>
+                                                            <option value="2" selected="@(existing?.Category == "2")">2</option>
+                                                            <option value="both" selected="@(existing?.Category == "both")">Both</option>
+                                                        </select>
+                                                    }
                                                 </td>
                                                 <td>
-                                                    <input name="capabilities[@i].DesignedCapacity" class="form-control form-control-sm" placeholder="e.g. 500-2000 CFM" value="@existing?.DesignedCapacity" />
+                                                    @if (isLocked)
+                                                    {
+                                                        <input class="form-control form-control-sm" value="@existing?.DesignedCapacity" disabled />
+                                                        <input type="hidden" name="capabilities[@i].DesignedCapacity" value="@existing?.DesignedCapacity" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <input name="capabilities[@i].DesignedCapacity" class="form-control form-control-sm" placeholder="e.g. 500-2000 CFM" value="@existing?.DesignedCapacity" />
+                                                    }
                                                 </td>
                                             </tr>
                                             i++;
@@ -163,101 +207,39 @@
                             </div>
                         </div>
 
-                        <!-- Technical Documents Section -->
+                        <!-- Section E & F Summary -->
                         <div class="row g-4 mt-5">
                             <div class="col-md-12">
-                                <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-file-earmark-pdf me-2"></i> Section E & F: Technical Documents & Experience</h5>
+                                <h5 class="fw-bold mb-1 text-primary"><i class="bi bi-file-earmark-pdf me-2"></i> Section E & F: Technical Documents & Experience</h5>
+                                <p class="text-muted small">Upload mandatory technical documents for each technology applied for empanelment.</p>
                             </div>
-                            @{ var docs = ViewBag.Documents as List<APCD.Web.Models.ApplicationDocument>; }
                             
+                            @{ var docs = ViewBag.Documents as List<APCD.Web.Models.ApplicationDocument>; }
+
+                            <!-- Technical Catalogues (Global) -->
                             <div class="col-md-6">
-                                                <div class="p-3 border rounded-3 bg-light h-100">
-                                                    <label class="form-group-label">10. Product Datasheets <span class="text-danger">*</span></label>
-                                                    <input type="file" name="productDatasheetFile" class="form-control form-control-sm mt-2" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "ProductDatasheet") ? "" : "required") />
-                                                    @if (docs != null && docs.Any(d => d.DocumentType == "ProductDatasheet")) {
-    var tmpDoc = docs.First(d => d.DocumentType == "ProductDatasheet");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="p-3 border rounded-3 bg-light h-100">
-                                                    <label class="form-group-label">11. General Arrangement (GA) Drawing <span class="text-danger">*</span></label>
-                                                    <input type="file" name="gaDrawingFile" class="form-control form-control-sm mt-2" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "GADrawing") ? "" : "required") />
-                                                    @if (docs != null && docs.Any(d => d.DocumentType == "GADrawing")) {
-    var tmpDoc = docs.First(d => d.DocumentType == "GADrawing");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="p-3 border rounded-3 bg-light h-100">
-                                                    <label class="form-group-label">12. Process Flow Diagram <span class="text-danger">*</span></label>
-                                                    <input type="file" name="processFlowFile" class="form-control form-control-sm mt-2" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "ProcessFlowDiagram") ? "" : "required") />
-                                                    @if (docs != null && docs.Any(d => d.DocumentType == "ProcessFlowDiagram")) {
-    var tmpDoc = docs.First(d => d.DocumentType == "ProcessFlowDiagram");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="p-3 border rounded-3 bg-light h-100">
-                                                    <label class="form-group-label">13. Technical Catalogues / Brochures <span class="text-danger">*</span></label>
-                                                    <input type="file" name="techCatalogueFile" class="form-control form-control-sm mt-2" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "TechnicalCatalogue") ? "" : "required") />
-                                                    @if (docs != null && docs.Any(d => d.DocumentType == "TechnicalCatalogue")) {
-    var tmpDoc = docs.First(d => d.DocumentType == "TechnicalCatalogue");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="p-3 border rounded-3 bg-light h-100">
-                                                    <label class="form-group-label">16. Design Calculations <span class="text-danger">*</span></label>
-                                                    <input type="file" name="designCalcFile" class="form-control form-control-sm mt-2" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "DesignCalculation") ? "" : "required") />
-                                                    @if (docs != null && docs.Any(d => d.DocumentType == "DesignCalculation")) {
-    var tmpDoc = docs.First(d => d.DocumentType == "DesignCalculation");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="p-3 border rounded-3 bg-light h-100">
-                                                    <label class="form-group-label">17. Material of Construction Certificates <span class="text-danger">*</span></label>
-                                                    <input type="file" name="materialConstructionFile" class="form-control form-control-sm mt-2" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "MaterialOfConstruction") ? "" : "required") />
-                                                    @if (docs != null && docs.Any(d => d.DocumentType == "MaterialOfConstruction")) {
-    var tmpDoc = docs.First(d => d.DocumentType == "MaterialOfConstruction");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="p-3 border rounded-3 bg-light h-100">
-                                                    <label class="form-group-label">18. Warranty Documents <span class="text-danger">*</span></label>
-                                                    <input type="file" name="warrantyFile" class="form-control form-control-sm mt-2" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "WarrantyDocument") ? "" : "required") />
-                                                    @if (docs != null && docs.Any(d => d.DocumentType == "WarrantyDocument")) {
-    var tmpDoc = docs.First(d => d.DocumentType == "WarrantyDocument");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="p-3 border rounded-3 bg-light h-100">
-                                                    <label class="form-group-label">19. Experience in Installation (Annexure-6a/6b) <span class="text-danger">*</span></label>
-                                                    <input type="file" name="installationExpFile" class="form-control form-control-sm mt-2" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "InstallationExperience") ? "" : "required") />
-                                    @if (docs != null && docs.Any(d => d.DocumentType == "InstallationExperience")) {
-    var tmpDoc = docs.First(d => d.DocumentType == "InstallationExperience");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
+                                <div class="p-3 border rounded-3 bg-light h-100 shadow-sm border-primary-subtle">
+                                    <label class="form-group-label fw-bold text-dark">13. Technical Catalogues / Brochures <span class="text-danger">*</span></label>
+                                    <input type="file" name="techCatalogueFile" class="form-control form-control-sm mt-3" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "TechnicalCatalogue") ? "" : "required") />
+                                    @if (docs != null && docs.Any(d => d.DocumentType == "TechnicalCatalogue"))
+                                    {
+                                        var tmpDoc = docs.First(d => d.DocumentType == "TechnicalCatalogue");
+                                        <div class="mt-2 pt-2 border-top border-white"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none fw-bold">@tmpDoc.FileName</a></div>
+                                    }
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Dynamic Document Containers -->
+                        <div id="tech-docs-container" class="mt-4 animate-fade-in">
+                            <!-- JS will inject technical document sections here -->
+                        </div>
                         <!-- Navigation -->
                         <div class="mt-5 pt-4 border-top d-flex justify-content-between">
-                            <a asp-action="Step3" asp-route-id="@appId" class="btn btn-wizard-prev">
+                            <a asp-action="Step3" asp-route-id="@appId" class="btn btn-wizard-prev shadow-sm">
                                 <i class="bi bi-arrow-left me-2"></i> Previous
                             </a>
-                            <button type="submit" class="btn btn-wizard-next">
+                            <button type="submit" class="btn btn-wizard-next shadow-sm">
                                 Next Step: Financials <i class="bi bi-arrow-right ms-2"></i>
                             </button>
                         </div>
@@ -267,3 +249,82 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        const existingDocs = @Html.Raw(Json.Serialize(ViewBag.JsonDocuments));
+        const docTypes = [
+            { id: 'productDatasheetFile', label: '10. Product Datasheets', type: 'ProductDatasheet' },
+            { id: 'gaDrawingFile', label: '11. General Arrangement (GA) Drawing', type: 'GADrawing' },
+            { id: 'processFlowFile', label: '12. Process Flow Diagram', type: 'ProcessFlowDiagram' },
+            { id: 'designCalcFile', label: '16. Design Calculations', type: 'DesignCalculation' },
+            { id: 'materialConstructionFile', label: '17. Material of Construction Certificates', type: 'MaterialOfConstruction' },
+            { id: 'warrantyFile', label: '18. Warranty Documents', type: 'WarrantyDocument' },
+            { id: 'installationExpFile', label: '19. Experience in Installation (Annexure-6a/6b)', type: 'InstallationExperience' },
+            { id: 'clientPerformanceFile', label: '20. Client Performance Certificate', type: 'ClientPerformanceCertificate' },
+            { id: 'testCertificateFile', label: '25. Test Certificates (Internal/NABL)', type: 'TestCertificate' }
+        ];
+
+        function updateTechDocuments() {
+            const container = document.getElementById('tech-docs-container');
+            const selectedTechs = Array.from(document.querySelectorAll('.tech-apply-checkbox:checked')).map(cb => cb.dataset.techName);
+            
+            // Collect tech names from locked rows (hidden fields)
+            document.querySelectorAll('input[type="hidden"][name$=".IsAppliedForEmpanelment"][value="true"]').forEach(el => {
+                const row = el.closest('tr');
+                if (row) {
+                    const techCol = row.cells[1];
+                    if (techCol) {
+                        const techName = techCol.innerText.trim();
+                        if (!selectedTechs.includes(techName)) selectedTechs.push(techName);
+                    }
+                }
+            });
+
+            container.innerHTML = '';
+
+            selectedTechs.forEach(tech => {
+                const section = document.createElement('div');
+                section.className = 'tech-doc-section mb-5 p-4 border-start border-4 border-primary rounded-end-4 bg-light shadow-sm animate-fade-in';
+                const safeTechId = tech.replace(/\s+/g, '_').replace(/[\(\)\/]/g, '_');
+                
+                section.innerHTML = `
+                    <div class="d-flex align-items-center mb-4 border-bottom pb-2">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px;">
+                            <i class="bi bi-gear-fill small"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-0">Documents for: <span class="text-primary">${tech}</span></h6>
+                    </div>
+                    <div class="row g-3">
+                        ${docTypes.map(doc => {
+                            const foundDoc = existingDocs.find(d => d.documentType === doc.type && d.associatedTech === tech);
+                            const fileInputKey = `${doc.id}_${safeTechId}`;
+                            return `
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="p-3 border rounded-3 h-100 bg-white shadow-sm hover-elevate transition-all">
+                                        <label class="form-label small fw-bold text-secondary mb-2">${doc.label} <span class="text-danger">*</span></label>
+                                        <input type="file" name="${fileInputKey}" class="form-control form-control-sm" accept=".pdf" ${foundDoc ? '' : 'required'} />
+                                        ${foundDoc ? `
+                                            <div class="mt-2 text-truncate">
+                                                <a href="${foundDoc.filePath}" target="_blank" class="extra-small text-success text-decoration-none fw-bold">
+                                                    <i class="bi bi-file-earmark-check-fill me-1"></i>${foundDoc.fileName}
+                                                </a>
+                                            </div>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                container.appendChild(section);
+            });
+        }
+
+        document.querySelectorAll('.tech-apply-checkbox').forEach(cb => {
+            cb.addEventListener('change', updateTechDocuments);
+        });
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', updateTechDocuments);
+    </script>
+}

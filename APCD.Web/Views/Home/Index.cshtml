@@ -2,53 +2,301 @@
     ViewData["Title"] = "Home Page";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/apcd-categories.css" asp-append-version="true" />
+}
+<style>
+    .hero-wrapper{
+    background:#f4f7fb;
+    padding:70px 0;
+}
+
+.hero-content{
+    padding-left:6%;
+    padding-right:4%;
+}
+
+.hero-title{
+    font-size:2.2rem;
+    line-height:1.45;
+    font-weight:600;
+    color:#0d3b66;
+    max-width:650px;
+}
+
+.hero-img-container{
+    position:relative;
+    padding-right:4%;
+}
+
+.hero-img{
+    width:100%;
+    height:520px;
+    object-fit:cover;
+    border-radius:18px;
+}
+
+.hero-stat-card{
+    position:absolute;
+    bottom:25px;
+    right:40px;
+    background:#fff;
+    padding:12px 18px;
+    border-radius:10px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+
+.btn-primary-custom{
+    background:#0d3b66;
+    border:none;
+    padding:12px 28px;
+    border-radius:8px;
+}
+
+.btn-primary-custom:hover{
+    background:#092c4c;
+}
+
+    .display-4 {
+        font-size: 38px;
+    }
+
+    .pricing-section {
+        background: #f6f8fb;
+    }
+
+    .fee-card {
+        background: white;
+        border-radius: 14px;
+        padding: 35px 25px;
+        transition: all .3s ease;
+        border: 1px solid #e6e6e6;
+        height: 100%;
+    }
+
+        .fee-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        }
+
+    .fee-icon {
+        font-size: 32px;
+        color: #0d6efd;
+        margin-bottom: 15px;
+    }
+
+    .fee-title {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 13px;
+        color: #6c757d;
+    }
+
+    .fee-price {
+        font-size: 38px;
+        font-weight: 700;
+        color: #0d3b66;
+        margin: 15px 0;
+    }
+
+    .fee-list {
+        list-style: none;
+        padding: 0;
+        margin-top: 20px;
+        text-align: left;
+    }
+
+        .fee-list li {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .fee-list i {
+            margin-right: 6px;
+        }
+
+    /* Highlight card */
+    .highlight {
+        border: 2px solid #0d6efd;
+        transform: scale(1.03);
+        box-shadow: 0 12px 35px rgba(13,110,253,0.15);
+    }
+
+    /* ============================= */
+    /* PRICING SECTION */
+    /* ============================= */
+    .fee-note {
+        color: #28a745; /* professional green */
+        font-weight: 500;
+    }
+    .pricing-section {
+        background: #f6f8fb;
+    }
+
+    /* Section Heading */
+
+    .section-tag {
+        color: #1e6bb8;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        font-size: 14px;
+    }
+
+    .section-head h2 {
+        color: #0d3b66;
+        font-weight: 700;
+    }
+
+    .section-head p {
+        color: #6c757d;
+    }
+
+    /* ============================= */
+    /* FEE CARD */
+    /* ============================= */
+
+    .fee-card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 35px 25px;
+        border: 1px solid #e6e6e6;
+        transition: all .3s ease;
+        height: 100%;
+    }
+
+        .fee-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        }
+
+    /* Highlight Card */
+
+    .highlight {
+        border: 2px solid #1e6bb8;
+        box-shadow: 0 10px 30px rgba(30,107,184,0.15);
+        transform: scale(1.03);
+    }
+
+    /* ============================= */
+    /* ICON */
+    /* ============================= */
+
+    .fee-icon {
+        margin-bottom: 15px;
+    }
+
+        .fee-icon i {
+            font-size: 32px;
+            color: #1e6bb8;
+        }
+
+    /* ============================= */
+    /* TITLE */
+    /* ============================= */
+
+    .fee-title {
+        color: #6c757d;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 13px;
+        letter-spacing: .5px;
+        margin-bottom: 10px;
+    }
+
+    /* ============================= */
+    /* PRICE */
+    /* ============================= */
+
+    .fee-price {
+        color: #0d3b66;
+        font-size: 40px;
+        font-weight: 700;
+        margin: 15px 0;
+    }
+
+    /* ============================= */
+    /* DESCRIPTION */
+    /* ============================= */
+  
+
+    /* ============================= */
+    /* FEATURE LIST */
+    /* ============================= */
+
+    .fee-list {
+        list-style: none;
+        padding: 0;
+        margin-top: 20px;
+        text-align: left;
+    }
+
+        .fee-list li {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .fee-list i {
+            margin-right: 6px;
+            color: #28a745;
+        }
+
+    /* ============================= */
+    /* RESPONSIVE */
+    /* ============================= */
+
+    @@media (max-width:768px){
+        .fee-price
+
+    {
+        font-size: 32px;
+    }
+
+    .highlight {
+        transform: none;
+    }
+    }
+    
+</style>
+
 <!-- Hero Section -->
 <section class="hero-wrapper">
-    <div class="container">
+    <div class="container-fluid">
         <div class="row align-items-center">
-            <div class="col-lg-6 mb-5 mb-lg-0">
-                <span class="section-tag">Empanelment Portal</span>
-                <h1 class="display-3 mb-4">Certification Council Bureau for <span class="text-primary">Air Pollution Control</span> Equipment</h1>
-                <p class="lead text-muted mb-5">Streamline your OEM empanelment process with NPC. A transparent, 100% digital platform for technical evaluation and certification of APCD manufacturers.</p>
-                <div class="d-flex gap-3">
-                    <a asp-controller="Auth" asp-action="Register" class="btn btn-primary-custom btn-lg px-5">Get Started Now</a>
-                    <a href="#process" class="btn btn-outline-primary btn-lg px-5">Watch Video</a>
-                </div>
-                <div class="row mt-5 pt-4">
-                    <div class="col-4">
-                        <h4 class="mb-0">2.1k+</h4>
-                        <p class="small text-muted">User Reviews</p>
-                    </div>
-                    <div class="col-4 border-start">
-                        <h4 class="mb-0">6.1k+</h4>
-                        <p class="small text-muted">Total Projects</p>
-                    </div>
-                    <div class="col-4 border-start">
-                        <h4 class="mb-0">850k+</h4>
-                        <p class="small text-muted">Happy Users</p>
-                    </div>
-                </div>
+
+            <!-- LEFT CONTENT -->
+            <div class="col-lg-6 hero-content">
+                <h1 class="hero-title">
+                    Empanelment of Original Equipment Manufacturers (OEMs)
+                    of Air Pollution Control Devices (APCDs) for
+                    Installation / Upgradation in Industrial Units in Delhi – NCR
+                </h1>
+
+                <a asp-controller="Auth" asp-action="Register"
+                   class="btn btn-primary-custom btn-lg mt-3">
+                    Get Started Now
+                </a>
             </div>
-            <div class="col-lg-6">
-                <div class="hero-img-container ps-lg-5">
-                    <img src="~/images/hero.png" alt="Industrial Plant" class="img-fluid">
-                    <div class="hero-stat-card d-none d-md-block">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="bg-light-blue p-2 rounded">
-                                <i class="bi bi-patch-check-fill text-success fs-3"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-0">Approved OEM</h6>
-                                <p class="small text-muted mb-0">Verified by NPC Experts</p>
-                            </div>
+
+            <!-- RIGHT IMAGE -->
+            <div class="col-lg-6 hero-img-container">
+                <img src="~/images/hero.png" alt="Industrial Plant" class="hero-img">
+
+                <div class="hero-stat-card">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-patch-check-fill text-success fs-4"></i>
+                        <div>
+                            <strong>Approved OEM</strong><br>
+                            <small class="text-muted">Verified by NPC Experts</small>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </section>
-
 <!-- Our Objectives -->
 <section class="py-5 my-5">
     <div class="container">
@@ -156,107 +404,179 @@
     </div>
 </section>
 
-<!-- Our Categories -->
-<section class="py-5 my-5">
+<!-- Types of APCD Based on Category Section -->
+<section class="apcd-section">
     <div class="container">
-        <div class="section-head text-center">
-            <span class="section-tag">Our Expertise</span>
-            <h2>APCD Categories We Support</h2>
+        <div class="section-head text-center mb-5 animate-fade-up">
+            <span class="section-tag">Industry Standards</span>
+            <h2 class="display-5 fw-bold text-dark">Types of APCD Based on Category</h2>
+            <div class="mx-auto bg-primary rounded-pill mb-4" style="width: 80px; height: 4px;"></div>
+            <p class="text-muted mx-auto" style="max-width: 700px;">Explore the classification of Air Pollution Control Devices (APCD) based on their technical application and filtration mechanisms for industrial environmental protection.</p>
         </div>
+
         <div class="row g-4">
-            <div class="col-md">
-                <div class="cat-card">
-                    <i class="bi bi-filter-circle cat-icon"></i>
-                    <h5>Bag Filter</h5>
-                    <p class="small text-muted">Efficient particulate matter removal system.</p>
+            <!-- 1. ESP -->
+            <div class="col-lg-4 col-md-6">
+                <div class="apcd-card animate-fade-up" style="animation-delay: 0.1s;">
+                    <div class="apcd-icon-wrapper">
+                        <i class="fa-solid fa-bolt-lightning"></i>
+                    </div>
+                    <h4 class="apcd-title">ESP</h4>
+                    <p class="apcd-desc">Electrostatic precipitators for fine particulate control in high-volume industrial exhaust streams.</p>
+                    
+                    <button class="apcd-expand-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#esp-subs">
+                        View Sub-Types <i class="fa-solid fa-chevron-down ms-1"></i>
+                    </button>
+                    
+                    <div class="collapse" id="esp-subs">
+                        <ul class="subtype-list">
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Dry ESP (Plate Type / Tube Type)</li>
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Wet ESP</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-            <div class="col-md">
-                <div class="cat-card">
-                    <i class="bi bi-wind cat-icon"></i>
-                    <h5>Cyclones</h5>
-                    <p class="small text-muted">Centrifugal separation for larger dust particles.</p>
-                </div>
-            </div>
-            <div class="col-md">
-                <div class="cat-card">
-                    <i class="bi bi-lightning-charge cat-icon"></i>
-                    <h5>ESP</h5>
-                    <p class="small text-muted">Electrostatic precipitators for fine particles.</p>
-                </div>
-            </div>
-            <div class="col-md">
-                <div class="cat-card">
-                    <i class="bi bi-droplet cat-icon"></i>
-                    <h5>Scrubbers</h5>
-                    <p class="small text-muted">Wet removal systems for gases and particulates.</p>
-                </div>
-            </div>
-            <div class="col-md">
-                <div class="cat-card">
-                    <i class="bi bi-box-seam cat-icon"></i>
-                    <h5>Bio-Filters</h5>
-                    <p class="small text-muted">Biological control of odor and toxic gases.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
-<!-- Working Group Categories -->
-<section class="py-5 bg-white">
-    <div class="container">
-        <div class="section-head text-center">
-            <span class="section-tag">Category Detail</span>
-            <h2>Our Working Group Categories</h2>
-        </div>
-        <div class="row g-5">
-            <div class="col-md-6">
-                <div class="p-5 rounded-4 border border-light shadow-sm h-100" style="background: #fdfdff;">
-                    <h4 class="mb-4 text-primary d-flex align-items-center">
-                        <i class="bi bi-fan me-3 fs-3"></i> Physical Emission
-                    </h4>
-                    <ul class="list-unstyled">
-                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-3"></i> Particulate Matter (PM10, PM2.5)</li>
-                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-3"></i> Industrial Dust & Soot</li>
-                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-3"></i> Fly Ash Management</li>
-                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-3"></i> Smoke & Opacity Control</li>
-                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-3"></i> Metal Fumes & Particles</li>
-                    </ul>
+            <!-- 2. Bag Filter -->
+            <div class="col-lg-4 col-md-6">
+                <div class="apcd-card animate-fade-up" style="animation-delay: 0.2s;">
+                    <div class="apcd-icon-wrapper">
+                        <i class="fa-solid fa-filter"></i>
+                    </div>
+                    <h4 class="apcd-title">Bag Filter / Baghouse Systems</h4>
+                    <p class="apcd-desc">Advanced fabric filtration systems designed for efficient industrial dust and particulate removal.</p>
+                    
+                    <button class="apcd-expand-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#bag-subs">
+                        View Sub-Types <i class="fa-solid fa-chevron-down ms-1"></i>
+                    </button>
+                    
+                    <div class="collapse" id="bag-subs">
+                        <ul class="subtype-list">
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Pulse Jet Baghouse</li>
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Reverse Air Baghouse</li>
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Mechanical Shaker Baghouse</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="p-5 rounded-4 border border-light shadow-sm h-100" style="background: #fdfdff;">
-                    <h4 class="mb-4 text-primary d-flex align-items-center">
-                        <i class="bi bi-layers-half me-3 fs-3"></i> Other Pollution Control
-                    </h4>
-                    <ul class="list-unstyled">
-                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-3"></i> SOx & NOx Removal Systems</li>
-                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-3"></i> Volatile Organic Compounds (VOCs)</li>
-                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-3"></i> Acid Gas Scrubbing</li>
-                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-3"></i> Odor Control Technologies</li>
-                        <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-3"></i> Carbon Capture & Storage</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="text-center mt-5">
-            <a href="#" class="btn btn-outline-primary px-5">View More Details <i class="bi bi-arrow-right"></i></a>
-        </div>
-    </div>
-</section>
 
-<!-- Our Clients -->
-<section class="py-5">
-    <div class="container text-center">
-        <h5 class="text-muted text-uppercase mb-5" style="letter-spacing: 3px; font-size: 0.8rem;">Trusted by Industry Leaders</h5>
-        <div class="row align-items-center g-4 opacity-75">
-            <div class="col-6 col-md-2"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e0/ONGC_Logo.png" class="img-fluid px-4 grayscale" alt="ONGC" style="max-height: 50px;"></div>
-            <div class="col-6 col-md-2"><img src="https://upload.wikimedia.org/wikipedia/en/thumb/c/c5/NTPC_Logo.svg/1200px-NTPC_Logo.svg.png" class="img-fluid px-4 grayscale" alt="NTPC" style="max-height: 50px;"></div>
-            <div class="col-6 col-md-2"><img src="https://upload.wikimedia.org/wikipedia/en/thumb/b/b3/Indian_Oil_Logo.svg/1200px-Indian_Oil_Logo.svg.png" class="img-fluid px-4 grayscale" alt="IOCL" style="max-height: 50px;"></div>
-            <div class="col-6 col-md-2"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Tata_Group_logo.svg/1200px-Tata_Group_logo.svg.png" class="img-fluid px-4 grayscale" alt="Tata" style="max-height: 50px;"></div>
-            <div class="col-6 col-md-2"><img src="https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Reliance_Industries_Logo.svg/1200px-Reliance_Industries_Logo.svg.png" class="img-fluid px-4 grayscale" alt="Reliance" style="max-height: 50px;"></div>
-            <div class="col-6 col-md-2"><img src="https://upload.wikimedia.org/wikipedia/en/thumb/4/41/BHEL_Logo.svg/1200px-BHEL_Logo.svg.png" class="img-fluid px-4 grayscale" alt="BHEL" style="max-height: 50px;"></div>
+            <!-- 3. Cyclones -->
+            <div class="col-lg-4 col-md-6">
+                <div class="apcd-card animate-fade-up" style="animation-delay: 0.3s;">
+                    <div class="apcd-icon-wrapper">
+                        <i class="fa-solid fa-tornado"></i>
+                    </div>
+                    <h4 class="apcd-title">Cyclones</h4>
+                    <p class="apcd-desc">Centrifugal separation technology optimized for higher-mass dust particles and pre-filtration.</p>
+                    
+                    <button class="apcd-expand-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cyclone-subs">
+                        View Sub-Types <i class="fa-solid fa-chevron-down ms-1"></i>
+                    </button>
+                    
+                    <div class="collapse" id="cyclone-subs">
+                        <ul class="subtype-list">
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Single Cyclone</li>
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Twin Cyclone</li>
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Multi Cyclone / Multi-Clone</li>
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> High-Efficiency Cyclone</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Wet Scrubber -->
+            <div class="col-lg-4 col-md-6">
+                <div class="apcd-card animate-fade-up" style="animation-delay: 0.4s;">
+                    <div class="apcd-icon-wrapper">
+                        <i class="fa-solid fa-droplet"></i>
+                    </div>
+                    <h4 class="apcd-title">Wet Scrubber</h4>
+                    <p class="apcd-desc">Specialized wet gas cleaning systems for capturing both gases and fine particulates with liquid media.</p>
+                    
+                    <button class="apcd-expand-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#wet-subs">
+                        View Sub-Types <i class="fa-solid fa-chevron-down ms-1"></i>
+                    </button>
+                    
+                    <div class="collapse" id="wet-subs">
+                        <ul class="subtype-list">
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Venturi Scrubber</li>
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Spray Tower / Spray Scrubber</li>
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Packed Bed Scrubber</li>
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Submerged Scrubber</li>
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Multi-Stage Wet Scrubber</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Dry Scrubber -->
+            <div class="col-lg-4 col-md-6">
+                <div class="apcd-card animate-fade-up" style="animation-delay: 0.5s;">
+                    <div class="apcd-icon-wrapper">
+                        <i class="fa-solid fa-wind"></i>
+                    </div>
+                    <h4 class="apcd-title">Dry Scrubber</h4>
+                    <p class="apcd-desc">Advanced dry chemical injection systems for removing acid gases from combustion exhaust.</p>
+                    
+                    <button class="apcd-expand-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dry-subs">
+                        View Sub-Types <i class="fa-solid fa-chevron-down ms-1"></i>
+                    </button>
+                    
+                    <div class="collapse" id="dry-subs">
+                        <ul class="subtype-list">
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Dry Sorbent Injection</li>
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Semi-Dry Scrubber</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Hybrid -->
+            <div class="col-lg-4 col-md-6">
+                <div class="apcd-card animate-fade-up" style="animation-delay: 0.6s;">
+                    <div class="apcd-icon-wrapper">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <h4 class="apcd-title">Hybrid / Other Technologies</h4>
+                    <p class="apcd-desc">Innovative combinations or patented advanced technologies for high-efficiency pollution control.</p>
+                    
+                    <button class="apcd-expand-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#hybrid-subs">
+                        View Sub-Types <i class="fa-solid fa-chevron-down ms-1"></i>
+                    </button>
+                    
+                    <div class="collapse" id="hybrid-subs">
+                        <ul class="subtype-list">
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Hybrid ESP–Baghouse</li>
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Hybrid Wet–Dry Scrubbers</li>
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Electrostatic Gravel Bed</li>
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Advanced / Patented Technologies</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Extraction Systems -->
+            <div class="col-lg-4 col-md-6 mx-auto">
+                <div class="apcd-card animate-fade-up" style="animation-delay: 0.7s;">
+                    <div class="apcd-icon-wrapper">
+                        <i class="fa-solid fa-fan"></i>
+                    </div>
+                    <h4 class="apcd-title">Fume / Dust Extraction</h4>
+                    <p class="apcd-desc">Localized exhaust ventilation systems designed to capture industrial fumes and dust at the source.</p>
+                    
+                    <button class="apcd-expand-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#extract-subs">
+                        View Sub-Types <i class="fa-solid fa-chevron-down ms-1"></i>
+                    </button>
+                    
+                    <div class="collapse" id="extract-subs">
+                        <ul class="subtype-list">
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Industrial Fume Extraction</li>
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Dust Extraction Systems</li>
+                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Exhaust Ventilation (LEV)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -322,63 +642,105 @@
 </section>
 
 <!-- Fee Structure -->
-<section id="fees" class="py-5 bg-white">
+<section id="fees" class="pricing-section py-5">
     <div class="container">
-        <div class="section-head text-center">
+
+        <div class="section-head text-center mb-5">
             <span class="section-tag">Pricing</span>
-            <h2>Transparent Fee Structure</h2>
+            <h2 class="fw-bold">Empanelment Fee Structure</h2>
+            <p class="text-muted">Transparent fee structure for OEM empanelment and certification</p>
         </div>
-        <div class="row g-4">
-            <div class="col-md-3">
-                <div class="fee-card shadow-sm text-center">
-                    <h6 class="text-uppercase text-muted small mb-4">Application Fee</h6>
-                    <h2 class="display-6 fw-bold">₹25,000</h2>
-                    <p class="text-muted small mb-4">+ 18% GST Extra</p>
-                    <ul class="list-unstyled text-start small mb-4">
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Registration</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Portal Access</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Document Review</li>
+
+        <div class="row g-4 justify-content-center">
+
+            <!-- Application Fee -->
+            <div class="col-lg-3 col-md-6">
+                <div class="fee-card text-center">
+                    <div class="fee-icon">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+
+                    <h6 class="fee-title">Application Fee</h6>
+
+                    <h2 class="fee-price">₹25,000</h2>
+
+                    <p class="small fee-note">+18% GST Extra<br>Non-Refundable</p>
+
+                    <ul class="fee-list">
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Company Registration</li>
                     </ul>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="fee-card highlight shadow text-center">
-                    <span class="badge bg-primary mb-3">Popular</span>
-                    <h6 class="text-uppercase text-muted small mb-4">Product Fee</h6>
-                    <h2 class="display-6 fw-bold">₹65,000</h2>
-                    <p class="text-muted small mb-4">Per APCD Type</p>
-                    <ul class="list-unstyled text-start small mb-4">
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Technical Eval</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Design Check</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Certificate</li>
+
+            <!-- Empanelment Fee (Highlighted) -->
+            <div class="col-lg-3 col-md-6">
+                <div class="fee-card highlight text-center">
+
+
+                    <div class="fee-icon">
+                        <i class="bi bi-award"></i>
+                    </div>
+
+                    <h6 class="fee-title">Empanelment Fee</h6>
+
+                    <h2 class="fee-price">₹65,000</h2>
+                    <p class="small fee-note">+18% GST Extra<br>Non-Refundable</p>
+
+                    <p class="text-muted small">Per APCD Technology Type</p>
+
+                    <ul class="fee-list">
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Provisional Technology Approval</li>
                     </ul>
+
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="fee-card shadow-sm text-center">
-                    <h6 class="text-uppercase text-muted small mb-4">Field Verification</h6>
-                    <h2 class="display-6 fw-bold">₹57,000</h2>
-                    <p class="text-muted small mb-4">Per Visit</p>
-                    <ul class="list-unstyled text-start small mb-4">
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Site Visit</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Travel Claims</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Physical Audit</li>
+
+            <!-- Field Verification -->
+            <div class="col-lg-3 col-md-6">
+                <div class="fee-card text-center">
+
+                    <div class="fee-icon">
+                        <i class="bi bi-search"></i>
+                    </div>
+
+                    <h6 class="fee-title">Field Verification Fee</h6>
+
+                    <h2 class="fee-price">₹57,000</h2>
+                    <p class="small fee-note">+18% GST Extra<br>Non-Refundable</p>
+
+                    <p class="text-muted small">Per APCD Technology Type</p>
+
+                    <ul class="fee-list">
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Field Inspection</li>
                     </ul>
+
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="fee-card shadow-sm text-center">
-                    <h6 class="text-uppercase text-muted small mb-4">Renewal Fee</h6>
-                    <h2 class="display-6 fw-bold">₹35,000</h2>
-                    <p class="text-muted small mb-4">Per Year</p>
-                    <ul class="list-unstyled text-start small mb-4">
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Validity Ext</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Yearly Review</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Updated Cert</li>
+
+            <!-- Renewal Fee -->
+            <div class="col-lg-3 col-md-6">
+                <div class="fee-card text-center">
+
+                    <div class="fee-icon">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </div>
+
+                    <h6 class="fee-title">Renewal Fee</h6>
+
+                    <h2 class="fee-price">₹35,000</h2>
+                    <p class="small fee-note">+18% GST Extra<br>Non-Refundable</p>
+
+                    <p class="text-muted small">Every 2 Years<br>Per APCD Technology Type</p>
+
+                    <ul class="fee-list">
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Certificate Validity Extension</li>
                     </ul>
+
                 </div>
             </div>
+
         </div>
+
     </div>
 </section>
 

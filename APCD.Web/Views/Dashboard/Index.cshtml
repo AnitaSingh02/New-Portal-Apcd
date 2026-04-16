@@ -155,7 +155,15 @@
                                     }
                                     else
                                     {
-                                        <a asp-controller="Application" asp-action="Review" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary rounded-pill px-4">Review <i class="bi bi-eye ms-1"></i></a>
+                                        <div class="d-flex gap-2 justify-content-end">
+                                            @if (Model.Status == "Submitted" || Model.Status == "DocumentApproved")
+                                            {
+                                                <a asp-controller="Application" asp-action="Step4" asp-route-id="@Model.Id" asp-route-mode="addMore" class="btn btn-sm btn-gov-gold text-white rounded-pill px-3">
+                                                    <i class="bi bi-plus-circle me-1"></i> Add More APCD
+                                                </a>
+                                            }
+                                            <a asp-controller="Application" asp-action="Review" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary rounded-pill px-4">Review <i class="bi bi-eye ms-1"></i></a>
+                                        </div>
                                     }
                                 </td>
                             </tr>

@@ -216,31 +216,55 @@ namespace APCD.Web.Controllers
 
         #region Step 4: Technical Scope (Points 21, 22)
         [HttpGet]
-        public async Task<IActionResult> Step4(int id)
+        public async Task<IActionResult> Step4(int id, string mode = null)
         {
+            var application = await _context.Applications.FindAsync(id);
+            if (application == null || (application.UserId != GetUserId() && !User.IsInRole("Admin"))) return RedirectToAction("Index", "Dashboard");
+
             var capabilities = await _context.APCDCapabilities.Where(c => c.ApplicationId == id).ToListAsync();
             var installations = await _context.InstallationRecords.Where(i => i.ApplicationId == id).ToListAsync();
+            
             ViewBag.AppId = id;
-            ViewBag.Documents = await _context.ApplicationDocuments.Where(d => d.ApplicationId == id).ToListAsync();
+            ViewBag.IsAddMoreMode = mode == "addMore" && (application.Status == "Submitted" || application.Status == "DocumentApproved");
+            var allDocs = await _context.ApplicationDocuments.Where(d => d.ApplicationId == id).ToListAsync();
+            ViewBag.Documents = allDocs;
+            ViewBag.JsonDocuments = allDocs.Select(d => new { 
+                d.DocumentType, 
+                d.FileName, 
+                d.FilePath, 
+                d.AssociatedTech 
+            }).ToList();
+            
             ViewBag.Installations = installations;
+            
             return View(capabilities);
         }
 
         [HttpPost]
         public async Task<IActionResult> SaveCapabilities(int id, List<APCDCapability> capabilities, List<InstallationRecord> installations)
         {
-            var existing = await _context.APCDCapabilities.Where(c => c.ApplicationId == id).ToListAsync();
-            _context.APCDCapabilities.RemoveRange(existing);
-            
-            foreach(var cap in capabilities)
+            var application = await _context.Applications.Include(a => a.Capabilities).FirstOrDefaultAsync(a => a.Id == id);
+            if (application == null) return NotFound();
+
+            foreach (var cap in capabilities)
             {
-                if (!string.IsNullOrWhiteSpace(cap.DesignedCapacity))
+                var existingCap = application.Capabilities.FirstOrDefault(c => c.MainType == cap.MainType && c.SubTech == cap.SubTech);
+                if (existingCap != null)
+                {
+                    existingCap.IsManufactured = cap.IsManufactured;
+                    existingCap.IsAppliedForEmpanelment = cap.IsAppliedForEmpanelment;
+                    existingCap.Category = cap.Category ?? string.Empty;
+                    existingCap.DesignedCapacity = cap.DesignedCapacity ?? string.Empty;
+                    existingCap.TypeDetails = cap.TypeDetails ?? string.Empty;
+                }
+                else if (cap.IsManufactured || cap.IsAppliedForEmpanelment)
                 {
                     cap.ApplicationId = id;
                     cap.MainType = cap.MainType ?? string.Empty;
                     cap.SubTech = cap.SubTech ?? string.Empty;
                     cap.Category = cap.Category ?? string.Empty;
                     cap.TypeDetails = cap.TypeDetails ?? string.Empty;
+                    cap.DesignedCapacity = cap.DesignedCapacity ?? string.Empty;
                     _context.APCDCapabilities.Add(cap);
                 }
             }
@@ -284,17 +308,40 @@ namespace APCD.Web.Controllers
             
             string oemFolder = await GetOEMFolderName(id);
             
-            await ProcessFileUpload(id, "productDatasheetFile", "ProductDatasheet", oemFolder);
-            await ProcessFileUpload(id, "gaDrawingFile", "GADrawing", oemFolder);
-            await ProcessFileUpload(id, "processFlowFile", "ProcessFlowDiagram", oemFolder);
+            // Common documents (Card 13 stays common)
             await ProcessFileUpload(id, "techCatalogueFile", "TechnicalCatalogue", oemFolder);
-            await ProcessFileUpload(id, "designCalcFile", "DesignCalculation", oemFolder);
-            await ProcessFileUpload(id, "materialConstructionFile", "MaterialOfConstruction", oemFolder);
-            await ProcessFileUpload(id, "warrantyFile", "WarrantyDocument", oemFolder);
-            await ProcessFileUpload(id, "installationExpFile", "InstallationExperience", oemFolder);
 
-            var appModel = await _context.Applications.FindAsync(id);
-            if (appModel != null) appModel.CurrentStep = Math.Max(appModel.CurrentStep, 5);
+            // Per-technology documents
+            var appliedTechs = capabilities.Where(c => c.IsAppliedForEmpanelment).ToList();
+            var docTypes = new Dictionary<string, string>
+            {
+                { "ProductDatasheet", "productDatasheetFile" },
+                { "GADrawing", "gaDrawingFile" },
+                { "ProcessFlowDiagram", "processFlowFile" },
+                { "DesignCalculation", "designCalcFile" },
+                { "MaterialOfConstruction", "materialConstructionFile" },
+                { "WarrantyDocument", "warrantyFile" },
+                { "InstallationExperience", "installationExpFile" },
+                { "ClientPerformanceCertificate", "clientPerformanceFile" },
+                { "TestCertificate", "testCertificateFile" } 
+            };
+
+            foreach (var tech in appliedTechs)
+            {
+                string safeTechName = tech.SubTech.Replace(" ", "_").Replace("(", "").Replace(")", "").Replace("/", "_");
+                foreach (var docType in docTypes)
+                {
+                    string fileKey = $"{docType.Value}_{safeTechName}";
+                    await ProcessFileUpload(id, fileKey, docType.Key, oemFolder, tech.SubTech);
+                }
+            }
+
+            // Update SelectedAPCDCategories summary for fee calculation and review
+            application.SelectedAPCDCategories = string.Join(",", application.Capabilities
+                .Where(c => c.IsAppliedForEmpanelment)
+                .Select(c => c.SubTech));
+
+            if (application != null) application.CurrentStep = Math.Max(application.CurrentStep, 5);
 
             await _context.SaveChangesAsync();
             return RedirectToAction("Step5", new { id });
@@ -311,6 +358,22 @@ namespace APCD.Web.Controllers
                 .Include(a => a.Installations)
                 .FirstOrDefaultAsync(a => a.Id == id);
             
+            if (application == null) return NotFound();
+
+            // Calculate dynamic financial years (Last 3 COMPLETED years)
+            int currentYear = DateTime.Now.Year;
+            int currentMonth = DateTime.Now.Month;
+            // FY starts in April. If today is April 2026 or later, 2025-26 just finished.
+            int lastCompletedYear = (currentMonth >= 4) ? (currentYear - 1) : (currentYear - 2);
+            
+            var years = new List<string>();
+            for (int i = 0; i < 3; i++)
+            {
+                int y = lastCompletedYear - i;
+                years.Add($"{y}-{(y + 1) % 100:D2}");
+            }
+            ViewBag.FinancialYears = years;
+            
             return View(application);
         }
 
@@ -322,11 +385,21 @@ namespace APCD.Web.Controllers
                 .Include(a => a.Documents)
                 .FirstOrDefaultAsync(a => a.Id == id);
                 
-            if (application == null || application.UserId != GetUserId()) return NotFound();
+            if (application == null || (application.UserId != GetUserId() && !User.IsInRole("Admin"))) return NotFound();
 
             application.HasGrievanceSystem = hasGrievance;
 
-            var turnoverYears = new[] { "2022-23", "2023-24", "2024-25" };
+            // Recalculate dynamic years to match the form fields sent by the dynamic View
+            int currentYear = DateTime.Now.Year;
+            int currentMonth = DateTime.Now.Month;
+            int lastCompletedYear = (currentMonth >= 4) ? (currentYear - 1) : (currentYear - 2);
+            var turnoverYears = new List<string>();
+            for (int i = 0; i < 3; i++)
+            {
+                int y = lastCompletedYear - i;
+                turnoverYears.Add($"{y}-{(y + 1) % 100:D2}");
+            }
+
             string oemFolder = await GetOEMFolderName(id);
 
             foreach (var year in turnoverYears)
@@ -345,9 +418,8 @@ namespace APCD.Web.Controllers
                 }
             }
 
-            // Save single consolidated turnover document
+            // Save mandatory documents
             await ProcessFileUpload(id, "consolidatedTurnoverFile", "ConsolidatedTurnover", oemFolder);
-
             await ProcessFileUpload(id, "bankSolvencyFile", "BankSolvency", oemFolder);
             await ProcessFileUpload(id, "bankAccountFile", "BankAccountDetails", oemFolder);
             await ProcessFileUpload(id, "serviceSupportFile", "ServiceSupportUndertaking", oemFolder);
@@ -402,26 +474,34 @@ namespace APCD.Web.Controllers
             return $"/uploads/{folderName}/{fileName}";
         }
 
-        private async Task ProcessFileUpload(int id, string fileKey, string docType, string folderName)
+        private async Task ProcessFileUpload(int id, string fileKey, string docType, string folderName, string associatedTech = "")
         {
             var file = Request.Form.Files[fileKey];
             if (file != null && file.Length > 0)
             {
                 var path = await SaveFileAsync(file, folderName);
-                await AddOrUpdateDocument(id, docType, file.FileName, path);
+                await AddOrUpdateDocument(id, docType, file.FileName, path, associatedTech);
             }
         }
 
-        private async Task AddOrUpdateDocument(int applicationId, string documentType, string fileName, string filePath)
+        private async Task AddOrUpdateDocument(int applicationId, string documentType, string fileName, string filePath, string associatedTech = "")
         {
-            var doc = await _context.ApplicationDocuments
-                .FirstOrDefaultAsync(d => d.ApplicationId == applicationId && d.DocumentType == documentType);
+            var query = _context.ApplicationDocuments
+                .Where(d => d.ApplicationId == applicationId && d.DocumentType == documentType);
+
+            if (!string.IsNullOrEmpty(associatedTech))
+            {
+                query = query.Where(d => d.AssociatedTech == associatedTech);
+            }
+
+            var doc = await query.FirstOrDefaultAsync();
             
             if (doc != null)
             {
                 doc.FileName = fileName;
                 doc.FilePath = filePath;
                 doc.UploadedAt = DateTime.UtcNow;
+                doc.AssociatedTech = associatedTech;
             }
             else
             {
@@ -430,7 +510,8 @@ namespace APCD.Web.Controllers
                     ApplicationId = applicationId,
                     DocumentType = documentType,
                     FileName = fileName,
-                    FilePath = filePath
+                    FilePath = filePath,
+                    AssociatedTech = associatedTech
                 });
             }
         }
@@ -465,9 +546,10 @@ namespace APCD.Web.Controllers
 
             if (application == null) return NotFound();
 
+            // Calculate Fees
             decimal baseAppFee = 25000;
-            int apcdCount = application.Capabilities.Count(c => c.IsAppliedForEmpanelment);
-            decimal baseEmpFee = apcdCount * 65000;
+            int currentApcdCount = application.Capabilities.Count(c => c.IsAppliedForEmpanelment);
+            decimal baseEmpFee = currentApcdCount * 65000;
 
             decimal discountPercent = 0;
             if (application.IsMSE || application.IsStartup || application.IsLocalSupplier)
@@ -475,38 +557,46 @@ namespace APCD.Web.Controllers
                 discountPercent = 0.15m;
             }
 
-            // Application Fee Details
-            decimal appFeeDiscount = baseAppFee * discountPercent;
-            decimal appFeeNet = baseAppFee; // Full amount upfront
-            decimal appFeeGST = appFeeNet * 0.18m;
-            decimal appFeeTotal = appFeeNet + appFeeGST;
-
-            // Empanelment Fee Details
-            decimal empFeeDiscount = baseEmpFee * discountPercent;
-            decimal empFeeNet = baseEmpFee; // Full amount upfront
-            decimal empFeeGST = empFeeNet * 0.18m;
-            decimal empFeeTotal = empFeeNet + empFeeGST;
-
+            decimal appFeeTotal = (baseAppFee) * 1.18m;
+            decimal empFeeTotal = (baseEmpFee) * 1.18m;
             decimal total = appFeeTotal + empFeeTotal;
 
-            ViewBag.BaseAppFee = baseAppFee;
-            ViewBag.AppFeeDiscount = appFeeDiscount; // For reimbursement info
-            ViewBag.AppFeeTotal = appFeeTotal;
-
-            ViewBag.APCDCount = apcdCount;
-            ViewBag.BaseEmpFee = baseEmpFee;
-            ViewBag.EmpFeeDiscount = empFeeDiscount; // For reimbursement info
+            ViewBag.APCDCount = currentApcdCount;
             ViewBag.EmpFeeTotal = empFeeTotal;
+            ViewBag.AppFeeTotal = appFeeTotal;
+            ViewBag.DiscountPercent = (int)(discountPercent * 100);
 
             var paymentDetail = application.Payment ?? new PaymentDetail { ApplicationId = id, Application = application };
             
-            // Repopulate exact system calculations dynamically in case early form configurations changed
-            paymentDetail.Amount = total;
-            paymentDetail.APCDTypesCount = apcdCount;
-            
-            // Only initialize defaults if user hasn't overridden them with manual values yet
-            if (paymentDetail.AppFeeAmountDeposited == 0) paymentDetail.AppFeeAmountDeposited = appFeeTotal;
-            if (paymentDetail.EmpFeeAmountDeposited == 0) paymentDetail.EmpFeeAmountDeposited = empFeeTotal;
+            // --- Supplemental Payment detection ---
+            if (application.Status != "Draft")
+            {
+                int paidCount = paymentDetail.APCDTypesCount;
+                if (currentApcdCount > paidCount)
+                {
+                    int extraUnits = currentApcdCount - paidCount;
+                    decimal extraBase = extraUnits * 65000;
+                    decimal extraGST = extraBase * 0.18m;
+                    ViewBag.BalanceDue = extraBase + extraGST;
+                    ViewBag.IsSupplemental = true;
+                    ViewBag.PaidCount = paidCount;
+                    ViewBag.NewCount = currentApcdCount;
+                }
+                else
+                {
+                    ViewBag.BalanceDue = 0;
+                    ViewBag.IsSupplemental = false;
+                }
+            }
+
+            // Repopulate exact system calculations dynamically
+            if (application.Status == "Draft")
+            {
+                paymentDetail.Amount = total;
+                paymentDetail.APCDTypesCount = currentApcdCount;
+                if (paymentDetail.AppFeeAmountDeposited == 0) paymentDetail.AppFeeAmountDeposited = appFeeTotal;
+                if (paymentDetail.EmpFeeAmountDeposited == 0) paymentDetail.EmpFeeAmountDeposited = empFeeTotal;
+            }
 
             return View(paymentDetail);
         }
@@ -514,31 +604,52 @@ namespace APCD.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Payment(int id, PaymentDetail payment)
         {
-            var appStatusGuard = await _context.Applications.FindAsync(id);
-            if (appStatusGuard == null || appStatusGuard.Status != "Draft") return RedirectToAction("Review", new { id });
-            
-            payment.ApplicationId = id;
-            payment.PaymentDate = DateTime.UtcNow;
-            payment.Status = "Pending";
+            var application = await _context.Applications.Include(a => a.Payment).FirstOrDefaultAsync(a => a.Id == id);
+            if (application == null) return NotFound();
 
-            // Fallback for legacy required fields if needed
-            payment.UTRNumber = payment.AppFeeUTRNumber;
-            payment.RemitterBank = payment.AppFeeRemitterBank;
-
-            if (await _context.PaymentDetails.AnyAsync(p => p.ApplicationId == id))
+            if (application.Status == "Draft")
             {
-                var existing = await _context.PaymentDetails.FirstOrDefaultAsync(p => p.ApplicationId == id);
-                _context.Entry(existing).CurrentValues.SetValues(payment);
+                payment.ApplicationId = id;
+                payment.PaymentDate = DateTime.UtcNow;
+                payment.Status = "Pending";
+                payment.UTRNumber = payment.AppFeeUTRNumber; // Legacy field
+                payment.RemitterBank = payment.AppFeeRemitterBank;
+
+                if (application.Payment != null)
+                    _context.Entry(application.Payment).CurrentValues.SetValues(payment);
+                else
+                    _context.PaymentDetails.Add(payment);
+
+                application.Status = "Submitted";
+                application.SubmittedAt = DateTime.UtcNow;
             }
             else
             {
-                _context.PaymentDetails.Add(payment);
+                // Supplemental Payment logic
+                if (application.Payment != null)
+                {
+                    application.Payment.SupplementalUTR = payment.SupplementalUTR;
+                    application.Payment.SupplementalAmount = payment.SupplementalAmount;
+                    application.Payment.SupplementalPayDate = DateTime.UtcNow;
+                }
             }
 
             string oemFolder = await GetOEMFolderName(id);
             await ProcessFileUpload(id, "paymentReceiptFile", "PaymentReceipt", oemFolder);
+            await ProcessFileUpload(id, "supplementalReceiptFile", "SupplementalReceipt", oemFolder);
 
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Submit", new { id });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SubmitAmendment(int id)
+        {
             var application = await _context.Applications.FindAsync(id);
+            if (application == null || application.UserId != GetUserId()) return NotFound();
+
+            // When adding more tech, we move from 'Submitted/Approved' back to a state that needs review
+            // For now, moving back to 'Submitted' is sufficient to appear on Admin Dashboard
             application.Status = "Submitted";
             application.SubmittedAt = DateTime.UtcNow;
 

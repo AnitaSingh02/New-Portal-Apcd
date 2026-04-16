@@ -62,21 +62,28 @@
                     {
                         <div class="row mb-5">
                             <div class="col-12 mb-3">
-                                <h6 class="fw-bold text-muted text-uppercase extra-small letter-spacing">Payment Acknowledgment</h6>
+                                <h6 class="fw-bold text-muted text-uppercase extra-small letter-spacing">Payment Details</h6>
                                 <hr class="mt-2 mb-4" />
                             </div>
-                            <div class="col-md-6">
-                                <div class="p-3 bg-light rounded-4 border-start border-4 border-success">
-                                    <small class="text-muted d-block">Total Fees Paid</small>
-                                    <h4 class="fw-bold text-success mb-0">₹@Model.Payment.Amount.ToString("N0")</h4>
+                            <div class="col-md-6 mb-3">
+                                <div class="p-3 bg-light rounded-4 border-start border-4 border-success h-100 shadow-sm">
+                                    <small class="text-muted d-block fw-bold mb-1">Initial Application & Empanelment Fees</small>
+                                    <h4 class="fw-bold text-success mb-2">₹@Model.Payment.Amount.ToString("N0")</h4>
+                                    <div class="extra-small text-muted"><span class="fw-bold">UTR:</span> @Model.Payment.UTRNumber</div>
+                                    <div class="extra-small text-muted"><span class="fw-bold">Bank:</span> @Model.Payment.RemitterBank</div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="p-3 bg-light rounded-4">
-                                    <small class="text-muted d-block">UTR / Transaction ID</small>
-                                    <span class="fw-bold text-gov-blue fs-5">@Model.Payment.UTRNumber</span>
+                            @if (!string.IsNullOrEmpty(Model.Payment.SupplementalUTR))
+                            {
+                                <div class="col-md-6 mb-3">
+                                    <div class="p-3 bg-white rounded-4 border-start border-4 border-gov-gold h-100 shadow-sm border border-gov-gold">
+                                        <small class="text-muted d-block fw-bold mb-1">Supplemental Amendment Fees</small>
+                                        <h4 class="fw-bold text-gov-gold mb-2">₹@Model.Payment.SupplementalAmount?.ToString("N0")</h4>
+                                        <div class="extra-small text-muted"><span class="fw-bold">Supplemental UTR:</span> @Model.Payment.SupplementalUTR</div>
+                                        <div class="extra-small text-muted"><span class="fw-bold">Date:</span> @Model.Payment.SupplementalPayDate?.ToShortDateString()</div>
+                                    </div>
                                 </div>
-                            </div>
+                            }
                         </div>
                     }
 
@@ -87,39 +94,35 @@
                             <hr class="mt-2 mb-4" />
                         </div>
                         <div class="col-12">
-                            <div class="table-responsive rounded-4 border">
+                            @{ 
+                                var commonDocs = Model.Documents.Where(d => string.IsNullOrEmpty(d.AssociatedTech)).ToList();
+                                var techDocs = Model.Documents.Where(d => !string.IsNullOrEmpty(d.AssociatedTech)).GroupBy(d => d.AssociatedTech);
+                            }
+
+                            <!-- Common Documents -->
+                            <div class="table-responsive rounded-4 border mb-4">
                                 <table class="table table-hover mb-0 align-middle">
-                                    <thead class="bg-light extra-small fw-bold text-muted">
+                                    <thead class="bg-light extra-small fw-bold text-muted text-uppercase">
                                         <tr>
-                                            <th class="ps-4 py-3">Document Type</th>
+                                            <th class="ps-4 py-3">General Document Type</th>
                                             <th>File Name</th>
-                                            <th class="text-end pe-4">Action</th>
+                                            <th class="text-end pe-4">Verification Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (var doc in Model.Documents)
+                                        @foreach (var doc in commonDocs)
                                         {
                                             <tr>
-                                                <td class="ps-4 fw-bold small text-gov-blue">
-                                                    @doc.DocumentType
-                                                    @if (doc.IsVerified)
-                                                    {
-                                                        <span class="badge bg-success ms-2"><i class="bi bi-check-circle me-1"></i>Verified</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge bg-danger ms-2"><i class="bi bi-x-circle me-1"></i>Not Verified</span>
-                                                    }
-                                                </td>
-                                                <td class="text-muted small">@doc.FileName</td>
+                                                <td class="ps-4 fw-bold small text-gov-blue">@doc.DocumentType</td>
+                                                <td class="text-muted small text-truncate" style="max-width: 250px;">@doc.FileName</td>
                                                 <td class="text-end pe-4">
-                                                    <div class="d-flex justify-content-end gap-2">
-                                                        <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-gov-blue"><i class="bi bi-eye me-1"></i>View</a>
+                                                    <div class="d-flex justify-content-end align-items-center gap-3">
+                                                        <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-gov-blue py-1 shadow-sm"><i class="bi bi-eye"></i></a>
                                                         <form asp-action="VerifyDocument" method="post" class="d-inline">
                                                             <input type="hidden" name="docId" value="@doc.Id" />
                                                             <input type="hidden" name="appId" value="@Model.Id" />
-                                                            <button type="submit" class="btn btn-sm @(doc.IsVerified ? "btn-outline-danger" : "btn-outline-success")">
-                                                                <i class="bi @(doc.IsVerified ? "bi-x-circle" : "bi-check-circle") me-1"></i>@(doc.IsVerified ? "Unverify" : "Verify")
+                                                            <button type="submit" class="btn btn-sm @(doc.IsVerified ? "btn-success" : "btn-outline-danger") rounded-pill px-3 py-1 extra-small fw-bold">
+                                                                <i class="bi @(doc.IsVerified ? "bi-check-circle-fill" : "bi-x-circle") me-1"></i>@(doc.IsVerified ? "Verified" : "Verify")
                                                             </button>
                                                         </form>
                                                     </div>
@@ -129,8 +132,44 @@
                                     </tbody>
                                 </table>
                             </div>
+
+                            <!-- Technology-specific Documents -->
+                            @foreach (var techGroup in techDocs)
+                            {
+                                <div class="mb-4">
+                                    <div class="bg-gov-blue text-white px-3 py-2 rounded-top-4 small fw-bold">
+                                        <i class="bi bi-gear-fill me-2"></i> Technical Documents: @techGroup.Key
+                                    </div>
+                                    <div class="table-responsive rounded-bottom-4 border-start border-end border-bottom">
+                                        <table class="table table-hover mb-0 align-middle">
+                                            <tbody>
+                                                @foreach (var doc in techGroup)
+                                                {
+                                                    <tr>
+                                                        <td class="ps-4 small text-gov-blue" style="width: 40%">@doc.DocumentType</td>
+                                                        <td class="text-muted small text-truncate" style="max-width: 200px;">@doc.FileName</td>
+                                                        <td class="text-end pe-4">
+                                                            <div class="d-flex justify-content-end align-items-center gap-3">
+                                                                <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-gov-blue py-1"><i class="bi bi-eye"></i></a>
+                                                                <form asp-action="VerifyDocument" method="post" class="d-inline">
+                                                                    <input type="hidden" name="docId" value="@doc.Id" />
+                                                                    <input type="hidden" name="appId" value="@Model.Id" />
+                                                                    <button type="submit" class="btn btn-sm @(doc.IsVerified ? "btn-success" : "btn-outline-danger") rounded-pill px-3 py-1 extra-small fw-bold">
+                                                                        <i class="bi @(doc.IsVerified ? "bi-check-circle-fill" : "bi-x-circle") me-1"></i>@(doc.IsVerified ? "Verified" : "Verify")
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
+
 
                     <!-- Installatons Section -->
                     <div class="row">
