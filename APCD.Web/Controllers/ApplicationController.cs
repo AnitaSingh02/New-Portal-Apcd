@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace APCD.Web.Controllers
 {
-    [Authorize(Roles = "OEM")]
+    [Authorize(Roles = "OEM,ADMIN,SUPER_ADMIN,OFFICER,COMMITTEE,FIELD_VERIFIER,DEALING_HAND")]
     public class ApplicationController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -658,9 +658,32 @@ namespace APCD.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Submit(int id)
+        public async Task<IActionResult> Print(int id)
         {
-            var application = await _context.Applications.FindAsync(id);
+            var userId = GetUserId();
+            var isInternal = User.IsInRole("ADMIN") || User.IsInRole("SUPER_ADMIN") || User.IsInRole("OFFICER") || 
+                             User.IsInRole("COMMITTEE") || User.IsInRole("FIELD_VERIFIER") || User.IsInRole("DEALING_HAND");
+
+            var application = await _context.Applications
+                .Include(a => a.User)
+                .ThenInclude(u => u.CompanyProfile)
+                .Include(a => a.Documents)
+                .Include(a => a.Installations)
+                .Include(a => a.StaffDetails)
+                .Include(a => a.Capabilities)
+                .Include(a => a.Turnovers)
+                .Include(a => a.Payment)
+                .Include(a => a.Remarks)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (application == null) return NotFound();
+
+            // Ownership check: Only the owner OEM or any Internal role can view
+            if (!isInternal && application.UserId != userId)
+            {
+                return Forbid();
+            }
+
             return View(application);
         }
     }

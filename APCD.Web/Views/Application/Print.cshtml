@@ -1,0 +1,361 @@
+@model APCD.Web.Models.EmpanelmentApplication
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Application_#@Model.Id.ToString("0000")_Full_Details</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; font-size: 12px; color: #333; line-height: 1.5; }
+        .print-container { max-width: 1000px; margin: 0 auto; padding: 40px; }
+        .gov-header { border-bottom: 2px solid #0d3b66; padding-bottom: 15px; margin-bottom: 30px; }
+        .section-header { 
+            background-color: #f1f4f9; 
+            border-left: 5px solid #0d3b66; 
+            padding: 10px 15px; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            margin-top: 30px; 
+            margin-bottom: 15px;
+            color: #0d3b66;
+            letter-spacing: 0.5px;
+        }
+        .field-label { font-weight: 600; color: #6c757d; font-size: 10px; text-transform: uppercase; margin-bottom: 2px; }
+        .field-value { font-weight: 500; color: #1a1a1a; font-size: 13px; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+        .table-custom { border: 1px solid #dee2e6; }
+        .table-custom th { background-color: #f8f9fa; font-size: 10px; text-transform: uppercase; color: #495057; font-weight: 700; border-bottom: 2px solid #dee2e6; }
+        .table-custom td { font-size: 12px; vertical-align: middle; }
+        .badge { font-weight: 600; text-transform: uppercase; padding: 5px 10px; }
+        
+        @@media print {
+            .no-print { display: none !important; }
+            body { padding: 0; margin: 0; background: white; }
+            .print-container { max-width: 100%; border: none; padding: 20mm 15mm; }
+            .page-break { page-break-before: always; }
+            .gov-header { border-bottom: 2px solid #0d3b66 !important; -webkit-print-color-adjust: exact; }
+            .section-header { background-color: #f1f4f9 !important; border-left: 5px solid #0d3b66 !important; -webkit-print-color-adjust: exact; }
+            .field-value { border-bottom: 1px solid #eee !important; }
+        }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="print-container bg-white">
+        <!-- Control Buttons (Hidden on Print) -->
+        <div class="no-print mb-5 d-flex justify-content-between align-items-center p-3 bg-light rounded shadow-sm">
+            <div>
+                <h5 class="mb-0 fw-bold">Print Preview</h5>
+                <small class="text-muted">Review the document details below before printing.</small>
+            </div>
+            <div>
+                <a href="javascript:history.back()" class="btn btn-outline-secondary px-4 me-2">Close & Return</a>
+                <button onclick="window.print()" class="btn btn-primary px-5 fw-bold">Confirm Print <i class="bi bi-printer ms-1"></i></button>
+            </div>
+        </div>
+
+        <!-- Government Identity Header -->
+        <div class="gov-header d-flex justify-content-between align-items-center">
+            <img src="/images/npc-logo.png" height="55" />
+            <div class="text-center">
+                <h4 class="mb-0 fw-bold text-uppercase" style="color: #0d3b66; letter-spacing: 1px;">National Productivity Council</h4>
+                <p class="mb-0 small text-muted fw-bold">(An Autonomous Body under DPIIT, Ministry of Commerce & Industry, Govt. of India)</p>
+                <div class="mt-3 designation-bar" style="background: #0d3b66; color: white; padding: 4px 20px; border-radius: 50px; display: inline-block; font-size: 13px; font-weight: 600;">
+                    OEM Empanelment Application Summary
+                </div>
+            </div>
+            <img src="/images/apcd-logo-mobile.png" height="55" />
+        </div>
+
+        <!-- Meta Info -->
+        <div class="row pt-2 mb-4">
+            <div class="col-4">
+                <div class="field-label">Reference Number</div>
+                <div class="field-value fs-5 fw-bold text-gov-blue">#APC-@Model.Id.ToString("0000")</div>
+            </div>
+            <div class="col-4 text-center">
+                <div class="field-label">Submission Date</div>
+                <div class="field-value">@(Model.SubmittedAt?.ToString("dd MMM yyyy, HH:mm") ?? "N/A")</div>
+            </div>
+            <div class="col-4 text-end">
+                <div class="field-label">Application Status</div>
+                <div class="field-value"><span class="badge @(Model.Status == "Empaneled" ? "bg-success" : "bg-dark text-white")">@Model.Status</span></div>
+            </div>
+        </div>
+
+        <!-- SECTION 1: APPLICANT PROFILE -->
+        <div class="section-header">01. OEM Organization Profile</div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="field-label">Full Name of Company / Organization</div>
+                <div class="field-value fw-bold">@Model.User.CompanyProfile?.CompanyName</div>
+            </div>
+            <div class="col-md-4">
+                <div class="field-label">Type of Firm</div>
+                <div class="field-value">@Model.User.CompanyProfile?.FirmType</div>
+            </div>
+            <div class="col-md-4">
+                <div class="field-label">GST Registration No.</div>
+                <div class="field-value">@Model.User.CompanyProfile?.GSTNumber</div>
+            </div>
+            <div class="col-md-4">
+                <div class="field-label">Permanent Account No. (PAN)</div>
+                <div class="field-value">@Model.User.CompanyProfile?.PANNumber</div>
+            </div>
+            <div class="col-md-4">
+                <div class="field-label">Firm Size (Investment Scale)</div>
+                <div class="field-value">@Model.User.CompanyProfile?.FirmSize</div>
+            </div>
+            <div class="col-md-12">
+                <div class="field-label">Head Office Address</div>
+                <div class="field-value">@Model.User.CompanyProfile?.OfficeAddress, @Model.User.CompanyProfile?.State, @Model.User.CompanyProfile?.Country, PIN-@Model.User.CompanyProfile?.PinCode</div>
+            </div>
+            <div class="col-md-12">
+                <div class="field-label">Manufacturing Unit Address</div>
+                <div class="field-value">@Model.User.CompanyProfile?.FactoryAddress</div>
+            </div>
+            <div class="col-md-4">
+                <div class="field-label">Geo-Location (GPS)</div>
+                <div class="field-value">Lat: @Model.User.CompanyProfile?.Latitude, Long: @Model.User.CompanyProfile?.Longitude</div>
+            </div>
+             <div class="col-md-4">
+                <div class="field-label">Total Factory Area</div>
+                <div class="field-value">@(Model.User.CompanyProfile?.AreaSqm ?? 0) Sq. Meters</div>
+            </div>
+            <div class="col-md-4">
+                <div class="field-label">Total Employees / Manpower</div>
+                <div class="field-value">@Model.User.CompanyProfile?.EmployeeCount Personal</div>
+            </div>
+        </div>
+
+        <!-- SECTION 2: CLASSIFICATIONS -->
+        <div class="section-header">02. Government Classifications & Compliance</div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="field-label">MSE Registration</div>
+                <div class="field-value">@(Model.IsMSE ? "Yes (Udyam No: " + Model.UdyamRegistrationNo + ")" : "No")</div>
+            </div>
+            <div class="col-md-4">
+                <div class="field-label">Startup Recognition</div>
+                <div class="field-value">@(Model.IsStartup ? "Yes (DPIIT No: " + Model.DPIITRecognitionNo + ")" : "No")</div>
+            </div>
+            <div class="col-md-4">
+                <div class="field-label">Local Supplier Status</div>
+                <div class="field-value">@(Model.IsLocalSupplier ? "Class-I Local Supplier (>=50% value add)" : "No")</div>
+            </div>
+            <div class="col-md-6">
+                <div class="field-label">ISO Quality Standards</div>
+                <div class="field-value">@(string.IsNullOrEmpty(Model.ISOStandards) ? "None" : Model.ISOStandards)</div>
+            </div>
+            <div class="col-md-6">
+                <div class="field-label">Blacklisting / Debarment Status</div>
+                <div class="field-value">@(Model.IsBlacklisted ? "YES: " + Model.BlacklistDetails : "Not Blacklisted by any PSU/Govt Body")</div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: STAFF -->
+        <div class="section-header">03. Technical & Commercial Manpower</div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-custom">
+                <thead>
+                    <tr>
+                        <th width="150">Staff Category</th>
+                        <th width="200">Name of Official</th>
+                        <th>Designation</th>
+                        <th>Qualification</th>
+                        <th>Contact Email / Mobile</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var staff in Model.StaffDetails)
+                    {
+                        <tr>
+                            <td class="fw-bold">@staff.StaffType In-charge</td>
+                            <td>@staff.Name</td>
+                            <td>@staff.Designation</td>
+                            <td>@staff.Qualification</td>
+                            <td>@staff.Email <br> @staff.MobileNo</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- SECTION 4: CAPABILITIES -->
+        <div class="section-header">04. APCD Manufacturing Capabilities</div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-custom">
+                <thead>
+                    <tr>
+                        <th>APCD Technology Group</th>
+                        <th>Specific Technology / Sub-Type</th>
+                        <th class="text-center">Category</th>
+                        <th>Design Capacity Range</th>
+                        <th class="text-center">In Mfg</th>
+                        <th class="text-center text-primary">Applied</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cap in Model.Capabilities.Where(c => c.IsManufactured || c.IsAppliedForEmpanelment))
+                    {
+                        <tr class="@(cap.IsAppliedForEmpanelment ? "bg-light fw-bold" : "")">
+                            <td>@cap.MainType</td>
+                            <td>@cap.SubTech</td>
+                            <td class="text-center">@cap.Category</td>
+                            <td>@cap.DesignedCapacity</td>
+                            <td class="text-center">@(cap.IsManufactured ? "Yes" : "No")</td>
+                            <td class="text-center text-primary">@(cap.IsAppliedForEmpanelment ? "YES" : "No")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SECTION 5: INSTALLATIONS -->
+        <div class="section-header">05. Previous Experience & Installations</div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-custom">
+                <thead>
+                    <tr>
+                        <th width="250">Client Organization Name</th>
+                        <th width="100">Year</th>
+                        <th>APCD Technology Model</th>
+                        <th>Capacity</th>
+                        <th>Performance Efficiency / Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var inst in Model.Installations)
+                    {
+                        <tr>
+                            <td>@inst.ClientName <br><small class="text-muted">@inst.Location</small></td>
+                            <td>@inst.Year</td>
+                            <td>@inst.ApcdType</td>
+                            <td>@inst.Capacity</td>
+                            <td>@inst.PerformanceResult</td>
+                        </tr>
+                    }
+                    @if (!Model.Installations.Any())
+                    {
+                        <tr><td colspan="5" class="text-center text-muted py-3">No installations records found.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SECTION 6: FINANCIALS -->
+        <div class="section-header">06. Audited Financial Statements Summary</div>
+        <div class="row align-items-center">
+            <div class="col-md-7">
+                <table class="table table-bordered table-custom" style="max-width: 450px;">
+                    <thead>
+                        <tr>
+                            <th>Financial Year (FY)</th>
+                            <th class="text-end">Annual Turnover (INR Lakhs)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var turnover in Model.Turnovers.OrderByDescending(t => t.FinancialYear))
+                        {
+                            <tr>
+                                <td class="fw-bold">@turnover.FinancialYear</td>
+                                <td class="text-end fw-bold">₹@turnover.Amount.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-5">
+                <div class="p-3 border rounded-3 bg-light">
+                    <div class="field-label">Grievance Support System</div>
+                    <div class="field-value mb-0">@(Model.HasGrievanceSystem ? "Implemented & Functional" : "Not Currently Available")</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 7: DOCUMENTS checklist -->
+        <div class="section-header">07. Documents Submission Checklist</div>
+        <div class="row">
+            @foreach (var doc in Model.Documents)
+            {
+                <div class="col-md-4 mb-2">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-check-square-fill text-success me-2"></i>
+                        <span class="small">@doc.DocumentType</span>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- SECTION 8: PAYMENTS -->
+        @if (Model.Payment != null)
+        {
+            <div class="section-header">08. Application & Empanelment Fee Transaction</div>
+            <div class="p-4 rounded-4 border bg-light shadow-sm">
+                <div class="row pt-2 text-center">
+                    <div class="col-3">
+                        <div class="field-label">Total Fee Paid</div>
+                        <h4 class="fw-bold text-success">₹@Model.Payment.Amount.ToString("N0")</h4>
+                    </div>
+                    <div class="col-3">
+                        <div class="field-label">Deposition Date</div>
+                        <div class="fw-bold">@Model.Payment.PaymentDate.ToString("dd MMM yyyy")</div>
+                    </div>
+                    <div class="col-3">
+                        <div class="field-label">Bank Name</div>
+                        <div class="fw-bold">@Model.Payment.RemitterBank</div>
+                    </div>
+                    <div class="col-3 border-start">
+                        <div class="field-label">Transaction UTR No.</div>
+                        <div class="fw-bold text-primary">@Model.Payment.UTRNumber</div>
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Payment.SupplementalUTR))
+                {
+                    <div class="row pt-3 mt-3 border-top text-center">
+                        <div class="col-6">
+                            <div class="field-label">Amendment Fee (Supplemental)</div>
+                            <h5 class="fw-bold text-gov-gold">₹@Model.Payment.SupplementalAmount?.ToString("N0")</h5>
+                        </div>
+                        <div class="col-6">
+                            <div class="field-label">Supplemental UTR No.</div>
+                            <h5 class="fw-bold">@Model.Payment.SupplementalUTR</h5>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- SIGNATURES -->
+        <div class="mt-5 pt-5">
+            <div class="row pt-5 text-center">
+                <div class="col-6">
+                    <div class="mx-auto" style="height: 60px;"></div>
+                    <div class="fw-bold text-uppercase" style="border-top: 2px solid #333; display: inline-block; padding: 5px 30px; font-size: 11px;">
+                        OEM Authorized Signatory <br> <small>(Seal / Stamp)</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="mx-auto" style="height: 60px;"></div>
+                    <div class="fw-bold text-uppercase" style="border-top: 2px solid #333; display: inline-block; padding: 5px 30px; font-size: 11px;">
+                        NPC Verifying Officer <br> <small>(Digital Signature / Stamp)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verification QR / Footer -->
+        <div class="mt-5 pt-5 border-top text-center text-muted">
+            <div class="small fw-bold mb-1">THIS IS A COMPUTER GENERATED APPLICATION SUMMARY FORM</div>
+            <div class="extra-small">
+                Printed via APCD OEM Empanelment Portal on @DateTime.Now.ToString("dd MMM yyyy, HH:mm:ss") <br>
+                Registration and Verification of details are subject to physical inspection and technical evaluation by NPC/CPCB Committees.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

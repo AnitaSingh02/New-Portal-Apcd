@@ -34,7 +34,12 @@
                         <h4 class="fw-bold text-gov-blue mb-1">Empanelment Application #@Model.Id.ToString("0000")</h4>
                         <p class="text-muted small mb-0">Submitted by <strong>@Model.User.FullName</strong> on @Model.SubmittedAt?.ToLongDateString()</p>
                     </div>
-                    <span class="badge bg-gov-blue text-white rounded-pill px-4 py-2">@Model.Status</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <a asp-controller="Application" asp-action="Print" asp-route-id="@Model.Id" target="_blank" class="btn btn-sm btn-outline-gov-blue rounded-pill px-3 fw-bold">
+                            <i class="bi bi-printer me-1"></i> Print Full App
+                        </a>
+                        <span class="badge bg-gov-blue text-white rounded-pill px-4 py-2">@Model.Status</span>
+                    </div>
                 </div>
                 <div class="card-body p-4">
                     <!-- OEM Profile Section -->
