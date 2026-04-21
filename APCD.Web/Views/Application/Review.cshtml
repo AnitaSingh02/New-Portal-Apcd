@@ -195,6 +195,10 @@
                     }
                     else
                     {
+                        var currentApcdCount = Model.Capabilities.Count(c => c.IsAppliedForEmpanelment);
+                        var paidCount = Model.Payments?.Where(p => p.Type == APCD.Web.Models.PaymentType.EmpFee || p.Type == APCD.Web.Models.PaymentType.Supplemental).Sum(p => p.APCDTypesCount ?? 0) ?? 0;
+                        bool needsSupplementalPayment = currentApcdCount > paidCount;
+
                         <!-- Amendment Submission -->
                         <div class="alert alert-gov-gold border-warning border-3 mt-5 p-4 rounded-4 shadow-sm animate-fade-in">
                             <h6 class="fw-bold mb-3"><i class="bi bi-pencil-square me-2"></i> Finalize Amendment</h6>
@@ -202,11 +206,20 @@
                         </div>
 
                         <div class="mt-5 pt-4 border-top d-flex justify-content-center gap-3">
-                            <form asp-action="SubmitAmendment" asp-route-id="@Model.Id" method="post">
-                                <button type="submit" class="btn btn-lg btn-gov-gold text-black px-5 rounded-pill shadow">
-                                    Final Submit Amendment <i class="bi bi-send-check ms-2"></i>
-                                </button>
-                            </form>
+                            @if (needsSupplementalPayment)
+                            {
+                                <a asp-action="Payment" asp-route-id="@Model.Id" class="btn btn-lg btn-gov-gold text-black px-5 rounded-pill shadow">
+                                    Proceed to Supplemental Payment <i class="bi bi-credit-card ms-2"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                <form asp-action="SubmitAmendment" asp-route-id="@Model.Id" method="post">
+                                    <button type="submit" class="btn btn-lg btn-gov-gold text-black px-5 rounded-pill shadow">
+                                        Final Submit Amendment <i class="bi bi-send-check ms-2"></i>
+                                    </button>
+                                </form>
+                            }
                             <a asp-controller="Dashboard" asp-action="Index" class="btn btn-lg btn-outline-secondary px-5 rounded-pill shadow-sm">
                                 Cancel & Return <i class="bi bi-x-circle ms-2"></i>
                             </a>

@@ -19,7 +19,7 @@ namespace APCD.Web.Data
         public DbSet<ApplicationRemark> ApplicationRemarks { get; set; }
         public DbSet<TurnoverRecord> TurnoverRecords { get; set; }
         public DbSet<APCDCapability> APCDCapabilities { get; set; }
-        public DbSet<PaymentDetail> PaymentDetails { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -33,12 +33,17 @@ namespace APCD.Web.Data
                 .WithMany()
                 .HasForeignKey(a => a.UserId);
 
-            modelBuilder.Entity<PaymentDetail>()
-                .HasOne(p => p.Application)
-                .WithOne(a => a.Payment)
-                .HasForeignKey<PaymentDetail>(p => p.ApplicationId);
+            modelBuilder.Entity<EmpanelmentApplication>()
+                .HasMany(a => a.Payments)
+                .WithOne(p => p.Application)
+                .HasForeignKey(p => p.ApplicationId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<PaymentDetail>()
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.Type)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Payment>()
                 .Property(p => p.Amount)
                 .HasColumnType("decimal(18,2)");
 

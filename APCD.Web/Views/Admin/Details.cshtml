@@ -63,29 +63,29 @@
                     </div>
 
                     <!-- Payment Section -->
-                    @if (Model.Payment != null)
+                    @if (Model.Payments != null && Model.Payments.Any())
                     {
                         <div class="row mb-5">
                             <div class="col-12 mb-3">
                                 <h6 class="fw-bold text-muted text-uppercase extra-small letter-spacing">Payment Details</h6>
                                 <hr class="mt-2 mb-4" />
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="p-3 bg-light rounded-4 border-start border-4 border-success h-100 shadow-sm">
-                                    <small class="text-muted d-block fw-bold mb-1">Initial Application & Empanelment Fees</small>
-                                    <h4 class="fw-bold text-success mb-2">₹@Model.Payment.Amount.ToString("N0")</h4>
-                                    <div class="extra-small text-muted"><span class="fw-bold">UTR:</span> @Model.Payment.UTRNumber</div>
-                                    <div class="extra-small text-muted"><span class="fw-bold">Bank:</span> @Model.Payment.RemitterBank</div>
-                                </div>
-                            </div>
-                            @if (!string.IsNullOrEmpty(Model.Payment.SupplementalUTR))
+                            @foreach (var payment in Model.Payments)
                             {
                                 <div class="col-md-6 mb-3">
-                                    <div class="p-3 bg-white rounded-4 border-start border-4 border-gov-gold h-100 shadow-sm border border-gov-gold">
-                                        <small class="text-muted d-block fw-bold mb-1">Supplemental Amendment Fees</small>
-                                        <h4 class="fw-bold text-gov-gold mb-2">₹@Model.Payment.SupplementalAmount?.ToString("N0")</h4>
-                                        <div class="extra-small text-muted"><span class="fw-bold">Supplemental UTR:</span> @Model.Payment.SupplementalUTR</div>
-                                        <div class="extra-small text-muted"><span class="fw-bold">Date:</span> @Model.Payment.SupplementalPayDate?.ToShortDateString()</div>
+                                    <div class="p-3 @(payment.Type == APCD.Web.Models.PaymentType.Supplemental ? "bg-white border-gov-gold border border-start border-4" : "bg-light border-success border-start border-4") rounded-4 h-100 shadow-sm">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <small class="text-muted fw-bold">@payment.Type Fee</small>
+                                            <span class="badge bg-secondary extra-small">@payment.Status</span>
+                                        </div>
+                                        <h4 class="fw-bold @(payment.Type == APCD.Web.Models.PaymentType.Supplemental ? "text-gov-gold" : "text-success") mb-2">₹@payment.Amount.ToString("N0")</h4>
+                                        <div class="extra-small text-muted"><span class="fw-bold">UTR:</span> @payment.UTRNumber</div>
+                                        <div class="extra-small text-muted"><span class="fw-bold">Bank:</span> @payment.RemitterBank</div>
+                                        <div class="extra-small text-muted"><span class="fw-bold">Date:</span> @payment.PaymentDate.ToShortDateString()</div>
+                                        @if (payment.APCDTypesCount.HasValue && payment.APCDTypesCount > 0)
+                                        {
+                                            <div class="extra-small text-muted mt-1"><i class="bi bi-info-circle"></i> Covers @payment.APCDTypesCount APCD Unit(s)</div>
+                                        }
                                     </div>
                                 </div>
                             }

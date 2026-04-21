@@ -23,7 +23,7 @@ namespace APCD.Web.Controllers
             IQueryable<EmpanelmentApplication> query = _context.Applications
                 .Include(a => a.User)
                 .Include(a => a.User.CompanyProfile)
-                .Include(a => a.Payment);
+                .Include(a => a.Payments);
 
             // Server-side filtering
             if (!string.IsNullOrEmpty(search))
@@ -66,7 +66,7 @@ namespace APCD.Web.Controllers
                 .Include(a => a.User.CompanyProfile)
                 .Include(a => a.Documents)
                 .Include(a => a.Installations)
-                .Include(a => a.Payment)
+                .Include(a => a.Payments)
                 .Include(a => a.Remarks)
                 .FirstOrDefaultAsync(a => a.Id == id);
 

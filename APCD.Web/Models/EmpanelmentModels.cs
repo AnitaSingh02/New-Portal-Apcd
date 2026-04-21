@@ -100,7 +100,7 @@ namespace APCD.Web.Models
         public virtual ICollection<ApplicationRemark> Remarks { get; set; } = new List<ApplicationRemark>();
         public virtual ICollection<TurnoverRecord> Turnovers { get; set; } = new List<TurnoverRecord>();
         public virtual ICollection<APCDCapability> Capabilities { get; set; } = new List<APCDCapability>();
-        public virtual PaymentDetail? Payment { get; set; }
+        public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
     }
 
     public class TurnoverRecord
@@ -208,16 +208,60 @@ namespace APCD.Web.Models
         public virtual EmpanelmentApplication Application { get; set; }
     }
 
-    public class PaymentDetail
+    public enum PaymentType
+    {
+        AppFee,
+        EmpFee,
+        Supplemental
+    }
+
+    public class Payment
     {
         [Key]
+        public int Id { get; set; }
+
+        [Required]
         [ForeignKey("Application")]
         public int ApplicationId { get; set; }
+
+        [Required]
+        [Column(TypeName = "varchar(50)")]
+        public PaymentType Type { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
+
+        [Required]
+        [StringLength(100)]
         public string UTRNumber { get; set; }
+
+        [Required]
+        [StringLength(200)]
         public string RemitterBank { get; set; }
+
         public DateTime PaymentDate { get; set; }
+
+        [StringLength(50)]
         public string Status { get; set; } = "Pending";
+
+        [StringLength(500)]
+        public string ReceiptPath { get; set; }
+
+        // Contextual metric: How many APCD units does this specific payment cover?
+        public int? APCDTypesCount { get; set; } 
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        // Navigation property
+        public virtual EmpanelmentApplication Application { get; set; }
+    }
+
+    [NotMapped]
+    public class PaymentViewModel
+    {
+        public int ApplicationId { get; set; }
+        public decimal Amount { get; set; }
+        public int APCDTypesCount { get; set; }
 
         // Application Fees Details
         public decimal AppFeeAmountDeposited { get; set; }
@@ -226,7 +270,6 @@ namespace APCD.Web.Models
         public DateTime? AppFeePaymentDate { get; set; }
 
         // Empanelment Fees Details
-        public int APCDTypesCount { get; set; }
         public decimal EmpFeeAmountDeposited { get; set; }
         public string EmpFeeRemitterBank { get; set; } = string.Empty;
         public string EmpFeeUTRNumber { get; set; } = string.Empty;
@@ -237,7 +280,7 @@ namespace APCD.Web.Models
         public string SupplementalUTR { get; set; } = string.Empty;
         public string SupplementalReceiptPath { get; set; } = string.Empty;
         public DateTime? SupplementalPayDate { get; set; }
-
-        public virtual EmpanelmentApplication Application { get; set; }
+        
+        public EmpanelmentApplication Application { get; set; }
     }
 }

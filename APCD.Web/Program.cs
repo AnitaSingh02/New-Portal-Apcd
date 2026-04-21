@@ -117,17 +117,46 @@ using (var scope = app.Services.CreateScope())
             END";
 
         var sqlPayment = @"
-            IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[PaymentDetails]') AND type in (N'U'))
+            IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[Payments]') AND type in (N'U'))
             BEGIN
-                CREATE TABLE [PaymentDetails] (
+                CREATE TABLE [Payments] (
+                    [Id] int NOT NULL IDENTITY,
                     [ApplicationId] int NOT NULL,
+                    [Type] nvarchar(50) NOT NULL,
                     [Amount] decimal(18,2) NOT NULL,
                     [UTRNumber] nvarchar(100) NOT NULL,
-                    [PaymentDate] datetime2 NOT NULL DEFAULT GETUTCDATE(),
+                    [RemitterBank] nvarchar(200) NOT NULL,
+                    [PaymentDate] datetime2 NOT NULL,
                     [Status] nvarchar(50) NOT NULL DEFAULT 'Pending',
-                    CONSTRAINT [PK_PaymentDetails] PRIMARY KEY ([ApplicationId]),
-                    CONSTRAINT [FK_PaymentDetails_Applications_ApplicationId] FOREIGN KEY ([ApplicationId]) REFERENCES [Applications] ([Id]) ON DELETE CASCADE
+                    [ReceiptPath] nvarchar(500) NULL,
+                    [APCDTypesCount] int NULL,
+                    [CreatedAt] datetime2 NOT NULL DEFAULT GETUTCDATE(),
+                    CONSTRAINT [PK_Payments] PRIMARY KEY ([Id]),
+                    CONSTRAINT [FK_Payments_Applications_ApplicationId] FOREIGN KEY ([ApplicationId]) REFERENCES [Applications] ([Id]) ON DELETE CASCADE
                 );
+
+                -- Migration from legacy PaymentDetails if exists
+                IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[PaymentDetails]') AND type in (N'U'))
+                BEGIN
+                    -- Migrate App Fees
+                    INSERT INTO [Payments] (ApplicationId, Type, Amount, UTRNumber, RemitterBank, PaymentDate, Status)
+                    SELECT ApplicationId, 'AppFee', AppFeeAmountDeposited, AppFeeUTRNumber, AppFeeRemitterBank, ISNULL(AppFeePaymentDate, GETUTCDATE()), Status
+                    FROM [PaymentDetails] WHERE AppFeeAmountDeposited > 0;
+
+                    -- Migrate Emp Fees
+                    INSERT INTO [Payments] (ApplicationId, Type, Amount, UTRNumber, RemitterBank, PaymentDate, Status, APCDTypesCount)
+                    SELECT ApplicationId, 'EmpFee', EmpFeeAmountDeposited, EmpFeeUTRNumber, EmpFeeRemitterBank, ISNULL(EmpFeePaymentDate, GETUTCDATE()), Status, APCDTypesCount
+                    FROM [PaymentDetails] WHERE EmpFeeAmountDeposited > 0;
+
+                    -- Migrate Supplemental Fees
+                    INSERT INTO [Payments] (ApplicationId, Type, Amount, UTRNumber, RemitterBank, PaymentDate, Status, ReceiptPath)
+                    SELECT ApplicationId, 'Supplemental', SupplementalAmount, SupplementalUTR, '', ISNULL(SupplementalPayDate, GETUTCDATE()), Status, SupplementalReceiptPath
+                    FROM [PaymentDetails] WHERE SupplementalAmount IS NOT NULL AND SupplementalAmount > 0;
+
+                    -- Drop legacy table safely
+                    ALTER TABLE [PaymentDetails] DROP CONSTRAINT IF EXISTS [FK_PaymentDetails_Applications_ApplicationId];
+                    DROP TABLE [PaymentDetails];
+                END
             END";
 
         var sqlAddResetTokens = @"
@@ -141,26 +170,9 @@ using (var scope = app.Services.CreateScope())
                 ALTER TABLE [Users] ADD [ResetPasswordTokenExpiry] datetime2 NULL;
             END";
 
-        var sqlAddPaymentCols = @"
-            IF COL_LENGTH('PaymentDetails', 'AppFeeAmountDeposited') IS NULL ALTER TABLE [PaymentDetails] ADD [AppFeeAmountDeposited] decimal(18,2) NOT NULL DEFAULT 0;
-            IF COL_LENGTH('PaymentDetails', 'AppFeeRemitterBank') IS NULL ALTER TABLE [PaymentDetails] ADD [AppFeeRemitterBank] nvarchar(max) NOT NULL DEFAULT '';
-            IF COL_LENGTH('PaymentDetails', 'AppFeeUTRNumber') IS NULL ALTER TABLE [PaymentDetails] ADD [AppFeeUTRNumber] nvarchar(max) NOT NULL DEFAULT '';
-            IF COL_LENGTH('PaymentDetails', 'AppFeePaymentDate') IS NULL ALTER TABLE [PaymentDetails] ADD [AppFeePaymentDate] datetime2 NULL;
-            IF COL_LENGTH('PaymentDetails', 'APCDTypesCount') IS NULL ALTER TABLE [PaymentDetails] ADD [APCDTypesCount] int NOT NULL DEFAULT 0;
-            IF COL_LENGTH('PaymentDetails', 'EmpFeeAmountDeposited') IS NULL ALTER TABLE [PaymentDetails] ADD [EmpFeeAmountDeposited] decimal(18,2) NOT NULL DEFAULT 0;
-            IF COL_LENGTH('PaymentDetails', 'EmpFeeRemitterBank') IS NULL ALTER TABLE [PaymentDetails] ADD [EmpFeeRemitterBank] nvarchar(max) NOT NULL DEFAULT '';
-            IF COL_LENGTH('PaymentDetails', 'EmpFeeUTRNumber') IS NULL ALTER TABLE [PaymentDetails] ADD [EmpFeeUTRNumber] nvarchar(max) NOT NULL DEFAULT '';
-            IF COL_LENGTH('PaymentDetails', 'EmpFeePaymentDate') IS NULL ALTER TABLE [PaymentDetails] ADD [EmpFeePaymentDate] datetime2 NULL;
-            IF COL_LENGTH('PaymentDetails', 'SupplementalAmount') IS NULL ALTER TABLE [PaymentDetails] ADD [SupplementalAmount] decimal(18,2) NULL;
-            IF COL_LENGTH('PaymentDetails', 'SupplementalUTR') IS NULL ALTER TABLE [PaymentDetails] ADD [SupplementalUTR] nvarchar(max) NOT NULL DEFAULT '';
-            IF COL_LENGTH('PaymentDetails', 'SupplementalReceiptPath') IS NULL ALTER TABLE [PaymentDetails] ADD [SupplementalReceiptPath] nvarchar(max) NOT NULL DEFAULT '';
-            IF COL_LENGTH('PaymentDetails', 'SupplementalPayDate') IS NULL ALTER TABLE [PaymentDetails] ADD [SupplementalPayDate] datetime2 NULL;
-        ";
-
         context.Database.ExecuteSqlRaw(sqlRemarks);
         context.Database.ExecuteSqlRaw(sqlPayment);
         context.Database.ExecuteSqlRaw(sqlAddResetTokens);
-        context.Database.ExecuteSqlRaw(sqlAddPaymentCols);
         // ---------------------------------------------------------
     } catch (Exception ex) {
         // Log error if table doesn't exist yet

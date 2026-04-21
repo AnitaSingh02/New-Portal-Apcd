@@ -80,7 +80,7 @@
                                                             }
                                                             else
                                                             {
-                                                                <input type="text" name="capabilities[@i].TypeDetails" class="form-control form-control-sm" placeholder="__________________" value="@existing?.TypeDetails" />
+                                                                <input type="text" name="capabilities[@i].TypeDetails" class="form-control form-control-sm tech-type-input" placeholder="__________________" value="@existing?.TypeDetails" />
                                                             }
                                                         </div>
                                                     }
@@ -96,7 +96,7 @@
                                                         }
                                                         else
                                                         {
-                                                            <input type="checkbox" name="capabilities[@i].IsManufactured" value="true" class="form-check-input mt-0" style="width: 1.25em; height: 1.25em;" @(existing?.IsManufactured == true ? "checked" : "") />
+                                                            <input type="checkbox" name="capabilities[@i].IsManufactured" value="true" class="form-check-input mt-0 tech-mfg-checkbox" style="width: 1.25em; height: 1.25em;" @(existing?.IsManufactured == true ? "checked" : "") />
                                                             <input type="hidden" name="capabilities[@i].IsManufactured" value="false" />
                                                         }
                                                     </div>
@@ -106,7 +106,7 @@
                                                         @if (isLocked)
                                                         {
                                                             <input type="checkbox" class="form-check-input mt-0" style="width: 1.25em; height: 1.25em;" checked disabled />
-                                                            <input type="hidden" name="capabilities[@i].IsAppliedForEmpanelment" value="true" />
+                                                            <input type="hidden" name="capabilities[@i].IsAppliedForEmpanelment" value="true" data-tech-name="@sub" />
                                                         }
                                                         else
                                                         {
@@ -125,7 +125,7 @@
                                                     }
                                                     else
                                                     {
-                                                        <select name="capabilities[@i].Category" class="form-select form-select-sm">
+                                                        <select name="capabilities[@i].Category" class="form-select form-select-sm tech-category-select">
                                                             <option value="">NA</option>
                                                             <option value="1" selected="@(existing?.Category == "1")">1</option>
                                                             <option value="2" selected="@(existing?.Category == "2")">2</option>
@@ -141,7 +141,7 @@
                                                     }
                                                     else
                                                     {
-                                                        <input name="capabilities[@i].DesignedCapacity" class="form-control form-control-sm" placeholder="e.g. 500-2000 CFM" value="@existing?.DesignedCapacity" />
+                                                        <input name="capabilities[@i].DesignedCapacity" class="form-control form-control-sm tech-capacity-input" placeholder="e.g. 500-2000 CFM" value="@existing?.DesignedCapacity" />
                                                     }
                                                 </td>
                                             </tr>
@@ -267,23 +267,26 @@
 
         function updateTechDocuments() {
             const container = document.getElementById('tech-docs-container');
-            const selectedTechs = Array.from(document.querySelectorAll('.tech-apply-checkbox:checked')).map(cb => cb.dataset.techName);
+            const selectedTechs = [];
             
-            // Collect tech names from locked rows (hidden fields)
+            // New ones
+            document.querySelectorAll('.tech-apply-checkbox:checked').forEach(cb => {
+                selectedTechs.push({ name: cb.dataset.techName, locked: false });
+            });
+            
+            // Locked ones
             document.querySelectorAll('input[type="hidden"][name$=".IsAppliedForEmpanelment"][value="true"]').forEach(el => {
-                const row = el.closest('tr');
-                if (row) {
-                    const techCol = row.cells[1];
-                    if (techCol) {
-                        const techName = techCol.innerText.trim();
-                        if (!selectedTechs.includes(techName)) selectedTechs.push(techName);
-                    }
+                const techName = el.dataset.techName;
+                if (techName && !selectedTechs.find(t => t.name === techName)) {
+                    selectedTechs.push({ name: techName, locked: true });
                 }
             });
 
             container.innerHTML = '';
 
-            selectedTechs.forEach(tech => {
+            selectedTechs.forEach(techObj => {
+                const tech = techObj.name;
+                const isLocked = techObj.locked;
                 const section = document.createElement('div');
                 section.className = 'tech-doc-section mb-5 p-4 border-start border-4 border-primary rounded-end-4 bg-light shadow-sm animate-fade-in';
                 const safeTechId = tech.replace(/\s+/g, '_').replace(/[\(\)\/]/g, '_');
@@ -293,13 +296,26 @@
                         <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px;">
                             <i class="bi bi-gear-fill small"></i>
                         </div>
-                        <h6 class="fw-bold text-dark mb-0">Documents for: <span class="text-primary">${tech}</span></h6>
+                        <h6 class="fw-bold text-dark mb-0">Documents for: <span class="text-primary">${tech}</span> ${isLocked ? '<span class="badge bg-success ms-2">Already Approved</span>' : ''}</h6>
                     </div>
                     <div class="row g-3">
                         ${docTypes.map(doc => {
                             const foundDoc = existingDocs.find(d => d.documentType === doc.type && d.associatedTech === tech);
                             const fileInputKey = `${doc.id}_${safeTechId}`;
-                            return `
+                            
+                            if (isLocked) {
+                                return `
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="p-3 border rounded-3 h-100 bg-white shadow-sm opacity-75">
+                                        <label class="form-label small fw-bold text-secondary mb-2">${doc.label}</label>
+                                        <div class="mt-1 text-truncate">
+                                            <i class="bi bi-check-circle-fill text-success me-1"></i> <span class="text-success small fw-bold">Already Uploaded</span>
+                                            ${foundDoc ? `<br/><a href="${foundDoc.filePath}" target="_blank" class="extra-small text-primary text-decoration-none fw-bold ms-3">${foundDoc.fileName}</a>` : ''}
+                                        </div>
+                                    </div>
+                                </div>`;
+                            } else {
+                                return `
                                 <div class="col-md-6 col-lg-4">
                                     <div class="p-3 border rounded-3 h-100 bg-white shadow-sm hover-elevate transition-all">
                                         <label class="form-label small fw-bold text-secondary mb-2">${doc.label} <span class="text-danger">*</span></label>
@@ -311,8 +327,8 @@
                                                 </a>
                                             </div>` : ''}
                                     </div>
-                                </div>
-                            `;
+                                </div>`;
+                            }
                         }).join('')}
                     </div>
                 `;
@@ -324,7 +340,40 @@
             cb.addEventListener('change', updateTechDocuments);
         });
 
-        // Initialize on load
+        function syncRowInputs(row) {
+            const isMfg = row.querySelector('.tech-mfg-checkbox')?.checked || false;
+            const isApply = row.querySelector('.tech-apply-checkbox')?.checked || false;
+            const isActive = isMfg || isApply;
+
+            const categorySelect = row.querySelector('.tech-category-select');
+            const capacityInput = row.querySelector('.tech-capacity-input');
+            const typeInput = row.querySelector('.tech-type-input');
+
+            if (!isActive) {
+                if (categorySelect) categorySelect.value = ""; // NA
+                if (capacityInput) capacityInput.value = "";
+                if (typeInput) typeInput.value = "";
+            }
+        }
+
+        document.querySelectorAll('.data-grid-row').forEach(row => {
+            const mfgCb = row.querySelector('.tech-mfg-checkbox');
+            const applyCb = row.querySelector('.tech-apply-checkbox');
+            
+            if (mfgCb) {
+                mfgCb.addEventListener('change', () => syncRowInputs(row));
+            }
+            if (applyCb) {
+                applyCb.addEventListener('change', () => syncRowInputs(row));
+            }
+            
+            // Initialize on load for each row
+            if (mfgCb || applyCb) {
+                syncRowInputs(row);
+            }
+        });
+
+        // Initialize documents on load
         document.addEventListener('DOMContentLoaded', updateTechDocuments);
     </script>
 }

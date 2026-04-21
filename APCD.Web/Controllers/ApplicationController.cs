@@ -225,7 +225,7 @@ namespace APCD.Web.Controllers
             var installations = await _context.InstallationRecords.Where(i => i.ApplicationId == id).ToListAsync();
             
             ViewBag.AppId = id;
-            ViewBag.IsAddMoreMode = mode == "addMore" && (application.Status == "Submitted" || application.Status == "DocumentApproved");
+            ViewBag.IsAddMoreMode = application.Status != "Draft" && application.Status != "Rejected";
             var allDocs = await _context.ApplicationDocuments.Where(d => d.ApplicationId == id).ToListAsync();
             ViewBag.Documents = allDocs;
             ViewBag.JsonDocuments = allDocs.Select(d => new { 
@@ -253,9 +253,28 @@ namespace APCD.Web.Controllers
                 {
                     existingCap.IsManufactured = cap.IsManufactured;
                     existingCap.IsAppliedForEmpanelment = cap.IsAppliedForEmpanelment;
-                    existingCap.Category = cap.Category ?? string.Empty;
-                    existingCap.DesignedCapacity = cap.DesignedCapacity ?? string.Empty;
-                    existingCap.TypeDetails = cap.TypeDetails ?? string.Empty;
+                    
+                    if (!cap.IsManufactured && !cap.IsAppliedForEmpanelment)
+                    {
+                        existingCap.Category = string.Empty;
+                        existingCap.DesignedCapacity = string.Empty;
+                        existingCap.TypeDetails = string.Empty;
+
+                        // Delete orphaned documents if the technology is completely deselected
+                        var orphanedDocs = _context.ApplicationDocuments
+                            .Where(d => d.ApplicationId == id && d.AssociatedTech == existingCap.SubTech)
+                            .ToList();
+                        if (orphanedDocs.Any())
+                        {
+                            _context.ApplicationDocuments.RemoveRange(orphanedDocs);
+                        }
+                    }
+                    else
+                    {
+                        existingCap.Category = cap.Category ?? string.Empty;
+                        existingCap.DesignedCapacity = cap.DesignedCapacity ?? string.Empty;
+                        existingCap.TypeDetails = cap.TypeDetails ?? string.Empty;
+                    }
                 }
                 else if (cap.IsManufactured || cap.IsAppliedForEmpanelment)
                 {
@@ -528,6 +547,7 @@ namespace APCD.Web.Controllers
                 .Include(a => a.StaffDetails)
                 .Include(a => a.Capabilities)
                 .Include(a => a.Turnovers)
+                .Include(a => a.Payments)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (application == null || application.UserId != GetUserId()) return NotFound();
@@ -540,7 +560,7 @@ namespace APCD.Web.Controllers
         {
             var application = await _context.Applications
                 .Include(a => a.Capabilities)
-                .Include(a => a.Payment)
+                .Include(a => a.Payments)
                 .Include(a => a.Documents)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
@@ -566,12 +586,40 @@ namespace APCD.Web.Controllers
             ViewBag.AppFeeTotal = appFeeTotal;
             ViewBag.DiscountPercent = (int)(discountPercent * 100);
 
-            var paymentDetail = application.Payment ?? new PaymentDetail { ApplicationId = id, Application = application };
+            var paymentDetail = new PaymentViewModel { ApplicationId = id, Application = application };
+            var appFee = application.Payments.FirstOrDefault(p => p.Type == PaymentType.AppFee);
+            var empFee = application.Payments.FirstOrDefault(p => p.Type == PaymentType.EmpFee);
+            var suppFee = application.Payments.FirstOrDefault(p => p.Type == PaymentType.Supplemental);
+
+            if (appFee != null)
+            {
+                paymentDetail.AppFeeAmountDeposited = appFee.Amount;
+                paymentDetail.AppFeeRemitterBank = appFee.RemitterBank;
+                paymentDetail.AppFeeUTRNumber = appFee.UTRNumber;
+                paymentDetail.AppFeePaymentDate = appFee.PaymentDate;
+            }
+            if (empFee != null)
+            {
+                paymentDetail.EmpFeeAmountDeposited = empFee.Amount;
+                paymentDetail.EmpFeeRemitterBank = empFee.RemitterBank;
+                paymentDetail.EmpFeeUTRNumber = empFee.UTRNumber;
+                paymentDetail.EmpFeePaymentDate = empFee.PaymentDate;
+                paymentDetail.APCDTypesCount = empFee.APCDTypesCount ?? 0;
+            }
+            if (suppFee != null)
+            {
+                // Only pre-fill for viewing history if no NEW payment is required
+                // If IsSupplemental becomes true later, we will clear these
+                paymentDetail.SupplementalAmount = suppFee.Amount;
+                paymentDetail.SupplementalUTR = suppFee.UTRNumber;
+                paymentDetail.SupplementalPayDate = suppFee.PaymentDate;
+            }
             
             // --- Supplemental Payment detection ---
             if (application.Status != "Draft")
             {
-                int paidCount = paymentDetail.APCDTypesCount;
+                int paidCount = application.Payments.Where(p => p.Type == PaymentType.EmpFee || p.Type == PaymentType.Supplemental).Sum(p => p.APCDTypesCount ?? 0);
+                
                 if (currentApcdCount > paidCount)
                 {
                     int extraUnits = currentApcdCount - paidCount;
@@ -581,6 +629,11 @@ namespace APCD.Web.Controllers
                     ViewBag.IsSupplemental = true;
                     ViewBag.PaidCount = paidCount;
                     ViewBag.NewCount = currentApcdCount;
+
+                    // CLEAR the ViewModel fields for the NEW supplemental payment
+                    paymentDetail.SupplementalAmount = extraBase + extraGST;
+                    paymentDetail.SupplementalUTR = string.Empty;
+                    paymentDetail.SupplementalPayDate = null;
                 }
                 else
                 {
@@ -601,24 +654,27 @@ namespace APCD.Web.Controllers
             return View(paymentDetail);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Payment(int id, PaymentDetail payment)
+        public async Task<IActionResult> Payment(int id, PaymentViewModel payment)
         {
-            var application = await _context.Applications.Include(a => a.Payment).FirstOrDefaultAsync(a => a.Id == id);
+            var application = await _context.Applications.Include(a => a.Payments).FirstOrDefaultAsync(a => a.Id == id);
             if (application == null) return NotFound();
 
             if (application.Status == "Draft")
             {
-                payment.ApplicationId = id;
-                payment.PaymentDate = DateTime.UtcNow;
-                payment.Status = "Pending";
-                payment.UTRNumber = payment.AppFeeUTRNumber; // Legacy field
-                payment.RemitterBank = payment.AppFeeRemitterBank;
+                var appFee = application.Payments.FirstOrDefault(p => p.Type == PaymentType.AppFee);
+                if (appFee == null) { appFee = new Payment { ApplicationId = id, Type = PaymentType.AppFee }; _context.Payments.Add(appFee); }
+                appFee.Amount = payment.AppFeeAmountDeposited;
+                appFee.UTRNumber = payment.AppFeeUTRNumber;
+                appFee.RemitterBank = payment.AppFeeRemitterBank;
+                appFee.PaymentDate = payment.AppFeePaymentDate ?? DateTime.UtcNow;
 
-                if (application.Payment != null)
-                    _context.Entry(application.Payment).CurrentValues.SetValues(payment);
-                else
-                    _context.PaymentDetails.Add(payment);
+                var empFee = application.Payments.FirstOrDefault(p => p.Type == PaymentType.EmpFee);
+                if (empFee == null) { empFee = new Payment { ApplicationId = id, Type = PaymentType.EmpFee }; _context.Payments.Add(empFee); }
+                empFee.Amount = payment.EmpFeeAmountDeposited;
+                empFee.UTRNumber = payment.EmpFeeUTRNumber;
+                empFee.RemitterBank = payment.EmpFeeRemitterBank;
+                empFee.PaymentDate = payment.EmpFeePaymentDate ?? DateTime.UtcNow;
+                empFee.APCDTypesCount = payment.APCDTypesCount;
 
                 application.Status = "Submitted";
                 application.SubmittedAt = DateTime.UtcNow;
@@ -626,11 +682,18 @@ namespace APCD.Web.Controllers
             else
             {
                 // Supplemental Payment logic
-                if (application.Payment != null)
+                if (payment.SupplementalAmount > 0 && !string.IsNullOrEmpty(payment.SupplementalUTR))
                 {
-                    application.Payment.SupplementalUTR = payment.SupplementalUTR;
-                    application.Payment.SupplementalAmount = payment.SupplementalAmount;
-                    application.Payment.SupplementalPayDate = DateTime.UtcNow;
+                    var suppFee = application.Payments.FirstOrDefault(p => p.Type == PaymentType.Supplemental && p.UTRNumber == payment.SupplementalUTR);
+                    if (suppFee == null) { suppFee = new Payment { ApplicationId = id, Type = PaymentType.Supplemental }; _context.Payments.Add(suppFee); }
+                    suppFee.Amount = payment.SupplementalAmount.Value;
+                    suppFee.UTRNumber = payment.SupplementalUTR;
+                    suppFee.RemitterBank = "Unknown"; // Can add field to UI later if needed
+                    suppFee.PaymentDate = payment.SupplementalPayDate ?? DateTime.UtcNow;
+                    
+                    int currentApcdCount = _context.APCDCapabilities.Count(c => c.ApplicationId == id && c.IsAppliedForEmpanelment);
+                    int paidCount = application.Payments.Where(p => p.Type == PaymentType.EmpFee || p.Type == PaymentType.Supplemental).Sum(p => p.APCDTypesCount ?? 0);
+                    suppFee.APCDTypesCount = currentApcdCount - paidCount; // Register the newly paid units
                 }
             }
 
@@ -658,6 +721,14 @@ namespace APCD.Web.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Submit(int id)
+        {
+            var application = await _context.Applications.FindAsync(id);
+            if (application == null || application.UserId != GetUserId()) return NotFound();
+            return View(application);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Print(int id)
         {
             var userId = GetUserId();
@@ -672,7 +743,7 @@ namespace APCD.Web.Controllers
                 .Include(a => a.StaffDetails)
                 .Include(a => a.Capabilities)
                 .Include(a => a.Turnovers)
-                .Include(a => a.Payment)
+                .Include(a => a.Payments)
                 .Include(a => a.Remarks)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
