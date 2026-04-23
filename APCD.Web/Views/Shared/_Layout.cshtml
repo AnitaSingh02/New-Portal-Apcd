@@ -17,134 +17,136 @@
     
     <style>
         :root {
-            --saas-bg: #fcfcfd;
-            --saas-surface: #ffffff;
-            --saas-border: #eef0f2;
-            --saas-primary: #0f172a;
-            --saas-text-main: #1e293b;
-            --saas-text-muted: #64748b;
-            --saas-accent: #2563eb;
-            --saas-accent-hover: #1d4ed8;
+            --gov-green: #1f5e3b;
+            --gov-green-hover: #2d8554;
+            --gov-text: #333333;
+            --gov-border: #e5e5e5;
+            --saas-bg: #ffffff;
         }
         
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--saas-bg);
-            color: var(--saas-text-main);
+            color: var(--gov-text);
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
 
-        /* Top Bar */
-        .saas-top-bar {
-            background: var(--saas-primary);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding: 0.5rem 0;
-        }
-
-        /* SaaS Minimal Navbar */
-        .saas-navbar {
+        /* Header Section */
+        .gov-header {
             background: #ffffff;
-            border-bottom: 1px solid var(--saas-border);
-            padding: 1rem 0;
-            height: 72px;
-            display: flex;
-            align-items: center;
-            transition: all 0.3s ease;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--gov-border);
         }
         
-        .saas-navbar-container {
+        .gov-header-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            width: 100%;
             max-width: 1280px;
             margin: 0 auto;
+            padding: 0 1.5rem;
         }
         
-        /* Logo Section */
-        .navbar-brand-section {
+        .brand-section {
             display: flex;
-            align-items: center;
-            gap: 1.25rem;
-            flex: 1;
-        }
-        .navbar-brand-section img {
-            height: 44px;
-            object-fit: contain;
-        }
-
-        /* Center Nav Links */
-        .navbar-nav-center {
-            flex: 2;
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-        }
-        .saas-navbar .nav-link {
-            font-weight: 600;
-            color: #475569;
-            padding: 0.5rem 0;
-            font-size: 0.95rem;
-            transition: all 0.2s;
-            position: relative;
-        }
-        .saas-navbar .nav-link:hover, .saas-navbar .nav-link.active {
-            color: var(--saas-primary);
-        }
-        .saas-navbar .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--saas-accent);
-            border-radius: 2px;
-        }
-
-        /* Action Buttons */
-        .navbar-actions {
-            flex: 1;
-            display: flex;
-            justify-content: flex-end;
             align-items: center;
             gap: 1rem;
         }
         
-        .btn-saas-primary {
-            background: var(--saas-primary);
-            color: white;
-            border: 1px solid var(--saas-primary);
-            font-weight: 600;
-            font-size: 0.9rem;
-            padding: 0.6rem 1.5rem;
-            border-radius: 10px;
-            transition: all 0.2s ease;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-        .btn-saas-primary:hover {
-            background: #1e293b;
-            color: white;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        .brand-logos {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
         
-        .btn-saas-outline {
-            background: transparent;
-            color: var(--saas-text-main);
-            border: 1px solid #e2e8f0;
+        .brand-logos img {
+            height: 52px;
+            object-fit: contain;
+        }
+        
+        .brand-title {
+            color: var(--gov-green);
+            font-weight: 700;
+            line-height: 1.2;
+            padding-left: 0.75rem;
+            border-left: 1px solid #ddd;
+        }
+        
+        .brand-title h1 {
+            font-size: 1.2rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+            color: var(--gov-green);
+            font-weight: 800;
+        }
+        
+        .brand-title p {
+            font-size: 0.9rem;
+            margin: 0;
+            color: #555;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Navbar Section */
+        .gov-navbar {
+            background: var(--gov-green);
+            padding: 0;
+            min-height: 48px;
+        }
+        
+        .gov-navbar .nav-link {
+            color: #ffffff !important;
+            font-weight: 500;
+            padding: 12px 24px !important;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .gov-navbar .nav-link:hover {
+            background: var(--gov-green-hover);
+        }
+
+        /* Header Actions */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+        
+        .header-actions .btn-login {
+            color: var(--gov-text);
+            text-decoration: none;
             font-weight: 600;
             font-size: 0.9rem;
-            padding: 0.6rem 1.5rem;
-            border-radius: 10px;
-            transition: all 0.2s ease;
+            transition: color 0.2s;
         }
-        .btn-saas-outline:hover {
-            background: #f8fafc;
-            border-color: #cbd5e1;
-            color: var(--saas-primary);
+        
+        .header-actions .btn-login:hover {
+            color: var(--gov-green);
+        }
+        
+        .header-actions .btn-register {
+            background: var(--gov-green);
+            color: white !important;
+            font-weight: 600;
+            padding: 9px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .header-actions .btn-register:hover {
+            background: var(--gov-green-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
         /* Main Content */
@@ -152,127 +154,90 @@
             flex-grow: 1;
         }
 
-        /* Footer */
+        /* Footer overrides */
         .saas-footer {
-            background-color: var(--saas-primary);
-            color: #94a3b8;
-            border-top: 1px solid #1e293b;
-            padding-top: 4rem;
-            padding-bottom: 2rem;
-            margin-top: auto;
+            background-color: #1a1a1a;
         }
-        .saas-footer h5 {
-            color: white;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            font-size: 1rem;
-        }
-        .footer-link {
-            color: #94a3b8;
-            text-decoration: none;
-            transition: color 0.2s;
-            display: inline-block;
-        }
-        .footer-link:hover {
-            color: white;
-        }
-        .newsletter-input {
-            background-color: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
-            border-radius: 0.5rem 0 0 0.5rem;
-        }
-        .newsletter-input::placeholder {
-            color: rgba(255, 255, 255, 0.5) !important;
-        }
-        .newsletter-input:focus {
-            background-color: rgba(255,255,255,0.1);
-            border-color: var(--saas-accent);
-            box-shadow: none;
-            color: white;
-        }
-        .newsletter-btn {
-            background-color: var(--saas-accent);
-            color: white;
-            border: none;
-            font-weight: 500;
-            border-radius: 0 0.5rem 0.5rem 0;
-            transition: background 0.2s;
-        }
-        .newsletter-btn:hover { background-color: var(--saas-accent-hover); color: white; }
         
         @@media (max-width: 991px) {
-            .saas-navbar-container { flex-wrap: wrap; }
-            .navbar-brand-section { flex: 0 0 100%; justify-content: space-between; margin-bottom: 1rem; }
-            .navbar-nav-center { flex: 0 0 100%; justify-content: flex-start; margin-bottom: 1rem; flex-direction: column; gap: 0.5rem; display: none; }
-            .navbar-actions { flex: 0 0 100%; justify-content: flex-start; }
-            .navbar-collapse.show .navbar-nav-center { display: flex; }
-            .navbar-toggler { border: none; padding: 0; background: transparent; }
+            .gov-header-container { flex-direction: column; text-align: center; gap: 1rem; }
+            .brand-section { flex-direction: column; }
+            .brand-title { border-left: none; padding-left: 0; margin-top: 0.5rem; }
+            .header-actions { margin-bottom: 0.5rem; }
+            .gov-navbar .nav-link { padding: 10px 15px !important; text-align: center; }
         }
+
     </style>
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
 
-    <!-- Minimal Top Bar -->
-    <div class="saas-top-bar text-white">
-        <div class="container d-flex justify-content-center align-items-center">
-            <span class="text-white fw-medium" style="font-size: 28px; letter-spacing: 0.5px; text-transform: uppercase;">
-                National Productivity Council for CPCB - APCD Empanelment Portal
-            </span>
-        </div>
-    </div>
-
-    <!-- SaaS Navbar -->
-    <header class="sticky-top">
-        <nav class="saas-navbar">
-            <div class="container saas-navbar-container">
-                
-                <!-- Left: Logos -->
-                <div class="navbar-brand-section d-flex align-items-center">
+    <!-- Government Style Header -->
+    <header class="gov-header">
+        <div class="gov-header-container">
+            <!-- Left: Logos and Title -->
+            <div class="brand-section">
+                <div class="brand-logos">
                     <img src="~/images/npc-logo.png" alt="NPC Logo" />
-                    <div class="vr mx-3 text-secondary opacity-25 d-none d-sm-block" style="height: 24px;"></div>
-                    <img src="~/images/apcd-logo.png" alt="APCD Logo" style="height: 32px;" class="d-none d-sm-block" />
-                    <button class="navbar-toggler d-lg-none ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#saasNav">
-                        <i class="bi bi-list fs-3 text-dark"></i>
-                    </button>
+                    <img src="~/images/apcd-logo.png" alt="APCD Logo" />
                 </div>
-
-                <div class="collapse navbar-collapse d-lg-flex justify-content-between w-100" id="saasNav">
-                    <!-- Center: Navigation -->
-                    <div class="navbar-nav-center">
-                        <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
-                        <a class="nav-link" href="#process">Process</a>
-                        <a class="nav-link" href="#fees">Fees</a>
-                        <a class="nav-link" href="#faq">FAQ</a>
-                    </div>
-
-                    <!-- Right: Actions -->
-                    <div class="navbar-actions mt-3 mt-lg-0">
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <a class="btn-saas-primary text-decoration-none d-inline-flex align-items-center" asp-controller="Dashboard" asp-action="Index">
-                                Dashboard
-                            </a>
-                            <form asp-controller="Auth" asp-action="Logout" method="post" class="m-0 p-0">
-                                <button type="submit" class="btn-saas-outline ms-2">Sign out</button>
-                            </form>
-                        }
-                        else
-                        {
-                            <a class="nav-link d-inline-block me-3" asp-controller="Auth" asp-action="Login" style="color: var(--saas-text-main); font-weight: 600;">
-                                Sign in
-                            </a>
-                            <a class="btn-saas-primary text-decoration-none" asp-controller="Auth" asp-action="Register">
-                                Create account
-                            </a>
-                        }
-                    </div>
+                <div class="brand-title">
+                    <h1>Air Pollution Control Device Empanelment Scheme</h1>
                 </div>
-
             </div>
-        </nav>
+
+            <!-- Right: Actions -->
+            <div class="header-actions">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a class="btn-register" asp-controller="Dashboard" asp-action="Index">
+                        Dashboard
+                    </a>
+                    <form asp-controller="Auth" asp-action="Logout" method="post" class="m-0 p-0">
+                        <button type="submit" class="btn-login border-0 bg-transparent">Sign out</button>
+                    </form>
+                }
+                else
+                {
+                    <a class="btn-login" asp-controller="Auth" asp-action="Login">
+                        Sign in
+                    </a>
+                    <a class="btn-register" asp-controller="Auth" asp-action="Register">
+                        Create account
+                    </a>
+                }
+            </div>
+        </div>
     </header>
+
+    <!-- Solid Green Navbar -->
+    <nav class="navbar navbar-expand-lg gov-navbar sticky-top">
+        <div class="container">
+            <button class="navbar-toggler border-white text-white" type="button" data-bs-toggle="collapse" data-bs-target="#govNav">
+                <i class="bi bi-list fs-3"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="govNav">
+                <ul class="navbar-nav w-100 justify-content-start">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#process">Process</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#fees">Fees</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#faq">FAQ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact Us</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
 
     <main role="main">
         @RenderBody()
@@ -297,7 +262,7 @@
                 </div>
                 
                 <div class="col-lg-2 col-md-4">
-                    <h5>Quick Links</h5>
+                    <h5 class="text-white">Quick Links</h5>
                     <ul class="list-unstyled">
                         <li><a href="#" class="footer-link small mb-3">About NPC</a></li>
                         <li><a href="#" class="footer-link small mb-3">CPCB Guidelines</a></li>
@@ -307,7 +272,7 @@
                 </div>
                 
                 <div class="col-lg-2 col-md-4">
-                    <h5>Support</h5>
+                    <h5 class="text-white">Support</h5>
                     <ul class="list-unstyled">
                         <li><a href="#" class="footer-link small mb-3">Help Desk</a></li>
                         <li><a href="#" class="footer-link small mb-3">FAQs</a></li>
@@ -317,7 +282,7 @@
                 </div>
                 
                 <div class="col-lg-4 col-md-4">
-                    <h5>Contact Us</h5>
+                    <h5 class="text-white">Contact Us</h5>
                     <div class="d-flex mb-3 align-items-start">
                         <div class="bg-white bg-opacity-10 p-2 rounded-circle me-3 text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
                             <i class="bi bi-geo-alt-fill" style="font-size: 0.85rem;"></i>
@@ -328,13 +293,13 @@
                         <div class="bg-white bg-opacity-10 p-2 rounded-circle me-3 text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
                             <i class="bi bi-telephone-fill" style="font-size: 0.85rem;"></i>
                         </div>
-                        <span class="small text-white mt-1">+91-11-24690331, 24607344</span>
+                        <span class="small text-white mt-1">+91-11-24607325, 8368303555</span>
                     </div>
                     <div class="d-flex align-items-start">
                         <div class="bg-white bg-opacity-10 p-2 rounded-circle me-3 text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
                             <i class="bi bi-envelope-fill" style="font-size: 0.85rem;"></i>
                         </div>
-                        <span class="small text-white mt-1">apcd-support@npcindia.gov.in</span>
+                        <span class="small text-white mt-1">eca.group@npcindia.gov.in</span>
                     </div>
                 </div>
             </div>

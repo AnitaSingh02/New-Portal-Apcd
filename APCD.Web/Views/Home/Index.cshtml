@@ -7,8 +7,8 @@
 }
 <style>
     .hero-wrapper{
-    background:#f4f7fb;
-    padding:70px 0;
+    background:#ffffff;
+    padding:80px 0;
 }
 
 .hero-content{
@@ -17,11 +17,15 @@
 }
 
 .hero-title{
-    font-size:2.2rem;
-    line-height:1.45;
-    font-weight:600;
-    color:#0d3b66;
-    max-width:650px;
+    font-size:2.8rem;
+    line-height:1.2;
+    font-weight:800;
+    color:#222;
+    max-width:700px;
+}
+
+.hero-title span.highlight {
+    color: var(--gov-green);
 }
 
 .hero-img-container{
@@ -31,31 +35,50 @@
 
 .hero-img{
     width:100%;
-    height:520px;
+    height:auto;
+    max-height:500px;
     object-fit:cover;
-    border-radius:18px;
-}
-
-.hero-stat-card{
-    position:absolute;
-    bottom:25px;
-    right:40px;
-    background:#fff;
-    padding:12px 18px;
-    border-radius:10px;
-    box-shadow:0 8px 20px rgba(0,0,0,0.08);
+    border-radius:8px;
+    border: 1px solid #e5e5e5;
 }
 
 .btn-primary-custom{
-    background:#0d3b66;
-    border:none;
-    padding:12px 28px;
-    border-radius:8px;
+    background: var(--gov-green);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
 }
 
 .btn-primary-custom:hover{
-    background:#092c4c;
+    background: var(--gov-green-hover);
+    transform: translateY(-2px);
+    color: white;
 }
+
+.btn-secondary-custom {
+    background: white;
+    color: var(--gov-green);
+    border: 1px solid var(--gov-green);
+    padding: 13px 32px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-secondary-custom:hover {
+    background: #f0f7f3;
+    color: var(--gov-green-hover);
+}
+
 
     .display-4 {
         font-size: 38px;
@@ -136,20 +159,226 @@
     /* Section Heading */
 
     .section-tag {
-        color: #1e6bb8;
+        color: #777;
         font-weight: 600;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
         text-transform: uppercase;
-        font-size: 14px;
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+        display: block;
     }
 
     .section-head h2 {
-        color: #0d3b66;
-        font-weight: 700;
+        color: #222;
+        font-weight: 800;
+        font-size: 2.2rem;
+        margin-bottom: 1.25rem;
     }
 
     .section-head p {
-        color: #6c757d;
+        color: #555;
+        font-size: 1.05rem;
+        line-height: 1.6;
+    }
+
+    /* Objective Cards Refactor */
+    .obj-card {
+        background: #ffffff !important;
+        border: 1px solid #e5e5e5 !important;
+        border-radius: 8px !important;
+        padding: 40px 30px !important;
+        transition: transform 0.2s, border-color 0.2s;
+        color: #222 !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02) !important;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .obj-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--gov-green) !important;
+    }
+
+    .obj-card i {
+        color: var(--gov-green) !important;
+        font-size: 2.5rem !important;
+        margin-bottom: 1.5rem !important;
+        display: block;
+    }
+
+    .obj-card h3 {
+        color: #222 !important;
+        font-size: 1.4rem !important;
+        font-weight: 700 !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .obj-card p {
+        color: #555 !important;
+        font-size: 0.95rem !important;
+        line-height: 1.6 !important;
+        margin-bottom: 2rem !important;
+        opacity: 1 !important;
+        flex-grow: 1;
+    }
+
+    .obj-card .learn-more {
+        color: var(--gov-green) !important;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        margin-top: auto;
+    }
+
+    .obj-card .learn-more:hover {
+        gap: 0.75rem;
+    }
+
+    /* Section Separation Refactor */
+    .objectives-section {
+        background: #f8fafc !important; /* Distinct light background */
+        padding: 100px 0 !important;
+        border-top: 1px solid #edf2f7;
+        box-shadow: inset 0 10px 20px -10px rgba(0,0,0,0.05); /* Subtle inner shadow for depth */
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-wrapper {
+        padding-bottom: 100px !important;
+    }
+
+    /* Timeline Journey Refactor */
+    .timeline-container {
+        position: relative;
+        padding: 60px 0;
+    }
+
+    .timeline-line {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: #e2e8f0;
+        transform: translateX(-50%);
+    }
+
+    .timeline-item {
+        margin-bottom: 50px;
+        display: flex;
+        align-items: center;
+        position: relative;
+        width: 100%;
+    }
+
+    .timeline-dot {
+        width: 14px;
+        height: 14px;
+        background: var(--gov-green);
+        border-radius: 50%;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+        border: 3px solid white;
+        box-shadow: 0 0 0 4px #fff;
+    }
+
+    .timeline-content {
+        width: 45%;
+        padding: 30px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e5e5e5;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        transition: transform 0.3s, border-color 0.3s;
+        position: relative;
+    }
+
+    /* Connector Line from Dot to Card (Static) */
+    .timeline-content::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        width: 40px;
+        height: 1px;
+        background: #cbd5e1;
+        z-index: -1;
+    }
+
+    .timeline-item:nth-child(odd) .timeline-content::before {
+        right: -40px;
+    }
+
+    .timeline-item:nth-child(even) .timeline-content::before {
+        left: -40px;
+    }
+
+    .timeline-item:nth-child(odd) {
+        justify-content: flex-start;
+        flex-direction: row;
+    }
+
+    .timeline-item:nth-child(even) {
+        justify-content: flex-end;
+        flex-direction: row;
+    }
+
+    .timeline-content:hover {
+        transform: translateY(-5px);
+        border-color: var(--gov-green);
+    }
+
+    .step-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        background: #f0f7f3;
+        color: var(--gov-green);
+        font-weight: 700;
+        font-size: 0.72rem;
+        border-radius: 20px;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .timeline-content h4 {
+        color: #222;
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+
+    .timeline-content p {
+        color: #555;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 0;
+    }
+
+    .btn-download-custom {
+        background: var(--gov-green);
+        color: white;
+        padding: 14px 32px;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .btn-download-custom:hover {
+        background: var(--gov-green-hover);
+        transform: translateY(-2px);
+        color: white;
     }
 
     /* ============================= */
@@ -268,138 +497,116 @@
             <!-- LEFT CONTENT -->
             <div class="col-lg-6 hero-content">
                 <h1 class="hero-title">
-                    Empanelment of Original Equipment Manufacturers (OEMs)
+                    Empanelment of <span class="highlight">Original Equipment Manufacturers</span> (OEMs)
                     of Air Pollution Control Devices (APCDs) for
                     Installation / Upgradation in Industrial Units in Delhi – NCR
                 </h1>
 
-                <a asp-controller="Auth" asp-action="Register"
-                   class="btn btn-primary-custom btn-lg mt-3">
-                    Get Started Now
-                </a>
+                <div class="d-flex gap-3 mt-4">
+                    <a asp-controller="Auth" asp-action="Register"
+                       class="btn-primary-custom">
+                        Get Started Now
+                    </a>
+                    <a href="#process" class="btn-secondary-custom">
+                        View Process
+                    </a>
+                </div>
             </div>
 
             <!-- RIGHT IMAGE -->
             <div class="col-lg-6 hero-img-container">
                 <img src="~/images/hero.png" alt="Industrial Plant" class="hero-img">
-
-                <div class="hero-stat-card">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-patch-check-fill text-success fs-4"></i>
-                        <div>
-                            <strong>Approved OEM</strong><br>
-                            <small class="text-muted">Verified by NPC Experts</small>
-                        </div>
-                    </div>
-                </div>
             </div>
 
         </div>
     </div>
 </section>
 <!-- Our Objectives -->
-<section class="py-5 my-5">
-    <div class="container">
-        <div class="section-head text-center">
-            <span class="section-tag">Our Vision</span>
-            <h2>Our Core Objectives</h2>
-            <p class="text-muted mx-auto" style="max-width: 600px;">The goal is to reduce pollution and ensure that industrial units install high-quality, verified air pollution control devices.</p>
+<section class="objectives-section">
+    <div class="container py-4">
+        <div class="section-head text-center mb-5">
+            <h2>Objectives</h2>
+            <p class="mx-auto" style="max-width: 700px;">The goal is to reduce pollution and ensure that industrial units install high-quality, verified air pollution control devices.</p>
         </div>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="obj-card blue shadow h-100">
-                    <i class="bi bi-search fs-1 mb-4 d-block"></i>
-                    <h3>APCD Inspection</h3>
-                    <p class="opacity-75">Rigorous on-site inspection of manufacturing facilities and trial installations to ensure quality standards.</p>
-                    <a href="#" class="text-white fw-bold text-decoration-none">Learn More <i class="bi bi-arrow-right"></i></a>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="obj-card cyan shadow h-100">
-                    <i class="bi bi-shield-check fs-1 mb-4 d-block"></i>
-                    <h3>Empanelment of OEM</h3>
-                    <p class="opacity-75">Comprehensive verification of Original Equipment Manufacturers for long-term empanelment with NPC/CPCB.</p>
-                    <a href="#" class="text-white fw-bold text-decoration-none">Learn More <i class="bi bi-arrow-right"></i></a>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="obj-card teal shadow h-100">
-                    <i class="bi bi-gear-wide-connected fs-1 mb-4 d-block"></i>
-                    <h3>Technical Evaluation</h3>
-                    <p class="opacity-75">Scientific evaluation of APCD performance by expert committees to validate pollution reduction efficiency.</p>
-                    <a href="#" class="text-white fw-bold text-decoration-none">Learn More <i class="bi bi-arrow-right"></i></a>
-                </div>
-            </div>
-        </div>
+       
     </div>
 </section>
 
 <!-- Process Timeline -->
-<section id="process" class="py-5 bg-light">
-    <div class="container">
-        <div class="section-head text-center">
+<section id="process" class="py-5 bg-white">
+    <div class="container py-5">
+        <div class="section-head text-center mb-5">
             <span class="section-tag">Step-by-Step</span>
             <h2>Empanelment Journey</h2>
+            <p class="mx-auto" style="max-width: 600px;">A transparent and structured approach for Original Equipment Manufacturers to get certified.</p>
         </div>
         <div class="timeline-container">
             <div class="timeline-line d-none d-md-block"></div>
             
+            <!-- Step 01 -->
             <div class="timeline-item">
                 <div class="timeline-dot"></div>
                 <div class="timeline-content">
-                    <span class="badge bg-primary mb-2">Step 01</span>
+                    <span class="step-badge">Step 01</span>
                     <h4>OEM Registration</h4>
-                    <p class="small text-muted mb-0">Create your account with basic company profile and contact information to start the journey.</p>
+                    <p>Create your account with basic company profile and contact information to start the journey.</p>
                 </div>
             </div>
             
+            <!-- Step 02 -->
             <div class="timeline-item">
                 <div class="timeline-dot"></div>
                 <div class="timeline-content">
-                    <span class="badge bg-primary mb-2">Step 02</span>
+                    <span class="step-badge">Step 02</span>
                     <h4>Application Submission</h4>
-                    <p class="small text-muted mb-0">Upload technical specifications, manufacturing capacity, and previous installation reports.</p>
+                    <p>Upload Organization details,Financial details,Experience and Project deails.</p>
                 </div>
             </div>
 
+            <!-- Step 03 -->
             <div class="timeline-item">
                 <div class="timeline-dot"></div>
                 <div class="timeline-content">
-                    <span class="badge bg-primary mb-2">Step 03</span>
-                    <h4>Document Verification</h4>
-                    <p class="small text-muted mb-0">NPC officers will review your documents for compliance with regulatory standards and guidelines.</p>
+                    <span class="step-badge">Step 03</span>
+                    <h4>Evalluation Committee</h4>
+                    <p>Will review the submitted applications.</p>
                 </div>
             </div>
 
+            <!-- Step 04 -->
             <div class="timeline-item">
                 <div class="timeline-dot"></div>
                 <div class="timeline-content">
-                    <span class="badge bg-primary mb-2">Step 04</span>
-                    <h4>Field Inspection</h4>
-                    <p class="small text-muted mb-0">Physical verification of manufacturing units and verification of installations at client sites.</p>
+                    <span class="step-badge">Step 04</span>
+                    <h4>Field Verification </h4>
+                    <p>Laboratory verification at client sites.</p>
                 </div>
             </div>
 
+            <!-- Step 05 -->
             <div class="timeline-item">
                 <div class="timeline-dot"></div>
                 <div class="timeline-content">
-                    <span class="badge bg-primary mb-2">Step 05</span>
+                    <span class="step-badge">Step 05</span>
                     <h4>Technical Review</h4>
-                    <p class="small text-muted mb-0">Review by expert committee members to evaluate technical performance of APCD models.</p>
+                    <p>Review of field verification reported by Evalluation Committee.</p>
                 </div>
             </div>
 
+            <!-- Step 06 -->
             <div class="timeline-item">
                 <div class="timeline-dot"></div>
                 <div class="timeline-content">
-                    <span class="badge bg-primary mb-2">Step 06</span>
+                    <span class="step-badge">Step 06</span>
                     <h4>Final Certification</h4>
-                    <p class="small text-muted mb-0">Issuance of digital empanelment certificate valid for a period of two years.</p>
+                    <p>Issuance of digital empanelment certificate with the validity of 2 years.</p>
                 </div>
             </div>
         </div>
         <div class="text-center mt-5">
-            <a href="~/documents/empanelment-guidelines.pdf" download class="btn btn-primary-custom">Download Empanelment Guidelines <i class="bi bi-file-earmark-pdf ms-2"></i></a>
+            <a href="~/documents/empanelment-guidelines.pdf" download class="btn-download-custom">
+                Download Empanelment Guidelines <i class="bi bi-file-earmark-pdf"></i>
+            </a>
         </div>
     </div>
 </section>
@@ -408,10 +615,8 @@
 <section class="apcd-section">
     <div class="container">
         <div class="section-head text-center mb-5 animate-fade-up">
-            <span class="section-tag">Industry Standards</span>
-            <h2 class="display-5 fw-bold text-dark">Types of APCD Based on Category</h2>
+            <h2 class="display-5 fw-bold text-dark">Types of APCD Based on Technology</h2>
             <div class="mx-auto bg-primary rounded-pill mb-4" style="width: 80px; height: 4px;"></div>
-            <p class="text-muted mx-auto" style="max-width: 700px;">Explore the classification of Air Pollution Control Devices (APCD) based on their technical application and filtration mechanisms for industrial environmental protection.</p>
         </div>
 
         <div class="row g-4">
@@ -561,20 +766,9 @@
                     <div class="apcd-icon-wrapper">
                         <i class="fa-solid fa-fan"></i>
                     </div>
-                    <h4 class="apcd-title">Fume / Dust Extraction</h4>
-                    <p class="apcd-desc">Localized exhaust ventilation systems designed to capture industrial fumes and dust at the source.</p>
+                    <h4 class="apcd-title">Industrial Fume / Dust Extraction System</h4>
+                    <p class="apcd-desc">It consists of hoods,ducts,blowers,and exhaust systems that capture and transport fumes or dust from the point of generation, to the air pollution control devices</p>
                     
-                    <button class="apcd-expand-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#extract-subs">
-                        View Sub-Types <i class="fa-solid fa-chevron-down ms-1"></i>
-                    </button>
-                    
-                    <div class="collapse" id="extract-subs">
-                        <ul class="subtype-list">
-                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Industrial Fume Extraction</li>
-                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Dust Extraction Systems</li>
-                            <li class="subtype-item"><i class="fa-solid fa-circle-check"></i> Exhaust Ventilation (LEV)</li>
-                        </ul>
-                    </div>
                 </div>
             </div>
         </div>
@@ -587,59 +781,6 @@
     .border-white-10 { border-color: rgba(255,255,255,0.1) !important; }
 </style>
 
-<!-- Advantages Section -->
-<section class="adv-section">
-    <div class="container text-center mb-5">
-        <span class="section-tag text-white-50">Why Choose Us</span>
-        <h2 class="text-white">Advantages of APCD Empanelment</h2>
-    </div>
-    <div class="container">
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="adv-item text-center">
-                    <i class="bi bi-award"></i>
-                    <h4>High Quality</h4>
-                    <p class="small text-white-50">Ensuring adherence to national and international manufacturing standards.</p>
-                </div>
-            </div>
-            <div class="col-md-4 border-start border-white-10">
-                <div class="adv-item text-center">
-                    <i class="bi bi-speedometer2"></i>
-                    <h4>Fast Approval</h4>
-                    <p class="small text-white-50">Digital workflow significantly reduces the time for verification and approval.</p>
-                </div>
-            </div>
-            <div class="col-md-4 border-start border-white-10">
-                <div class="adv-item text-center">
-                    <i class="bi bi-qr-code"></i>
-                    <h4>Digital Certificate</h4>
-                    <p class="small text-white-50">Instantly verifiable secure digital empanelment certificates with QR codes.</p>
-                </div>
-            </div>
-            <div class="col-md-4 border-top border-white-10">
-                <div class="adv-item text-center">
-                    <i class="bi bi-globe"></i>
-                    <h4>Global Standards</h4>
-                    <p class="small text-white-50">Aligned with Indian environmental laws and global best practices.</p>
-                </div>
-            </div>
-            <div class="col-md-4 border-top border-start border-white-10">
-                <div class="adv-item text-center">
-                    <i class="bi bi-cpu"></i>
-                    <h4>Modern Tech</h4>
-                    <p class="small text-white-50">Integration with latest IoT and online monitoring systems.</p>
-                </div>
-            </div>
-            <div class="col-md-4 border-top border-start border-white-10">
-                <div class="adv-item text-center">
-                    <i class="bi bi-lock"></i>
-                    <h4>Secure & Transparent</h4>
-                    <p class="small text-white-50">End-to-end encrypted data handling and real-time status tracking.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- Fee Structure -->
 <section id="fees" class="pricing-section py-5">
@@ -686,10 +827,10 @@
                     <h2 class="fee-price">₹65,000</h2>
                     <p class="small fee-note">+18% GST Extra<br>Non-Refundable</p>
 
-                    <p class="text-muted small">Per APCD Technology Type</p>
+                    <p class="text-muted small">Per APCD Technology Type</p> 
 
                     <ul class="fee-list">
-                        <li><i class="bi bi-check-circle-fill text-success"></i> Provisional Technology Approval</li>
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Provisional Empanelment of APCD</li>
                     </ul>
 
                 </div>
@@ -711,7 +852,7 @@
                     <p class="text-muted small">Per APCD Technology Type</p>
 
                     <ul class="fee-list">
-                        <li><i class="bi bi-check-circle-fill text-success"></i> Field Inspection</li>
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Field Verification and Empanelment of APCD</li>
                     </ul>
 
                 </div>
@@ -762,7 +903,7 @@
                         </h2>
                         <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionFAQ">
                             <div class="accordion-body">
-                                The typical duration is 7-10 working days for document review, followed by field inspection scheduling based on location.
+                                If all required documents are correctly submitted, the process typically takes approximately two weeks for provisional empanelment and an additional two weeks for empanelment.
                             </div>
                         </div>
                     </div>
@@ -774,7 +915,7 @@
                         </h2>
                         <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
                             <div class="accordion-body">
-                                Yes, field verification is mandatory to ensure the manufacturing capacity and installation quality meet the required standards.
+                                Yes, field verification is mandatory to ensure that installations at client sites meet all the required standards.
                             </div>
                         </div>
                     </div>
@@ -788,7 +929,7 @@
 <section class="py-5 text-center" style="background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%); color: white;">
     <div class="container py-5">
         <h2 class="display-5 text-white mb-4">Ready to Register Your Company?</h2>
-        <p class="lead mb-5 opacity-75">Join the network of certified APCD manufacturers and grow your business with NPC.</p>
+        <p class="lead mb-5 opacity-75">Join the network of certified APCD manufacturers.</p>
         <div class="d-flex justify-content-center gap-3">
             <a asp-controller="Auth" asp-action="Register" class="btn btn-light btn-lg px-5 fw-bold">Register Now</a>
             <a asp-controller="Auth" asp-action="Login" class="btn btn-outline-light btn-lg px-5">Login Account</a>
