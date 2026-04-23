@@ -71,7 +71,7 @@
             font-weight: 700;
             line-height: 1.2;
             padding-left: 0.75rem;
-            border-left: 1px solid #ddd;
+           
         }
         
         .brand-title h1 {
@@ -179,6 +179,9 @@
             <div class="brand-section">
                 <div class="brand-logos">
                     <img src="~/images/npc-logo.png" alt="NPC Logo" />
+                    <div class="brand-title">
+                        <h1 style="border-right:3px solid #1f5e3b;">National Productivity Council</h1>
+                    </div>
                     <img src="~/images/apcd-logo.png" alt="APCD Logo" />
                 </div>
                 <div class="brand-title">
@@ -200,10 +203,12 @@
                 else
                 {
                     <a class="btn-login" asp-controller="Auth" asp-action="Login">
-                        Sign in
+                       @*  Sign in *@
+                        <i class="fa-solid fa-right-to-bracket"></i>
                     </a>
                     <a class="btn-register" asp-controller="Auth" asp-action="Register">
-                        Create account
+                        @* Create account *@
+                        <i class="fa-solid fa-user-plus"></i>
                     </a>
                 }
             </div>

@@ -31,7 +31,7 @@
             <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
                 <div class="card-header bg-white py-4 px-4 border-bottom d-flex align-items-center justify-content-between">
                     <div>
-                        <h4 class="fw-bold text-gov-blue mb-1">Empanelment Application #@Model.Id.ToString("0000")</h4>
+                        <h4 class="fw-bold text-gov-blue mb-1">Empanelment Application @(Model.ApplicationId ?? "#" + Model.Id.ToString("0000"))</h4>
                         <p class="text-muted small mb-0">Submitted by <strong>@Model.User.FullName</strong> on @Model.SubmittedAt?.ToLongDateString()</p>
                     </div>
                     <div class="d-flex align-items-center gap-2">

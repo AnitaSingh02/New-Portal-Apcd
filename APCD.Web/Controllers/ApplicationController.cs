@@ -40,9 +40,26 @@ namespace APCD.Web.Controllers
 
             if (application == null)
             {
-                application = new EmpanelmentApplication { UserId = userId, Status = "Draft", CurrentStep = 1 };
-                _context.Applications.Add(application);
-                await _context.SaveChangesAsync();
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
+                {
+                    application = new EmpanelmentApplication { UserId = userId, Status = "Draft", CurrentStep = 1 };
+                    _context.Applications.Add(application);
+                    await _context.SaveChangesAsync();
+
+                    // Generate custom ApplicationId: NPC/APCD/APPL/{YEAR}/{COUNT}
+                    string currentYear = DateTime.Now.Year.ToString();
+                    string count = application.Id.ToString("D3");
+                    application.ApplicationId = $"NPC/APCD/APPL/{currentYear}/{count}";
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
             }
 
             return RedirectToAction("Resume", new { id = application.Id });

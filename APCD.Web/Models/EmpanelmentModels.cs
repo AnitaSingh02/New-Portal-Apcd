@@ -66,6 +66,9 @@ namespace APCD.Web.Models
         [Key]
         public int Id { get; set; }
 
+        [StringLength(50)]
+        public string? ApplicationId { get; set; }
+
         public int UserId { get; set; }
 
         [Required]

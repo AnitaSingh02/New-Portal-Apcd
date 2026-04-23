@@ -60,7 +60,7 @@
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
-                                    <h6 class="text-uppercase text-muted fw-bold small tracking-wide mb-1">Total Active</h6>
+                                    <h6 class="text-uppercase text-muted fw-bold small tracking-wide mb-1">Total Applications Received</h6>
                                     <h2 class="fw-bolder mb-0 text-dark">@Model.Count()</h2>
                                 </div>
                                 <div class="premium-icon-box bg-primary-soft text-primary">
@@ -78,7 +78,7 @@
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
-                                    <h6 class="text-uppercase text-muted fw-bold small tracking-wide mb-1">New Claims</h6>
+                                    <h6 class="text-uppercase text-muted fw-bold small tracking-wide mb-1">Provisionally Empaneled OEMs</h6>
                                     <h2 class="fw-bolder mb-0 text-dark">@Model.Count(a => a.Status == "Submitted")</h2>
                                 </div>
                                 <div class="premium-icon-box bg-warning-soft text-warning">
@@ -96,7 +96,7 @@
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
-                                    <h6 class="text-uppercase text-muted fw-bold small tracking-wide mb-1">Empaneled</h6>
+                                    <h6 class="text-uppercase text-muted fw-bold small tracking-wide mb-1">Empaneled OEMs</h6>
                                     <h2 class="fw-bolder mb-0 text-dark">@Model.Count(a => a.Status == "Empaneled")</h2>
                                 </div>
                                 <div class="premium-icon-box bg-success-soft text-success">
@@ -159,7 +159,7 @@
                                 <tr class="premium-row">
                                     <td class="ps-4">
                                         <div class="d-flex align-items-center gap-2">
-                                            <div class="fw-bolder text-primary">#@app.Id.ToString("0000")</div>
+                                            <div class="fw-bolder text-primary">@(app.ApplicationId ?? "#" + app.Id.ToString("0000"))</div>
                                         </div>
                                     </td>
                                     <td>

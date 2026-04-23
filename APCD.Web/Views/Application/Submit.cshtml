@@ -32,7 +32,7 @@
                         <div class="col-md-6">
                             <div class="p-4 rounded-4 border bg-light shadow-sm">
                                 <div class="small fw-bold text-muted mb-2 text-uppercase">Your Application ID</div>
-                                <h3 class="fw-bold text-dark mb-0">APC-@Model.Id.ToString("D5")</h3>
+                                <h3 class="fw-bold text-dark mb-0">@(Model.ApplicationId ?? "APC-" + Model.Id.ToString("D5"))</h3>
                                 <hr class="my-3">
                                 <div class="d-flex justify-content-between text-start mb-2">
                                     <span class="small text-muted">Status</span>

@@ -47,49 +47,56 @@ using (var scope = app.Services.CreateScope())
             var seedUsers = new List<ApplicationUser>
             {
                 new ApplicationUser { 
-                    FullName = "Super Administrator", 
+                    CompanyName = "Super Administrator",
+                    GSTNumber = "NA",
                     Email = "admin@npcindia.gov.in", 
                     PasswordHash = "$2a$11$l3J3tkX28c6DlsZZbw.4Tu/sv6zMTIIsZhPLzTz6byei.sW7J7dga", 
                     Role = "SUPER_ADMIN", 
                     MobileNumber = "0000000000" 
                 },
                 new ApplicationUser { 
-                    FullName = "Head Administrator", 
+                    CompanyName = "Head Administrator",
+                    GSTNumber = "NA",
                     Email = "head@npcindia.gov.in", 
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("Head@APCD2025!"), 
                     Role = "ADMIN", 
                     MobileNumber = "0000000001" 
                 },
                 new ApplicationUser { 
-                    FullName = "NPC Officer", 
+                    CompanyName = "NPC Officer",
+                    GSTNumber = "NA",
                     Email = "officer@npcindia.gov.in", 
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("Officer@APCD2025!"), 
                     Role = "OFFICER", 
                     MobileNumber = "0000000002" 
                 },
                 new ApplicationUser { 
-                    FullName = "Committee Member", 
+                    CompanyName = "Committee Member",
+                    GSTNumber = "NA",
                     Email = "committee@npcindia.gov.in", 
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("Committee@APCD2025!"), 
                     Role = "COMMITTEE", 
                     MobileNumber = "0000000003" 
                 },
                 new ApplicationUser { 
-                    FullName = "Field Verifier", 
+                    CompanyName = "Field Verifier",
+                    GSTNumber = "NA",
                     Email = "fieldverifier@npcindia.gov.in", 
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("Field@APCD2025!"), 
                     Role = "FIELD_VERIFIER", 
                     MobileNumber = "0000000004" 
                 },
                 new ApplicationUser { 
-                    FullName = "Dealing Hand", 
+                    CompanyName = "Dealing Hand",
+                    GSTNumber = "NA",
                     Email = "dealinghand@npcindia.gov.in", 
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("Dealing@APCD2025!"), 
                     Role = "DEALING_HAND", 
                     MobileNumber = "0000000005" 
                 },
                 new ApplicationUser { 
-                    FullName = "Test OEM", 
+                    CompanyName = "Test OEM",
+                    GSTNumber = "NA",
                     Email = "oem@testcompany.com", 
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("Oem@APCD2025!"), 
                     Role = "OEM", 
