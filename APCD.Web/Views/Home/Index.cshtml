@@ -87,7 +87,7 @@
     }
 
     .pricing-section {
-        background: #f6f8fb;
+        background: #fcfdfc;
     }
 
     .fee-card {
@@ -106,7 +106,7 @@
 
     .fee-icon {
         font-size: 32px;
-        color: #0d6efd;
+        color: var(--gov-green);
         margin-bottom: 15px;
     }
 
@@ -120,7 +120,7 @@
     .fee-price {
         font-size: 38px;
         font-weight: 700;
-        color: #0d3b66;
+        color: var(--gov-green);
         margin: 15px 0;
     }
 
@@ -142,9 +142,9 @@
 
     /* Highlight card */
     .highlight {
-        border: 2px solid #0d6efd;
+        border: 2px solid var(--gov-green);
         transform: scale(1.03);
-        box-shadow: 0 12px 35px rgba(13,110,253,0.15);
+        box-shadow: 0 12px 35px rgba(31,94,59,0.15);
     }
 
     /* ============================= */
@@ -155,7 +155,7 @@
         font-weight: 500;
     }
     .pricing-section {
-        background: #f6f8fb;
+        background: #fcfdfc;
     }
 
     /* Section Heading */
@@ -403,9 +403,9 @@
 
     /* Highlight Card */
 
-    .highlight {
-        border: 2px solid #1e6bb8;
-        box-shadow: 0 10px 30px rgba(30,107,184,0.15);
+    .fee-card.highlight {
+        border: 2px solid var(--gov-green);
+        box-shadow: 0 10px 30px rgba(31, 94, 59, 0.15);
         transform: scale(1.03);
     }
 
@@ -419,7 +419,7 @@
 
         .fee-icon i {
             font-size: 32px;
-            color: #1e6bb8;
+            color: var(--gov-green);
         }
 
     /* ============================= */
@@ -440,7 +440,7 @@
     /* ============================= */
 
     .fee-price {
-        color: #0d3b66;
+        color: var(--gov-green);
         font-size: 40px;
         font-weight: 700;
         margin: 15px 0;
@@ -487,8 +487,17 @@
     .highlight {
         transform: none;
     }
+    .accordion-button:not(.collapsed) {
+        background-color: #f0f7f3;
+        color: var(--gov-green);
     }
-    
+    .accordion-button:focus {
+        border-color: var(--gov-green);
+        box-shadow: 0 0 0 0.25rem rgba(31, 94, 59, 0.25);
+    }
+    .accordion-button:not(.collapsed)::after {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%231f5e3b'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    }
 </style>
 
 <!-- Hero Section -->
@@ -530,7 +539,32 @@
             <h2>Objectives</h2>
             <p class="mx-auto" style="max-width: 700px;">The goal is to reduce pollution and ensure that industrial units install high-quality, verified air pollution control devices.</p>
         </div>
-       
+        <div class="row g-4 mt-2">
+            <div class="col-lg-4">
+                <div class="obj-card">
+                    <i class="bi bi-shield-check"></i>
+                    <h3>Quality Assurance</h3>
+                    <p>Ensuring all air pollution control devices meet rigorous national standards for performance and durability.</p>
+                    <a href="#" class="learn-more">Learn More <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="obj-card">
+                    <i class="bi bi-gear-wide-connected"></i>
+                    <h3>Technical Excellence</h3>
+                    <p>Promoting advanced technologies and innovative engineering in the manufacturing of control devices.</p>
+                    <a href="#" class="learn-more">Learn More <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="obj-card">
+                    <i class="bi bi-tree"></i>
+                    <h3>Eco-Sustainability</h3>
+                    <p>Contributing to a cleaner Delhi-NCR by streamlining the installation of verified pollution control units.</p>
+                    <a href="#" class="learn-more">Learn More <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -618,7 +652,7 @@
     <div class="container">
         <div class="section-head text-center mb-5 animate-fade-up">
             <h2 class="display-5 fw-bold text-dark">Types of APCD Based on Technology</h2>
-            <div class="mx-auto bg-primary rounded-pill mb-4" style="width: 80px; height: 4px;"></div>
+            <div class="mx-auto rounded-pill mb-4" style="width: 80px; height: 4px; background: var(--gov-green); opacity: 0.7;"></div>
         </div>
 
         <div class="row g-4">
@@ -928,13 +962,13 @@
 </section>
 
 <!-- Final CTA -->
-<section class="py-5 text-center" style="background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%); color: white;">
+<section class="py-5 text-center" style="background: #fcfdfc; border-top: 1px solid #eee;">
     <div class="container py-5">
-        <h2 class="display-5 text-white mb-4">Ready to Register Your Company?</h2>
-        <p class="lead mb-5 opacity-75">Join the network of certified APCD manufacturers.</p>
+        <h2 class="display-5 mb-4" style="color: #2c3e50; font-weight: 700;">Ready to Register Your Company?</h2>
+        <p class="lead mb-5" style="color: #666;">Join the network of certified APCD manufacturers and contribute to a cleaner environment.</p>
         <div class="d-flex justify-content-center gap-3">
-            <a asp-controller="Auth" asp-action="Register" class="btn btn-light btn-lg px-5 fw-bold">Register Now</a>
-            <a asp-controller="Auth" asp-action="Login" class="btn btn-outline-light btn-lg px-5">Login Account</a>
+            <a asp-controller="Auth" asp-action="Register" class="btn-primary-custom px-5">Register Now</a>
+            <a asp-controller="Auth" asp-action="Login" class="btn-secondary-custom px-5">Login Account</a>
         </div>
     </div>
 </section>

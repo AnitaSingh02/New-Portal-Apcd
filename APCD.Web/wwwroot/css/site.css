@@ -1,10 +1,10 @@
 :root {
-    --primary-blue: #003366;
-    --secondary-blue: #0056b3;
-    --accent-teal: #00c0a3;
+    --primary-blue: #1f5e3b; /* Rebranded to gov-green */
+    --secondary-blue: #2d8554; /* Rebranded to gov-green-hover */
+    --accent-teal: #1f5e3b;
     --accent-gold: #FFCC00;
-    --light-bg: #f8fbff;
-    --dark-navy: #0a192f;
+    --light-bg: #fcfdfc;
+    --dark-navy: #133b25;
     --text-main: #2d3748;
     --text-muted: #718096;
     --glass-white: rgba(255, 255, 255, 0.9);

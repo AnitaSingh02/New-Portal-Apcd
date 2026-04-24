@@ -32,7 +32,7 @@
         /* Left Side: Premium Brand Gradient */
         .auth-brand-side {
             flex: 1;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0d6efd 100%);
+            background: linear-gradient(135deg, #05160e 0%, #133b25 50%, #1f5e3b 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -43,7 +43,6 @@
             color: white;
         }
 
-        /* Decorative glass elements */
         .glass-orb {
             position: absolute;
             border-radius: 50%;
@@ -51,9 +50,17 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: float 15s ease-in-out infinite;
         }
+        
+        @@keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(15px, 20px) rotate(5deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+        
         .orb-1 { width: 300px; height: 300px; top: -100px; left: -100px; }
-        .orb-2 { width: 400px; height: 400px; bottom: -150px; right: -150px; }
+        .orb-2 { width: 400px; height: 400px; bottom: -150px; right: -150px; animation-delay: -5s; }
         
         .brand-content {
             position: relative;
@@ -95,7 +102,7 @@
 
         .auth-title {
             font-weight: 800;
-            color: #0f172a;
+            color: #1f5e3b; /* Using theme green */
             margin-bottom: 0.5rem;
             font-size: 1.75rem;
         }
@@ -118,8 +125,8 @@
         }
         
         .form-floating > .form-control:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+            border-color: #1f5e3b;
+            box-shadow: 0 0 0 4px rgba(31, 94, 59, 0.1);
         }
 
         .form-floating > label {
@@ -138,11 +145,11 @@
             z-index: 10;
             transition: color 0.2s;
         }
-        .password-toggle:hover { color: #0d6efd; }
+        .password-toggle:hover { color: #1f5e3b; }
 
         /* Buttons */
         .btn-auth-submit {
-            background: linear-gradient(135deg, #0d6efd, #0043a8);
+            background: linear-gradient(135deg, #1f5e3b, #133b25);
             color: white;
             border: none;
             border-radius: 0.75rem;
@@ -151,13 +158,13 @@
             font-size: 1rem;
             width: 100%;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+            box-shadow: 0 4px 15px rgba(31, 94, 59, 0.3);
             margin-top: 1.5rem;
         }
         
         .btn-auth-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
+            box-shadow: 0 6px 20px rgba(31, 94, 59, 0.4);
             color: white;
         }
 
@@ -183,11 +190,16 @@
         }
         .auth-tab-btn.active {
             background: white;
-            color: #0d6efd;
+            color: #1f5e3b;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         .auth-tab-btn:hover:not(.active) {
-            color: #334155;
+            color: #1f5e3b;
+            background: rgba(31, 94, 59, 0.05);
+            transform: translateY(-1px);
+        }
+        .auth-tab-btn:active {
+            transform: scale(0.98);
         }
 
         /* Responsive */
@@ -212,8 +224,11 @@
             <div class="brand-logo-wrapper">
                 <img src="~/images/apcd-logo.png" alt="APCD Logo" width="180">
             </div>
-            <h1 class="fw-bolder mb-3 text-white-50" style="letter-spacing: -0.5px; font-size: 2.5rem;">Register Under Air Pollution Control Device Empanelment Scheame </h1>
-            <p class="mt-4 fw-light text-white-50" style="font-size: 0.95rem; max-width: 400px; margin: 0 auto; line-height: 1.6;">
+            <h1 class="fw-bolder mb-3 text-white" style="letter-spacing: -0.5px; line-height: 1.2;">
+                <span style="font-size: 1.5rem; display: block; opacity: 0.9; margin-bottom: 0.5rem; font-weight: 500;">Register Under</span>
+                <span style="font-size: 2.2rem; display: block;">Air Pollution Control Device Empanelment Scheme</span>
+            </h1>
+            <p class="mt-4 fw-light text-white" style="font-size: 0.95rem; max-width: 400px; margin: 0 auto; line-height: 1.6; opacity: 0.8;">
                 Create an account to start your empanelment journey as a certified Original Equipment Manufacturer for Air Pollution Control Devices.
             </p>
         </div>
@@ -258,7 +273,9 @@
                     <div class="col-md-6">
                         <div class="form-floating">
                             <input asp-for="GSTNumber" class="form-control" placeholder="07AAAAA0000A1Z5" required 
-                                   pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$" title="Invalid GST format">
+                                   maxlength="15" minlength="15" pattern="[A-Z0-9]{15}" 
+                                   title="GST Number must be exactly 15 alphanumeric characters"
+                                   oninput="this.value = this.value.toUpperCase()">
                             <label asp-for="GSTNumber">GST Number *</label>
                         </div>
                     </div>
@@ -272,7 +289,9 @@
                     <div class="col-md-6">
                         <div class="form-floating">
                             <input asp-for="MobileNumber" class="form-control" placeholder="9876543210" required
-                                   pattern="^[6-9]\d{9}$" title="Enter a valid 10-digit Indian mobile number">
+                                   maxlength="10" minlength="10" pattern="\d{10}" 
+                                   title="Mobile Number must be exactly 10 digits"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             <label asp-for="MobileNumber">Mobile Number *</label>
                         </div>
                     </div>
@@ -309,7 +328,7 @@
                 </button>
 
                 <p class="text-center mt-4 text-secondary" style="font-size: 0.85rem;">
-                    By registering, you agree to our <a href="#" class="text-decoration-none fw-semibold">Terms of Service</a> and <a href="#" class="text-decoration-none fw-semibold">Privacy Policy</a>
+                    By registering, you agree to our <a href="#" class="text-decoration-none fw-semibold" style="color: #1f5e3b;">Terms of Service</a> and <a href="#" class="text-decoration-none fw-semibold" style="color: #1f5e3b;">Privacy Policy</a>
                 </p>
 
                 <div class="text-center mt-3">
@@ -340,11 +359,11 @@
         if (input.type === "password") {
             input.type = "text";
             icon.classList.replace("bi-eye", "bi-eye-slash");
-            icon.classList.add("text-primary");
+            icon.classList.add("text-success");
         } else {
             input.type = "password";
             icon.classList.replace("bi-eye-slash", "bi-eye");
-            icon.classList.remove("text-primary");
+            icon.classList.remove("text-success");
         }
     }
 </script>

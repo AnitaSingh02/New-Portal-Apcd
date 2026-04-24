@@ -1,16 +1,16 @@
 /* APCD Categories Modern UI Section */
 :root {
     --apcd-card-bg: #ffffff;
-    --apcd-primary: #003366; /* Matching project --primary-blue */
-    --apcd-secondary: #0056b3; /* Matching project --secondary-blue */
-    --apcd-accent: #00c0a3; /* Matching project --accent-teal */
+    --apcd-primary: #1f5e3b; /* Using --gov-green */
+    --apcd-secondary: #2d8554; /* Using --gov-green-hover */
+    --apcd-accent: #2d8554; 
     --apcd-text: #2d3748;
     --apcd-text-muted: #718096;
     --apcd-transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .apcd-section {
-    background-color: #f8fbff;
+    background-color: #fcfdfc;
     padding: 100px 0;
 }
 
