@@ -10,10 +10,6 @@ namespace APCD.Web.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
-        [StringLength(100)]
-        public string FullName { get; set; }
-
         [Required(ErrorMessage = "Company Name is required")]
         [StringLength(200)]
         public string CompanyName { get; set; }

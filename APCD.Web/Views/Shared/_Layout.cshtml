@@ -58,7 +58,7 @@
         .brand-logos {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1.25rem;
         }
         
         .brand-logos img {
@@ -70,8 +70,14 @@
             color: var(--gov-green);
             font-weight: 700;
             line-height: 1.2;
-            padding-left: 0.75rem;
-           
+        }
+
+        .brand-divider {
+            width: 2px;
+            height: 32px;
+            background: var(--gov-green);
+            opacity: 0.5;
+            flex-shrink: 0;
         }
         
         .brand-title h1 {
@@ -156,7 +162,63 @@
 
         /* Footer overrides */
         .saas-footer {
-            background-color: #1a1a1a;
+            background-color: var(--gov-green);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 80px 0 40px;
+        }
+        
+        .footer-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s;
+            display: block;
+        }
+        
+        .footer-link:hover {
+            color: #ffffff;
+            padding-left: 5px;
+        }
+
+        .newsletter-input {
+            background: rgba(0, 0, 0, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            color: white !important;
+            box-shadow: none !important;
+        }
+        
+        .newsletter-input:focus {
+            background: rgba(0, 0, 0, 0.2) !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+            color: white !important;
+        }
+        
+        .newsletter-input::placeholder {
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+        
+        .newsletter-btn {
+            background: white;
+            color: var(--gov-green);
+            border: none;
+        }
+        
+        .newsletter-btn:hover {
+            background: var(--gov-green-hover) !important;
+            color: white !important;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .footer-bottom-text {
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+        
+        .footer-social-link {
+            color: rgba(255, 255, 255, 0.6) !important;
+            transition: color 0.3s;
+        }
+        
+        .footer-social-link:hover {
+            color: #ffffff !important;
         }
         
         @@media (max-width: 991px) {
@@ -180,8 +242,9 @@
                 <div class="brand-logos">
                     <img src="~/images/npc-logo.png" alt="NPC Logo" />
                     <div class="brand-title">
-                        <h1 style="border-right:3px solid #1f5e3b;">National Productivity Council</h1>
+                        <h1>National Productivity Council</h1>
                     </div>
+                    <div class="brand-divider"></div>
                     <img src="~/images/apcd-logo.png" alt="APCD Logo" />
                 </div>
                 <div class="brand-title">
@@ -310,11 +373,11 @@
             </div>
             
             <div class="pt-4 border-top border-secondary border-opacity-25 d-flex flex-column flex-md-row justify-content-between align-items-center">
-                <p class="small text-muted mb-2 mb-md-0">&copy; @DateTime.Now.Year National Productivity Council. All rights reserved.</p>
+                <p class="small footer-bottom-text mb-2 mb-md-0">&copy; @DateTime.Now.Year National Productivity Council. All rights reserved.</p>
                 <div class="d-flex align-items-center gap-3">
-                    <a href="#" class="text-muted text-decoration-none"><i class="bi bi-twitter-x"></i></a>
-                    <a href="#" class="text-muted text-decoration-none"><i class="bi bi-linkedin"></i></a>
-                    <a href="#" class="text-muted text-decoration-none"><i class="bi bi-youtube"></i></a>
+                    <a href="#" class="footer-social-link text-decoration-none"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" class="footer-social-link text-decoration-none"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" class="footer-social-link text-decoration-none"><i class="bi bi-youtube"></i></a>
                 </div>
             </div>
         </div>

@@ -29,7 +29,7 @@ namespace APCD.Web.Controllers
             if (!string.IsNullOrEmpty(search))
             {
                 query = query.Where(a => a.Id.ToString().Contains(search) || 
-                                       a.User.FullName.Contains(search) || 
+                                       a.User.CompanyName.Contains(search) || 
                                        (a.User.CompanyProfile != null && a.User.CompanyProfile.CompanyName.Contains(search)));
             }
 
