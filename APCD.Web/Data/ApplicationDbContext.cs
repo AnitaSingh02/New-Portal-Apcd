@@ -20,6 +20,7 @@ namespace APCD.Web.Data
         public DbSet<TurnoverRecord> TurnoverRecords { get; set; }
         public DbSet<APCDCapability> APCDCapabilities { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<ContactUs> ContactUs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -348,20 +348,23 @@
             </button>
             <div class="collapse navbar-collapse" id="govNav">
                 <ul class="navbar-nav w-100 justify-content-start">
+                    @{
+                        var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+                    }
                     <li class="nav-item">
-                        <a class="nav-link active" asp-controller="Home" asp-action="Index">Home</a>
+                        <a class="nav-link @(controller == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#process">Process</a>
+                        <a class="nav-link" href="/#process">Process</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#fees">Fees</a>
+                        <a class="nav-link" href="/#fees">Fees</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#faq">FAQ</a>
+                        <a class="nav-link" href="/#faq">FAQ</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#contact">Contact Us</a>
+                        <a class="nav-link @(controller == "Contact" ? "active" : "")" asp-controller="Contact" asp-action="Index">Contact Us</a>
                     </li>
                 </ul>
             </div>
@@ -413,9 +416,9 @@
                 
                 <div class="col-lg-4 col-md-4">
                     <h5 class="text-white">Contact Us</h5>
-                    <div class="d-flex mb-3 align-items-start">
+                    <div class="d-flex mb-3 align-items-start">                        
                         <div class="bg-white bg-opacity-10 p-2 rounded-circle me-3 text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                            <i class="bi bi-geo-alt-fill" style="font-size: 0.85rem;"></i>
+                            <a href="https://www.google.com/maps/search/?api=1&query=Environment+Audit+Designated+Agency+VIKRAM+SARABHAI+BLOCK+National+Productivity+Council+Utpadakta+Bhavan+5-6+Institutional+Area+Lodhi+Rd+New+Delhi+Delhi+110003" target="_blank"><i class="bi bi-geo-alt-fill" style="font-size: 0.85rem;"></i></a>
                         </div>
                         <span class="small text-white mt-1">Utpadakta Bhawan, 5-6 Institutional Area, Lodhi Road, New Delhi - 110003</span>
                     </div>
@@ -444,6 +447,11 @@
             </div>
         </div>
     </footer>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="back-to-top" title="Go to top">
+        <i class="bi bi-arrow-up"></i>
+    </button>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -484,6 +492,35 @@
                         }
                     });
                 }
+            });
+        });
+
+        // Back to Top Logic
+        const backToTop = document.getElementById('backToTop');
+        const footer = document.querySelector('.saas-footer');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+
+            if (footer) {
+                const footerTop = footer.offsetTop;
+                const scrollPos = window.pageYOffset + window.innerHeight;
+                if (scrollPos > footerTop + 100) {
+                    backToTop.classList.add('at-footer');
+                } else {
+                    backToTop.classList.remove('at-footer');
+                }
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
             });
         });
     </script>

@@ -568,84 +568,247 @@
     </div>
 </section>
 
-<!-- Process Timeline -->
-<section id="process" class="py-5 bg-white">
+<!-- Process Timeline Redesigned -->
+<section id="process" class="py-5 bg-white overflow-hidden">
     <div class="container py-5">
-        <div class="section-head text-center mb-5">
-            <span class="section-tag">Step-by-Step</span>
-            <h2>Empanelment Journey</h2>
-            <p class="mx-auto" style="max-width: 600px;">A transparent and structured approach for Original Equipment Manufacturers to get certified.</p>
+        <div class="section-head text-center mb-5 animate-fade-up">
+            <span class="section-tag" style="background: rgba(31, 94, 59, 0.1); color: var(--gov-green); padding: 5px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">Step-by-Step</span>
+            <h2 class="display-5 fw-bold text-dark mt-3">Empanelment Journey</h2>
+            <p class="mx-auto text-muted lead" style="max-width: 700px;">A transparent and structured approach for Original Equipment Manufacturers to get certified.</p>
         </div>
-        <div class="timeline-container">
-            <div class="timeline-line d-none d-md-block"></div>
-            
+
+        <div class="journey-timeline position-relative">
+            <!-- Central Line -->
+            <div class="timeline-central-line d-none d-lg-block"></div>
+
             <!-- Step 01 -->
-            <div class="timeline-item">
-                <div class="timeline-dot"></div>
-                <div class="timeline-content">
-                    <span class="step-badge">Step 01</span>
-                    <h4>OEM Registration</h4>
-                    <p>Create your account with basic company profile and contact information to start the journey.</p>
+            <div class="journey-item row g-0 align-items-center mb-5">
+                <div class="col-lg-5 journey-card-container order-2 order-lg-1">
+                    <div class="journey-card left-card shadow-sm border-0 rounded-4 p-4 bg-white animate-fade-right">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="step-num-pill me-3">01</div>
+                            <h4 class="mb-0 fw-bold">OEM Registration</h4>
+                        </div>
+                        <p class="text-muted mb-0 small">Create your account with basic company profile and contact information to start the journey.</p>
+                    </div>
                 </div>
+                <div class="col-lg-2 d-none d-lg-flex justify-content-center order-lg-2">
+                    <div class="journey-icon-marker bg-white shadow-sm">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                </div>
+                <div class="col-lg-5 order-3 order-lg-3"></div>
             </div>
-            
+
             <!-- Step 02 -->
-            <div class="timeline-item">
-                <div class="timeline-dot"></div>
-                <div class="timeline-content">
-                    <span class="step-badge">Step 02</span>
-                    <h4>Application Submission</h4>
-                    <p>Upload Organization details,Financial details,Experience and Project deails.</p>
+            <div class="journey-item row g-0 align-items-center mb-5">
+                <div class="col-lg-5 order-lg-1"></div>
+                <div class="col-lg-2 d-none d-lg-flex justify-content-center order-lg-2">
+                    <div class="journey-icon-marker bg-white shadow-sm">
+                        <i class="bi bi-file-earmark-arrow-up-fill"></i>
+                    </div>
+                </div>
+                <div class="col-lg-5 journey-card-container order-2 order-lg-3">
+                    <div class="journey-card right-card shadow-sm border-0 rounded-4 p-4 bg-white animate-fade-left">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="step-num-pill me-3">02</div>
+                            <h4 class="mb-0 fw-bold">Application Submission</h4>
+                        </div>
+                        <p class="text-muted mb-0 small">Upload Organization details, Financial details, Experience and Project details.</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Step 03 -->
-            <div class="timeline-item">
-                <div class="timeline-dot"></div>
-                <div class="timeline-content">
-                    <span class="step-badge">Step 03</span>
-                    <h4>Evalluation Committee</h4>
-                    <p>Will review the submitted applications.</p>
+            <div class="journey-item row g-0 align-items-center mb-5">
+                <div class="col-lg-5 journey-card-container order-2 order-lg-1">
+                    <div class="journey-card left-card shadow-sm border-0 rounded-4 p-4 bg-white animate-fade-right">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="step-num-pill me-3">03</div>
+                            <h4 class="mb-0 fw-bold">Evaluation Committee</h4>
+                        </div>
+                        <p class="text-muted mb-0 small">Will review the submitted applications for technical and administrative compliance.</p>
+                    </div>
                 </div>
+                <div class="col-lg-2 d-none d-lg-flex justify-content-center order-lg-2">
+                    <div class="journey-icon-marker bg-white shadow-sm">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+                <div class="col-lg-5 order-lg-3"></div>
             </div>
 
             <!-- Step 04 -->
-            <div class="timeline-item">
-                <div class="timeline-dot"></div>
-                <div class="timeline-content">
-                    <span class="step-badge">Step 04</span>
-                    <h4>Field Verification </h4>
-                    <p>Laboratory verification at client sites.</p>
+            <div class="journey-item row g-0 align-items-center mb-5">
+                <div class="col-lg-5 order-lg-1"></div>
+                <div class="col-lg-2 d-none d-lg-flex justify-content-center order-lg-2">
+                    <div class="journey-icon-marker bg-white shadow-sm">
+                        <i class="bi bi-search"></i>
+                    </div>
+                </div>
+                <div class="col-lg-5 journey-card-container order-2 order-lg-3">
+                    <div class="journey-card right-card shadow-sm border-0 rounded-4 p-4 bg-white animate-fade-left">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="step-num-pill me-3">04</div>
+                            <h4 class="mb-0 fw-bold">Field Verification</h4>
+                        </div>
+                        <p class="text-muted mb-0 small">Comprehensive field verification and laboratory testing at client sites.</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Step 05 -->
-            <div class="timeline-item">
-                <div class="timeline-dot"></div>
-                <div class="timeline-content">
-                    <span class="step-badge">Step 05</span>
-                    <h4>Technical Review</h4>
-                    <p>Review of field verification reported by Evalluation Committee.</p>
+            <div class="journey-item row g-0 align-items-center mb-5">
+                <div class="col-lg-5 journey-card-container order-2 order-lg-1">
+                    <div class="journey-card left-card shadow-sm border-0 rounded-4 p-4 bg-white animate-fade-right">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="step-num-pill me-3">05</div>
+                            <h4 class="mb-0 fw-bold">Technical Review</h4>
+                        </div>
+                        <p class="text-muted mb-0 small">Final review of field verification reports by the National Evaluation Committee.</p>
+                    </div>
                 </div>
+                <div class="col-lg-2 d-none d-lg-flex justify-content-center order-lg-2">
+                    <div class="journey-icon-marker bg-white shadow-sm">
+                        <i class="bi bi-clipboard-check-fill"></i>
+                    </div>
+                </div>
+                <div class="col-lg-5 order-lg-3"></div>
             </div>
 
             <!-- Step 06 -->
-            <div class="timeline-item">
-                <div class="timeline-dot"></div>
-                <div class="timeline-content">
-                    <span class="step-badge">Step 06</span>
-                    <h4>Final Certification</h4>
-                    <p>Issuance of digital empanelment certificate with the validity of 2 years.</p>
+            <div class="journey-item row g-0 align-items-center mb-5">
+                <div class="col-lg-5 order-lg-1"></div>
+                <div class="col-lg-2 d-none d-lg-flex justify-content-center order-lg-2">
+                    <div class="journey-icon-marker bg-white shadow-sm last">
+                        <i class="bi bi-award-fill"></i>
+                    </div>
+                </div>
+                <div class="col-lg-5 journey-card-container order-2 order-lg-3">
+                    <div class="journey-card right-card shadow-sm border-0 rounded-4 p-4 bg-white animate-fade-left">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="step-num-pill me-3">06</div>
+                            <h4 class="mb-0 fw-bold">Final Certification</h4>
+                        </div>
+                        <p class="text-muted mb-0 small">Issuance of digital empanelment certificate with a validity of 2 years.</p>
+                    </div>
                 </div>
             </div>
         </div>
+
         <div class="text-center mt-5">
-            <a href="~/documents/empanelment-guidelines.pdf" download class="btn-download-custom">
-                Download Empanelment Guidelines <i class="bi bi-file-earmark-pdf"></i>
+            <a href="~/documents/empanelment-guidelines.pdf" download class="btn-download-premium shadow-sm">
+                <i class="bi bi-file-earmark-pdf me-2"></i> Download Empanelment Guidelines
             </a>
         </div>
     </div>
 </section>
+
+<style>
+    .journey-timeline { padding: 30px 0; }
+    .timeline-central-line {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(to bottom, #f0f0f0, var(--gov-green), #f0f0f0);
+        transform: translateX(-50%);
+        opacity: 0.3;
+    }
+    .journey-icon-marker {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--gov-green);
+        border: 4px solid #fff;
+        z-index: 5;
+        transition: all 0.3s ease;
+    }
+    .journey-item:hover .journey-icon-marker {
+        background: var(--gov-green);
+        color: #fff;
+        transform: scale(1.1);
+    }
+    .journey-card {
+        border: 1px solid #f0f0f0 !important;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        position: relative;
+    }
+    .journey-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 45px rgba(0,0,0,0.08) !important;
+        border-color: var(--gov-green) !important;
+    }
+    .step-num-pill {
+        background: rgba(31, 94, 59, 0.08);
+        color: var(--gov-green);
+        padding: 4px 12px;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+    }
+    .btn-download-premium {
+        display: inline-flex;
+        align-items: center;
+        background: #fff;
+        color: var(--gov-green);
+        border: 2px solid var(--gov-green);
+        padding: 14px 30px;
+        border-radius: 50px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    .btn-download-premium:hover {
+        background: var(--gov-green);
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(31, 94, 59, 0.2);
+    }
+
+    /* Directional Arrows for Cards on Desktop */
+    @@media (min-width: 992px) {
+        .left-card::after {
+            content: "";
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-right: 1px solid #f0f0f0;
+            border-top: 1px solid #f0f0f0;
+        }
+        .right-card::after {
+            content: "";
+            position: absolute;
+            left: -10px;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-left: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .journey-card:hover::after {
+            border-color: var(--gov-green);
+        }
+    }
+
+    @@media (max-width: 991px) {
+        .journey-card { margin: 10px 0; }
+        .journey-item { margin-bottom: 40px !important; }
+    }
+</style>
+
 
 <!-- Types of APCD Based on Category Section -->
 <section class="apcd-section">

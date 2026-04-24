@@ -405,3 +405,49 @@ h1, h2, h3, h4, h5, h6 {
         padding: 40px 20px;
     }
 }
+
+/* Back to Top Button */
+.back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 48px;
+    height: 48px;
+    background: var(--primary-blue);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0;
+    transform: scale(0.8);
+}
+.back-to-top.show {
+    display: flex;
+    opacity: 1;
+    transform: scale(1);
+}
+.back-to-top:hover {
+    background: var(--secondary-blue);
+    transform: scale(1.1) translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    color: white;
+}
+.back-to-top.at-footer {
+    background: white !important;
+    color: var(--primary-blue) !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.back-to-top.at-footer:hover {
+    background: white !important;
+    color: var(--secondary-blue) !important;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+.back-to-top i {
+    font-size: 1.4rem;
+}
