@@ -80,8 +80,7 @@
                 <div class="field-value">@(Model.SubmittedAt?.ToString("dd MMM yyyy, HH:mm") ?? "N/A")</div>
             </div>
             <div class="col-4 text-end">
-                <div class="field-label">Application Status</div>
-                <div class="field-value"><span class="badge @(Model.Status == "Empaneled" ? "bg-success" : "bg-dark text-white")">@Model.Status</span></div>
+                <div class="field-value"><span class="badge @(Model.Status == "Empaneled" ? "bg-success" : (Model.Status == "Submitted" ? "bg-primary text-white" : "bg-dark text-white"))">@(Model.Status == "Submitted" ? "Application Submitted" : Model.Status)</span></div>
             </div>
         </div>
 
@@ -312,10 +311,10 @@
                         {
                             <tr>
                                 <td class="fw-bold">@payment.Type</td>
-                                <td class="fw-bold text-success">₹@payment.Amount.ToString("N0")</td>
-                                <td class="fw-bold text-primary">@payment.UTRNumber</td>
+                                <td class="fw-bold text-success">₹@(payment.Amount?.ToString("N0") ?? "0")</td>
+                                <td>@payment.UTRNumber</td>
                                 <td>@payment.RemitterBank</td>
-                                <td>@payment.PaymentDate.ToString("dd MMM yyyy")</td>
+                                <td>@(payment.PaymentDate?.ToString("dd MMM yyyy") ?? "N/A")</td>
                                 <td><span class="badge bg-secondary">@payment.Status</span></td>
                             </tr>
                         }

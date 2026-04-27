@@ -27,7 +27,7 @@
                             <!-- Basic Info -->
                             <div class="col-md-12">
                                 <label asp-for="CompanyName" class="form-group-label">1. Company Name</label>
-                                <input asp-for="CompanyName" class="form-control custom-input" placeholder="Enter company name" required />
+                                <input asp-for="CompanyName" class="form-control custom-input bg-light" placeholder="Enter company name" readonly required />
                             </div>
 
                             <div class="col-md-12">
@@ -55,7 +55,7 @@
 
                             <div class="col-md-6">
                                 <label asp-for="GSTNumber" class="form-group-label">7. GST Registration No.</label>
-                                <input asp-for="GSTNumber" class="form-control custom-input" placeholder="15-digit GSTIN" required />
+                                <input asp-for="GSTNumber" class="form-control custom-input bg-light" placeholder="15-digit GSTIN" readonly required />
                             </div>
 
                             <div class="col-md-6">
@@ -117,7 +117,13 @@
                             </div>
 
                             <div class="col-md-12">
-                                <label asp-for="FactoryAddress" class="form-group-label">Factory Address (Same as unit location)</label>
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <label asp-for="FactoryAddress" class="form-group-label mb-0">Factory Address (Same as unit location)</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="sameAsOffice">
+                                        <label class="form-check-label small text-muted" for="sameAsOffice">Same as Office Address</label>
+                                    </div>
+                                </div>
                                 <textarea asp-for="FactoryAddress" class="form-control custom-input" rows="2" placeholder="Full factory address" required></textarea>
                             </div>
                         </div>
@@ -134,3 +140,21 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById('sameAsOffice').addEventListener('change', function() {
+            if (this.checked) {
+                const address = document.getElementById('OfficeAddress').value;
+                const state = document.getElementById('State').value;
+                const pincode = document.getElementById('PinCode').value;
+                
+                let fullAddr = address;
+                if (state) fullAddr += ", " + state;
+                if (pincode) fullAddr += " - " + pincode;
+                
+                document.getElementById('FactoryAddress').value = fullAddr;
+            }
+        });
+    </script>
+}

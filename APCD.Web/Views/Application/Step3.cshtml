@@ -29,7 +29,7 @@
                         <!-- Commercial In-charge -->
                         <div class="col-md-6">
                             <div class="p-4 rounded-4 border h-100" style="background-color: #f8fbff;">
-                                <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-briefcase me-2"></i> 15. Commercial In-charge</h5>
+                                <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-briefcase me-2"></i> 21. Commercial In-charge</h5>
                                 <form asp-action="AddStaff" asp-route-id="@appId" method="post">
                                     <input type="hidden" name="StaffType" value="Commercial" />
                                     <div class="mb-3">
@@ -60,7 +60,7 @@
                         <!-- Technical In-charge -->
                         <div class="col-md-6">
                             <div class="p-4 rounded-4 border h-100" style="background-color: #fdfdfd;">
-                                <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-tools me-2"></i> 16. Technical In-charge</h5>
+                                <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-tools me-2"></i> 22. Technical In-charge</h5>
                                 <form asp-action="AddStaff" asp-route-id="@appId" method="post">
                                     <input type="hidden" name="StaffType" value="Technical" />
                                     <div class="mb-3">
@@ -97,7 +97,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="p-3 border rounded-3 bg-light h-100">
-                                    <label class="form-group-label">20. Organizational Chart</label>
+                                    <label class="form-group-label">23. Organizational Chart</label>
                                     <input type="file" name="orgChartFile" class="form-control form-control-sm mt-2" accept=".pdf" />
                                     @{ var docs = ViewBag.Documents as List<APCD.Web.Models.ApplicationDocument>; }
                                     @if (docs != null && docs.Any(d => d.DocumentType == "OrganizationalChart")) {
@@ -108,7 +108,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="p-3 border rounded-3 bg-light h-100">
-                                    <label class="form-group-label">21. Staff Qualification Details (Annexure-7)</label>
+                                    <label class="form-group-label">24. Staff Qualification Details (Annexure-7)</label>
                                     <input type="file" name="staffQualFile" class="form-control form-control-sm mt-2" accept=".pdf" />
                                     @if (docs != null && docs.Any(d => d.DocumentType == "StaffQualification")) {
     var tmpDoc = docs.First(d => d.DocumentType == "StaffQualification");

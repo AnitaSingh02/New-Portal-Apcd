@@ -26,7 +26,7 @@
                         <div class="row g-4">
                             <!-- Registration Numbers & Certificates -->
                             <div class="col-md-12 mb-3">
-                                <h6 class="fw-bold mb-3"><i class="bi bi-building me-2 text-primary"></i> 1. Company Legal Certificates</h6>
+                                <h6 class="fw-bold mb-3"><i class="bi bi-building me-2 text-primary"></i> 14. Company Legal Certificates</h6>
                                 <div class="row g-3">
                                     <div class="col-md-4">
                                         <label class="form-group-label">Company Registration Cert.</label>
@@ -37,7 +37,7 @@
 }
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-group-label">7. GST Registration</label>
+                                        <label class="form-group-label">15. GST Registration</label>
                                         <input type="text" class="form-control custom-input form-control-sm mb-1" value="@Model.User.CompanyProfile?.GSTNumber" readonly />
                                         <input type="file" name="gstinFile" class="form-control form-control-sm" accept=".pdf" />
                                         @if (Model.Documents != null && Model.Documents.Any(d => d.DocumentType == "GSTINCertificate")) {
@@ -46,7 +46,7 @@
 }
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-group-label">8. PAN Card</label>
+                                        <label class="form-group-label">16. PAN Card</label>
                                         <input type="text" class="form-control custom-input form-control-sm mb-1" value="@Model.User.CompanyProfile?.PANNumber" readonly />
                                         <input type="file" name="panFile" class="form-control form-control-sm" accept=".pdf" />
                                         @if (Model.Documents != null && Model.Documents.Any(d => d.DocumentType == "PANCard")) {
@@ -59,7 +59,7 @@
                             
                             <!-- CTO (Point 9) -->
                             <div class="col-md-12 mt-3 mb-3">
-                                <h6 class="fw-bold mb-2"><i class="bi bi-file-earmark-check me-2 text-primary"></i> 9. Consent to Operate (CTO)</h6>
+                                <h6 class="fw-bold mb-2"><i class="bi bi-file-earmark-check me-2 text-primary"></i> 17. Consent to Operate (CTO)</h6>
                                 <p class="small text-muted mb-2">Attach Consent to Operate Certificate, Intimation letter to SPCB, or Undertaking for Non-Applicability (Annexure-9)</p>
                                 <input type="file" name="ctoFile" class="form-control form-control-sm w-50" accept=".pdf" />
                                 @if (Model.Documents != null && Model.Documents.Any(d => d.DocumentType == "CTOCertificate")) {
@@ -70,7 +70,7 @@
 
                             <!-- Special Status (Point 14 & Discount Logic) -->
                             <div class="col-md-12 bg-light p-4 rounded-3 border">
-                                <h6 class="fw-bold mb-3"><i class="bi bi-tag-fill me-2 text-primary"></i> 14. Special Classifications (Eligible for 15% discount)</h6>
+                                <h6 class="fw-bold mb-3"><i class="bi bi-tag-fill me-2 text-primary"></i> 18. Special Classifications (Eligible for 15% discount)</h6>
                                 <p class="extra-small text-muted mb-4">Select all applicable. Note: Benefits cannot be combined (Max 15%).</p>
                                 
                                 <div class="row g-3">

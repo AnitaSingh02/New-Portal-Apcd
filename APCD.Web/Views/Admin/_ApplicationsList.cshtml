@@ -1,0 +1,62 @@
+@model IEnumerable<APCD.Web.Models.EmpanelmentApplication>
+
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold text-dark">Detailed Application Status</h6>
+        <div class="d-flex gap-2">
+            <select id="status-filter" class="form-select form-select-sm rounded-pill" style="width: 150px;">
+                <option value="">All Status</option>
+                <option value="Submitted">Pending</option>
+                <option value="Empaneled">Approved</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light extra-small fw-bold text-muted text-uppercase">
+                    <tr>
+                        <th class="ps-4">App ID</th>
+                        <th>Company Name</th>
+                        <th>Submission Date</th>
+                        <th>Current Status</th>
+                        <th>Progress</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var app in Model)
+                    {
+                        var progress = app.Status switch {
+                            "Submitted" => 20,
+                            "DocumentApproved" => 40,
+                            "ProvisionalGranted" => 60,
+                            "FieldVerified" => 80,
+                            "Empaneled" => 100,
+                            _ => 10
+                        };
+                        <tr>
+                            <td class="ps-4 fw-bold text-primary">@(app.ApplicationId ?? "#" + app.Id.ToString("0000"))</td>
+                            <td class="fw-bold">@(app.User.CompanyProfile?.CompanyName ?? app.User.CompanyName)</td>
+                            <td>@app.SubmittedAt?.ToString("dd MMM yyyy")</td>
+                            <td>
+                                <span class="badge @(app.Status == "Empaneled" ? "bg-success" : (app.Status == "Rejected" ? "bg-danger" : "bg-warning text-dark")) rounded-pill px-3">
+                                    @app.Status
+                                </span>
+                            </td>
+                            <td style="width: 150px;">
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar rounded-pill @(progress == 100 ? "bg-success" : "bg-primary")" style="width: @progress%"></div>
+                                </div>
+                            </td>
+                            <td class="text-end pe-4">
+                                <a href="/Admin/Details/@app.Id" class="btn btn-sm btn-outline-primary rounded-pill">View Details</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

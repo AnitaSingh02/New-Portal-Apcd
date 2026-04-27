@@ -115,7 +115,10 @@
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
                                     <h6 class="text-uppercase text-muted fw-bold small tracking-wide mb-1">Fees Collected</h6>
-                                    <h2 class="fw-bolder mb-0 text-dark">₹@((Model.SelectMany(a => a.Payments ?? new List<APCD.Web.Models.Payment>()).Sum(p => p.Amount) / 1000).ToString("N0"))K</h2>
+                                    <h2 class="fw-bolder mb-0 text-dark">
+                                        ₹@((Model.SelectMany(a => a.Payments ?? new List<APCD.Web.Models.Payment>())
+                                                                            .Sum(p => p.Amount ?? 0m) / 1000).ToString("N0"))K
+                                </h2>
                                 </div>
                                 <div class="premium-icon-box bg-info-soft text-info">
                                     <i class="bi bi-wallet2 fs-4"></i>
@@ -130,111 +133,139 @@
             </div>
         }
 
-        <!-- Applications Table -->
-        <div class="card premium-table-card border-0">
+        <!-- Applications Table & View Selection -->
+        <div class="card premium-table-card border-0 mb-5">
             <div class="card-header bg-white py-4 px-4 border-0 d-flex flex-wrap align-items-center justify-content-between gap-3 rounded-top-4">
-                <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-card-list me-2 text-primary"></i>Task Queue</h5>
-                <form asp-action="Index" method="get" class="search-bar position-relative">
-                    <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
-                    <input type="text" name="search" value="@ViewBag.Search" class="form-control rounded-pill ps-5 bg-light border-0" placeholder="Search ID or Company..." style="width: 280px; box-shadow: none;" />
-                </form>
+                <div class="d-flex align-items-center gap-4">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-speedometer2 me-2 text-primary"></i>Command Center</h5>
+                    
+                    <div class="vr mx-2 d-none d-md-block" style="height: 30px;"></div>
+                    
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="small fw-bold text-muted text-uppercase mb-0">Select View:</label>
+                        <select id="admin-view-selector" class="form-select form-select-sm rounded-pill border-0 bg-light px-3 shadow-sm" style="width: 220px; height: 38px; cursor: pointer;">
+                            <option value="TaskQueue" selected>Task Queue (Default)</option>
+                            <option value="GetApplicationsList">Application Status</option>
+                            <option value="GetDocumentsList">Document Submitted Status</option>
+                            <option value="GetPaymentsList">Payment Status</option>
+                            <option value="GetInstallationsList">Client Installation</option>
+                            <option value="GetEmpanelmentStats">Empanelment Status</option>
+                            <option value="GetSummarySheet">Summary Sheet</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <form asp-action="Index" method="get" class="search-bar position-relative">
+                        <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
+                        <input type="text" name="search" value="@ViewBag.Search" class="form-control rounded-pill ps-5 bg-light border-0" placeholder="Search..." style="width: 250px; box-shadow: none;" />
+                    </form>
+                </div>
             </div>
             
-            <div class="card-body p-0">
-                <div class="table-responsive pb-2 px-2">
-                    <table class="table table-hover align-middle mb-0 premium-table">
-                        <thead class="text-muted small">
-                            <tr>
-                                <th class="ps-4 border-0 fw-bold text-uppercase tracking-wide">Reference</th>
-                                <th class="border-0 fw-bold text-uppercase tracking-wide">Company Info</th>
-                                <th class="border-0 fw-bold text-uppercase tracking-wide">Timeline</th>
-                                <th class="border-0 fw-bold text-uppercase tracking-wide">Status</th>
-                                <th class="border-0 fw-bold text-uppercase tracking-wide" style="width: 150px;">Progress</th>
-                                <th class="text-end pe-4 border-0 fw-bold text-uppercase tracking-wide">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var app in Model)
-                            {
-                                <tr class="premium-row">
-                                    <td class="ps-4">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="fw-bolder text-primary">@(app.ApplicationId ?? "#" + app.Id.ToString("0000"))</div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="fw-bold text-dark text-truncate" style="max-width: 220px;">@(app.User.CompanyProfile?.CompanyName ?? app.User.CompanyName)</div>
-                                        <div class="small text-secondary d-flex align-items-center mt-1">
-                                            <i class="bi bi-envelope me-1"></i> <span class="text-truncate" style="max-width: 200px;">@app.User.Email</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="fw-semibold text-dark">@(app.SubmittedAt?.ToString("MMM dd, yyyy") ?? app.CreatedAt.ToString("MMM dd, yyyy"))</div>
-                                        <small class="text-secondary">@(app.SubmittedAt?.ToShortTimeString() ?? "")</small>
-                                    </td>
-                                    <td>
-                                        @switch (app.Status) {
-                                            case "Submitted":
-                                                <span class="status-badge info">New Submission</span>
-                                                break;
-                                            case "DocumentApproved":
-                                                <span class="status-badge primary">Docs Verified</span>
-                                                break;
-                                            case "ProvisionalGranted":
-                                                <span class="status-badge warning">Provisional Grant</span>
-                                                break;
-                                            case "FieldVerified":
-                                                <span class="status-badge indigo">Site Inspected</span>
-                                                break;
-                                            case "Empaneled":
-                                                <span class="status-badge success-solid">Active (Empaneled)</span>
-                                                break;
-                                            default:
-                                                <span class="status-badge secondary">@app.Status</span>
-                                                break;
-                                        }
-                                    </td>
-                                    <td>
-                                        <div class="d-flex flex-column gap-1 pe-3">
-                                            @{
-                                                var progress = app.Status switch {
-                                                    "Submitted" => 20,
-                                                    "DocumentApproved" => 40,
-                                                    "ProvisionalGranted" => 60,
-                                                    "FieldVerified" => 80,
-                                                    "Empaneled" => 100,
-                                                    _ => 10
-                                                };
-                                            }
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <small class="fw-bold text-dark" style="font-size: 0.7rem;">@progress%</small>
-                                            </div>
-                                            <div class="progress rounded-pill bg-light" style="height: 6px;">
-                                                <div class="progress-bar rounded-pill @(progress == 100 ? "bg-success" : "bg-primary")" role="progressbar" style="width: @progress%"></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="text-end pe-4">
-                                        <a asp-action="Details" asp-route-id="@app.Id" class="btn btn-premium-action shadow-sm rounded-pill">
-                                            Review <i class="bi bi-chevron-right ms-1" style="font-size: 0.75rem;"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+            <div class="card-body p-0 position-relative" id="dynamic-content-area">
+                <div id="view-loader" class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-none align-items-center justify-content-center" style="z-index: 10;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
                 </div>
                 
-                @if (!Model.Any())
-                {
-                    <div class="empty-state-card text-center py-5 border-0">
-                        <div class="empty-state-icon mx-auto mb-4 bg-light text-muted">
-                            <i class="bi bi-inbox fs-1"></i>
-                        </div>
-                        <h4 class="fw-bolder text-dark mb-2">Queue is Empty</h4>
-                        <p class="text-secondary mx-auto mb-0" style="max-width: 350px;">There are currently no applications requiring your review. Check back later.</p>
+                <div id="main-task-queue">
+                    <div class="table-responsive pb-2 px-2">
+                        <table class="table table-hover align-middle mb-0 premium-table">
+                            <thead class="text-muted small">
+                                <tr>
+                                    <th class="ps-4 border-0 fw-bold text-uppercase tracking-wide">Reference</th>
+                                    <th class="border-0 fw-bold text-uppercase tracking-wide">Company Info</th>
+                                    <th class="border-0 fw-bold text-uppercase tracking-wide">Timeline</th>
+                                    <th class="border-0 fw-bold text-uppercase tracking-wide">Status</th>
+                                    <th class="border-0 fw-bold text-uppercase tracking-wide" style="width: 150px;">Progress</th>
+                                    <th class="text-end pe-4 border-0 fw-bold text-uppercase tracking-wide">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var app in Model)
+                                {
+                                    <tr class="premium-row">
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="fw-bolder text-primary">@(app.ApplicationId ?? "#" + app.Id.ToString("0000"))</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold text-dark text-truncate" style="max-width: 220px;">@(app.User.CompanyProfile?.CompanyName ?? app.User.CompanyName)</div>
+                                            <div class="small text-secondary d-flex align-items-center mt-1">
+                                                <i class="bi bi-envelope me-1"></i> <span class="text-truncate" style="max-width: 200px;">@app.User.Email</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold text-dark">@(app.SubmittedAt?.ToString("MMM dd, yyyy") ?? app.CreatedAt.ToString("MMM dd, yyyy"))</div>
+                                            <small class="text-secondary">@(app.SubmittedAt?.ToShortTimeString() ?? "")</small>
+                                        </td>
+                                        <td>
+                                            @switch (app.Status) {
+                                                case "Submitted":
+                                                    <span class="status-badge info">New Submission</span>
+                                                    break;
+                                                case "DocumentApproved":
+                                                    <span class="status-badge primary">Docs Verified</span>
+                                                    break;
+                                                case "ProvisionalGranted":
+                                                    <span class="status-badge warning">Provisional Grant</span>
+                                                    break;
+                                                case "FieldVerified":
+                                                    <span class="status-badge indigo">Site Inspected</span>
+                                                    break;
+                                                case "Empaneled":
+                                                    <span class="status-badge success-solid">Active (Empaneled)</span>
+                                                    break;
+                                                default:
+                                                    <span class="status-badge secondary">@app.Status</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex flex-column gap-1 pe-3">
+                                                @{
+                                                    var progress = app.Status switch {
+                                                        "Submitted" => 20,
+                                                        "DocumentApproved" => 40,
+                                                        "ProvisionalGranted" => 60,
+                                                        "FieldVerified" => 80,
+                                                        "Empaneled" => 100,
+                                                        _ => 10
+                                                    };
+                                                }
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="fw-bold text-dark" style="font-size: 0.7rem;">@progress%</small>
+                                                </div>
+                                                <div class="progress rounded-pill bg-light" style="height: 6px;">
+                                                    <div class="progress-bar rounded-pill @(progress == 100 ? "bg-success" : "bg-primary")" role="progressbar" style="width: @progress%"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <a asp-action="Details" asp-route-id="@app.Id" class="btn btn-premium-action shadow-sm rounded-pill">
+                                                Review <i class="bi bi-chevron-right ms-1" style="font-size: 0.75rem;"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     </div>
-                }
+                    
+                    @if (!Model.Any())
+                    {
+                        <div class="empty-state-card text-center py-5 border-0">
+                            <div class="empty-state-icon mx-auto mb-4 bg-light text-muted">
+                                <i class="bi bi-inbox fs-1"></i>
+                            </div>
+                            <h4 class="fw-bolder text-dark mb-2">Queue is Empty</h4>
+                            <p class="text-secondary mx-auto mb-0" style="max-width: 350px;">There are currently no applications requiring your review. Check back later.</p>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
@@ -363,3 +394,76 @@
         display: flex; align-items: center; justify-content: center;
     }
 </style>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const $selector = $('#admin-view-selector');
+            const $contentArea = $('#dynamic-content-area');
+            const $loader = $('#view-loader');
+            const $mainQueue = $('#main-task-queue');
+
+            $selector.on('change', function() {
+                const action = $(this).val();
+                
+                if (action === "TaskQueue") {
+                    $mainQueue.removeClass('d-none');
+                    $contentArea.find('.partial-view-container').remove();
+                    return;
+                }
+
+                // Show loader
+                $loader.removeClass('d-none').addClass('d-flex');
+                $mainQueue.addClass('d-none');
+                
+                // Remove existing partial view
+                $contentArea.find('.partial-view-container').remove();
+
+                // AJAX Load
+                $.ajax({
+                    url: '@Url.Action("Index", "Admin").Replace("/Index", "")/' + action,
+                    type: 'GET',
+                    success: function(data) {
+                        const $container = $('<div class="partial-view-container p-3 animate-fade-in"></div>').html(data);
+                        $contentArea.append($container);
+                        $loader.removeClass('d-flex').addClass('d-none');
+                    },
+                    error: function(xhr) {
+                        const errorMsg = xhr.responseText || 'Failed to load the selected view. Please try again.';
+                        alert('Error: ' + errorMsg);
+                        $loader.removeClass('d-flex').addClass('d-none');
+                        $mainQueue.removeClass('d-none');
+                        $selector.val('TaskQueue');
+                    }
+                });
+            });
+
+            // Delegate events for filters within partial views
+            $(document).on('change', '#status-filter', function() {
+                loadFilteredView('GetApplicationsList', { status: $(this).val() });
+            });
+
+            $(document).on('change', '#doc-status-filter', function() {
+                loadFilteredView('GetDocumentsList', { status: $(this).val() });
+            });
+
+            $(document).on('change', '#state-filter', function() {
+                loadFilteredView('GetInstallationsList', { state: $(this).val() });
+            });
+
+            function loadFilteredView(action, params) {
+                $loader.removeClass('d-none').addClass('d-flex');
+                $.ajax({
+                    url: '/Admin/' + action,
+                    type: 'GET',
+                    data: params,
+                    success: function(data) {
+                        $contentArea.find('.partial-view-container').html(data);
+                        $loader.removeClass('d-flex').addClass('d-none');
+                    }
+                });
+            }
+        });
+    </script>
+}

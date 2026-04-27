@@ -1,0 +1,93 @@
+@model IEnumerable<APCD.Web.Models.EmpanelmentApplication>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center bg-white h-100">
+            <div class="premium-icon-box bg-primary-soft text-primary mx-auto mb-3">
+                <i class="bi bi-file-earmark-text fs-3"></i>
+            </div>
+            <h6 class="text-muted small fw-bold text-uppercase mb-1">Total Received</h6>
+            <h2 class="fw-bold mb-0">@Model.Count()</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center bg-white h-100">
+            <div class="premium-icon-box bg-warning-soft text-warning mx-auto mb-3">
+                <i class="bi bi-clock-history fs-3"></i>
+            </div>
+            <h6 class="text-muted small fw-bold text-uppercase mb-1">Provisionally Empanelled</h6>
+            <h2 class="fw-bold mb-0">@Model.Count(a => a.Status == "ProvisionalGranted")</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center bg-white h-100">
+            <div class="premium-icon-box bg-success-soft text-success mx-auto mb-3">
+                <i class="bi bi-shield-check fs-3"></i>
+            </div>
+            <h6 class="text-muted small fw-bold text-uppercase mb-1">Fully Empanelled</h6>
+            <h2 class="fw-bold mb-0">@Model.Count(a => a.Status == "Empaneled")</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center bg-white h-100">
+            <div class="premium-icon-box bg-danger-soft text-danger mx-auto mb-3">
+                <i class="bi bi-x-circle fs-3"></i>
+            </div>
+            <h6 class="text-muted small fw-bold text-uppercase mb-1">Rejected</h6>
+            <h2 class="fw-bold mb-0">@Model.Count(a => a.Status == "Rejected")</h2>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+    <h6 class="fw-bold text-dark mb-4">Empanelment Progress Visualization</h6>
+    
+    @{
+        var total = Model.Count();
+        if (total == 0) total = 1;
+        var submittedPerc = (Model.Count(a => a.Status == "Submitted") * 100 / total);
+        var verifiedPerc = (Model.Count(a => a.Status == "DocumentApproved") * 100 / total);
+        var provisionalPerc = (Model.Count(a => a.Status == "ProvisionalGranted") * 100 / total);
+        var finalPerc = (Model.Count(a => a.Status == "Empaneled") * 100 / total);
+    }
+
+    <div class="mb-4">
+        <div class="d-flex justify-content-between mb-1">
+            <span class="small fw-bold">New Submissions</span>
+            <span class="small fw-bold">@submittedPerc%</span>
+        </div>
+        <div class="progress" style="height: 10px;">
+            <div class="progress-bar bg-info" style="width: @submittedPerc%"></div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <div class="d-flex justify-content-between mb-1">
+            <span class="small fw-bold">Document Verification Done</span>
+            <span class="small fw-bold">@verifiedPerc%</span>
+        </div>
+        <div class="progress" style="height: 10px;">
+            <div class="progress-bar bg-primary" style="width: @verifiedPerc%"></div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <div class="d-flex justify-content-between mb-1">
+            <span class="small fw-bold">Provisional Approval Stage</span>
+            <span class="small fw-bold">@provisionalPerc%</span>
+        </div>
+        <div class="progress" style="height: 10px;">
+            <div class="progress-bar bg-warning" style="width: @provisionalPerc%"></div>
+        </div>
+    </div>
+
+    <div>
+        <div class="d-flex justify-content-between mb-1">
+            <span class="small fw-bold">Final Empanelment</span>
+            <span class="small fw-bold">@finalPerc%</span>
+        </div>
+        <div class="progress" style="height: 10px;">
+            <div class="progress-bar bg-success" style="width: @finalPerc%"></div>
+        </div>
+    </div>
+</div>

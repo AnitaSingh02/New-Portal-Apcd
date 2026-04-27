@@ -32,7 +32,7 @@
                 <div class="wizard-main">
                     <form asp-action="SaveCapabilities" asp-route-id="@appId" method="post" enctype="multipart/form-data">
                         <div class="form-section-title">Step 4: Technical Scope (APCD Technologies)</div>
-                        <p class="text-muted small mb-4">Point 21: Specify the APCDs currently manufactured and those for which empanelment is sought.</p>
+                        <p class="text-muted small mb-4">Point 25: Specify the APCDs currently manufactured and those for which empanelment is sought.</p>
 
                         <div class="table-responsive border rounded-4 overflow-hidden mb-4">
                             <table class="table tech-matrix-table mb-0 align-middle">
@@ -40,9 +40,9 @@
                                     <tr>
                                         <th style="width: 18%;">Sl. No. & Main Technology</th>
                                         <th style="width: 25%;">Type of APCDs based on technology</th>
-                                        <th class="text-center bg-light text-dark" style="width: 12%;">Pt 21: Mfgr.<br/><small class="fw-normal">Yes/No</small></th>
-                                        <th class="text-center bg-light text-dark" style="width: 12%;">Pt 22: Apply<br/><small class="fw-normal">Yes/No</small></th>
-                                        <th class="text-center" style="width: 15%;">Pt 21: Category<br/><small class="fw-normal">(1/2/Both)</small></th>
+                                        <th class="text-center bg-light text-dark" style="width: 12%;">Pt 25: Mfgr.<br/><small class="fw-normal">Yes/No</small></th>
+                                        <th class="text-center bg-light text-dark" style="width: 12%;">Pt 26: Apply<br/><small class="fw-normal">Yes/No</small></th>
+                                        <th class="text-center" style="width: 15%;">Pt 25: Category<br/><small class="fw-normal">(1/2/Both)</small></th>
                                         <th style="width: 18%;">Designed Capacity<br/><small class="fw-normal">(give range)</small></th>
                                     </tr>
                                 </thead>
@@ -162,7 +162,7 @@
 
                         <!-- Point 22: Installations Table -->
                         <div class="mb-5">
-                            <h5 class="fw-bold text-dark mb-3">22. Provide details of installations completed in the last three (3) years (minimun five) including:</h5>
+                            <h5 class="fw-bold text-dark mb-3">26. Provide details of installations completed in the last three (3) years (minimun five) including:</h5>
                             <div class="table-responsive border rounded-4 overflow-hidden shadow-sm">
                                 <table class="table table-bordered mb-0 align-middle">
                                     <thead style="background-color: #f1f3f4;">
@@ -219,7 +219,7 @@
                             <!-- Technical Catalogues (Global) -->
                             <div class="col-md-6">
                                 <div class="p-3 border rounded-3 bg-light h-100 shadow-sm border-primary-subtle">
-                                    <label class="form-group-label fw-bold text-dark">13. Technical Catalogues / Brochures <span class="text-danger">*</span></label>
+                                    <label class="form-group-label fw-bold text-dark">27. Technical Catalogues / Brochures <span class="text-danger">*</span></label>
                                     <input type="file" name="techCatalogueFile" class="form-control form-control-sm mt-3" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "TechnicalCatalogue") ? "" : "required") />
                                     @if (docs != null && docs.Any(d => d.DocumentType == "TechnicalCatalogue"))
                                     {
@@ -254,15 +254,15 @@
     <script>
         const existingDocs = @Html.Raw(Json.Serialize(ViewBag.JsonDocuments));
         const docTypes = [
-            { id: 'productDatasheetFile', label: '10. Product Datasheets', type: 'ProductDatasheet' },
-            { id: 'gaDrawingFile', label: '11. General Arrangement (GA) Drawing', type: 'GADrawing' },
-            { id: 'processFlowFile', label: '12. Process Flow Diagram', type: 'ProcessFlowDiagram' },
-            { id: 'designCalcFile', label: '16. Design Calculations', type: 'DesignCalculation' },
-            { id: 'materialConstructionFile', label: '17. Material of Construction Certificates', type: 'MaterialOfConstruction' },
-            { id: 'warrantyFile', label: '18. Warranty Documents', type: 'WarrantyDocument' },
-            { id: 'installationExpFile', label: '19. Experience in Installation (Annexure-6a/6b)', type: 'InstallationExperience' },
-            { id: 'clientPerformanceFile', label: '20. Client Performance Certificate', type: 'ClientPerformanceCertificate' },
-            { id: 'testCertificateFile', label: '25. Test Certificates (Internal/NABL)', type: 'TestCertificate' }
+            { id: 'productDatasheetFile', label: '28. Product Datasheets', type: 'ProductDatasheet' },
+            { id: 'gaDrawingFile', label: '29. General Arrangement (GA) Drawing', type: 'GADrawing' },
+            { id: 'processFlowFile', label: '30. Process Flow Diagram', type: 'ProcessFlowDiagram' },
+            { id: 'designCalcFile', label: '31. Design Calculations', type: 'DesignCalculation' },
+            { id: 'materialConstructionFile', label: '32. Material of Construction Certificates', type: 'MaterialOfConstruction' },
+            { id: 'warrantyFile', label: '33. Warranty Documents', type: 'WarrantyDocument' },
+            { id: 'installationExpFile', label: '34. Experience in Installation (Annexure-6a/6b)', type: 'InstallationExperience' },
+            { id: 'clientPerformanceFile', label: '35. Client Performance Certificate', type: 'ClientPerformanceCertificate' },
+            { id: 'testCertificateFile', label: '36. Test Certificates (Internal/NABL)', type: 'TestCertificate' }
         ];
 
         function updateTechDocuments() {

@@ -22,12 +22,12 @@
                 <div class="wizard-main">
                     <form asp-action="SaveFinancials" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
                         <div class="form-section-title">Step 5: Financials, Audits & History</div>
-                        <p class="text-muted small mb-4">Provide certified financial data and client testimonials (Points 17, 18, 23, 24).</p>
+                        <p class="text-muted small mb-4">Provide certified financial data and client testimonials (Points 37, 38, 39, 40).</p>
 
                         <div class="row g-5">
                             <!-- Turnover (Point 17) -->
                             <div class="col-md-12">
-                                <h6 class="fw-bold mb-3"><i class="bi bi-currency-dollar me-2 text-primary"></i> 17. Year wise Turnover (Last 3 years)</h6>
+                                <h6 class="fw-bold mb-3"><i class="bi bi-currency-dollar me-2 text-primary"></i> 37. Year wise Turnover (Last 3 years)</h6>
                                 <p class="extra-small text-muted mb-3">Attach audited certificates in the Documents section later.</p>
                                 <div class="table-responsive rounded-3 bg-light border">
                                     <table class="table table-bordered mb-0">
@@ -63,7 +63,7 @@
 
                             <!-- Bank Solvency (Point 18) -->
                             <div class="col-md-6">
-                                <h6 class="fw-bold mb-3"><i class="bi bi-bank me-2 text-primary"></i> 18. Bank Solvency Certificate</h6>
+                                <h6 class="fw-bold mb-3"><i class="bi bi-bank me-2 text-primary"></i> 38. Bank Solvency Certificate</h6>
                                 <div class="p-3 bg-light border rounded-3">
                                     <p class="small mb-2">Issued within last 12 months?</p>
                                     <input type="file" name="bankSolvencyFile" class="form-control form-control-sm mb-2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
@@ -82,7 +82,7 @@
 
                             <!-- Grievance (Point 23) -->
                             <div class="col-md-6">
-                                <h6 class="fw-bold mb-3"><i class="bi bi-people me-2 text-primary"></i> 23. Grievance Redressal System</h6>
+                                <h6 class="fw-bold mb-3"><i class="bi bi-people me-2 text-primary"></i> 39. Grievance Redressal System</h6>
                                 <div class="p-3 bg-light border rounded-3 h-100">
                                     <div class="form-check form-switch mt-2">
                                         <input asp-for="HasGrievanceSystem" class="form-check-input" type="checkbox" id="grievanceSwitch">
@@ -94,7 +94,7 @@
 
                             <!-- Testimonials (Point 24) -->
                             <div class="col-md-12">
-                                <h6 class="fw-bold mb-3"><i class="bi bi-chat-right-quote me-2 text-primary"></i> 24. Client Testimonials (Annexure-12)</h6>
+                                <h6 class="fw-bold mb-3"><i class="bi bi-chat-right-quote me-2 text-primary"></i> 40. Client Testimonials (Annexure-12)</h6>
                                 <p class="small text-muted mb-3">Minimum 3 testimonials are required, preferably 1 from NCR region.</p>
                                 <div class="row g-3">
                                     @for(int i = 1; i <= 3; i++)
@@ -126,7 +126,7 @@
                                 <div class="row g-4">
                                     <div class="col-md-4">
                                         <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">Bank Account Details (Annexure-10)</label>
+                                            <label class="form-group-label">41. Bank Account Details (Annexure-10)</label>
                                             <input type="file" name="bankAccountFile" class="form-control form-control-sm mt-2" accept=".pdf" />
                                             @if (Model.Documents.Any(d => d.DocumentType == "BankAccountDetails")) {
     var tmpDoc = Model.Documents.First(d => d.DocumentType == "BankAccountDetails");
@@ -136,7 +136,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">Service Support Undertaking (Annexure-4)</label>
+                                            <label class="form-group-label">42. Service Support Undertaking (Annexure-4)</label>
                                             <input type="file" name="serviceSupportFile" class="form-control form-control-sm mt-2" accept=".pdf" />
                                             @if (Model.Documents.Any(d => d.DocumentType == "ServiceSupportUndertaking")) {
     var tmpDoc = Model.Documents.First(d => d.DocumentType == "ServiceSupportUndertaking");
@@ -146,7 +146,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">Non-Blacklisting Undertaking (Annexure-5)</label>
+                                            <label class="form-group-label">43. Non-Blacklisting Undertaking (Annexure-5)</label>
                                             <input type="file" name="nonBlacklistingFile" class="form-control form-control-sm mt-2" accept=".pdf" />
                                             @if (Model.Documents.Any(d => d.DocumentType == "NonBlacklistingUndertaking")) {
     var tmpDoc = Model.Documents.First(d => d.DocumentType == "NonBlacklistingUndertaking");
@@ -156,7 +156,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">15. Test Certificates of APCDs</label>
+                                            <label class="form-group-label">44. Test Certificates of APCDs</label>
                                             <input type="file" name="testCertificateFile" class="form-control form-control-sm mt-2" accept=".pdf" />
                                             @if (Model.Documents.Any(d => d.DocumentType == "TestCertificate")) {
     var tmpDoc = Model.Documents.First(d => d.DocumentType == "TestCertificate");
@@ -166,7 +166,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">22. GST Filing Proof (Last 1 year)</label>
+                                            <label class="form-group-label">45. GST Filing Proof (Last 1 year)</label>
                                             <input type="file" name="gstFilingFile" class="form-control form-control-sm mt-2" accept=".pdf" />
                                             @if (Model.Documents.Any(d => d.DocumentType == "GSTFiling")) {
     var tmpDoc = Model.Documents.First(d => d.DocumentType == "GSTFiling");
@@ -176,7 +176,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">No Legal Disputes Declaration (Annexure-8)</label>
+                                            <label class="form-group-label">46. No Legal Disputes Declaration (Annexure-8)</label>
                                             <input type="file" name="noLegalDisputesFile" class="form-control form-control-sm mt-2" accept=".pdf" />
                                             @if (Model.Documents.Any(d => d.DocumentType == "NoLegalDisputes")) {
     var tmpDoc = Model.Documents.First(d => d.DocumentType == "NoLegalDisputes");
@@ -186,7 +186,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">Complaint Handling Policy</label>
+                                            <label class="form-group-label">47. Complaint Handling Policy</label>
                                             <input type="file" name="complaintPolicyFile" class="form-control form-control-sm mt-2" accept=".pdf" />
                                             @if (Model.Documents.Any(d => d.DocumentType == "ComplaintPolicy")) {
     var tmpDoc = Model.Documents.First(d => d.DocumentType == "ComplaintPolicy");
@@ -196,7 +196,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">Escalation Mechanism</label>
+                                            <label class="form-group-label">48. Escalation Mechanism</label>
                                             <input type="file" name="escalationMechFile" class="form-control form-control-sm mt-2" accept=".pdf" />
                                             @if (Model.Documents.Any(d => d.DocumentType == "EscalationMechanism")) {
     var tmpDoc = Model.Documents.First(d => d.DocumentType == "EscalationMechanism");
@@ -206,7 +206,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">26. Photographs of Unit (Geo-tagged)</label>
+                                            <label class="form-group-label">49. Photographs of Unit (Geo-tagged)</label>
                                             <input type="file" name="unitPhotographsFile" class="form-control form-control-sm mt-2" accept=".pdf" />
                                             @if (Model.Documents.Any(d => d.DocumentType == "UnitPhotographs")) {
     var tmpDoc = Model.Documents.First(d => d.DocumentType == "UnitPhotographs");

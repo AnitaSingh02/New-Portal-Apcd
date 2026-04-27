@@ -32,6 +32,7 @@ namespace APCD.Web.Controllers
                     model.CreateTime = DateTime.Now;
                     _context.ContactUs.Add(model);
                     await _context.SaveChangesAsync();
+                    ModelState.Clear();
                     ViewBag.SuccessMessage = "Your message has been submitted successfully. We will get back to you soon.";
                     return View();
                 }

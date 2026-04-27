@@ -1,0 +1,46 @@
+@model IEnumerable<APCD.Web.Models.Payment>
+
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold text-dark">Payment Status (Device-wise)</h6>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light extra-small fw-bold text-muted text-uppercase">
+                    <tr>
+                        <th class="ps-4">App ID</th>
+                        <th>OEM Name</th>
+                        <th>Payment Type</th>
+                        <th>Device Count</th>
+                        <th>Amount (INR)</th>
+                        <th>UTR Number</th>
+                        <th>Date</th>
+                        <th class="text-end pe-4">Proof</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr class="@(p.IsSupplemental ? "bg-light bg-opacity-50" : "")">
+                            <td class="ps-4 text-muted small">@(p.Application?.ApplicationId ?? "#" + p.ApplicationId.ToString("0000"))</td>
+                            <td class="fw-bold">@(p.Application?.User?.CompanyName ?? "Unknown OEM")</td>
+                            <td>
+                                <span class="badge @(p.IsSupplemental ? "bg-info" : "bg-primary") rounded-pill px-2">
+                                    @(p.IsSupplemental ? "Supplemental" : p.Type.ToString())
+                                </span>
+                            </td>
+                            <td class="text-center fw-bold">@(p.APCDTypesCount ?? 0)</td>
+                            <td class="fw-bold text-success">₹@(p.Amount?.ToString("N0") ?? "0")</td>
+                            <td class="small fw-bold">@p.UTRNumber</td>
+                            <td class="small">@(p.PaymentDate?.ToString("dd MMM yyyy") ?? "N/A")</td>
+                            <td class="text-end pe-4">
+                                <a href="#" class="text-primary small fw-bold">Link &rarr;</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -48,7 +48,7 @@
                             <p class="saas-card-text text-muted mb-auto">GST: @user.CompanyProfile.GSTNumber</p>
                             
                             <div class="mt-4 pt-3 border-top">
-                                <a asp-controller="Application" asp-action="Index" class="saas-link">View Details &rarr;</a>
+                                <a asp-controller="Application" asp-action="@(Model != null ? "Resume" : "Index")" asp-route-id="@Model?.Id" class="saas-link">View Details &rarr;</a>
                             </div>
                         }
                         else
@@ -77,19 +77,21 @@
                         @if (Model != null)
                         {
                             <div class="d-flex align-items-center gap-2 mb-1">
-                                <h3 class="saas-card-title mb-0">@Model.Status</h3>
-                                <span class="saas-badge bg-success-subtle text-success border border-success-subtle">Active</span>
+                                <h3 class="saas-card-title mb-0">@(Model.Status == "Draft" ? "In Progress" : (Model.Status == "Submitted" ? "Application Submitted" : Model.Status))</h3>
+                                <span class="saas-badge @(Model.Status == "Draft" ? "bg-warning-subtle text-warning border-warning-subtle" : "bg-success-subtle text-success border-success-subtle")">
+                                    @(Model.Status == "Draft" ? "Payment Pending" : "Payment Done")
+                                </span>
                             </div>
                             <p class="saas-card-text text-muted mb-auto">Application ID: @(Model.ApplicationId ?? "#" + Model.Id.ToString("0000"))</p>
                             
                             <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
                                 <span class="text-muted small">Updated recently</span>
-                                <a asp-controller="Application" asp-action="Review" asp-route-id="@Model.Id" class="saas-link">Track &rarr;</a>
+                                <a asp-controller="Application" asp-action="Resume" asp-route-id="@Model.Id" class="saas-link">Track &rarr;</a>
                             </div>
                         }
                         else
                         {
-                            <h3 class="saas-card-title mb-1 text-muted">No Application</h3>
+                            <h3 class="saas-card-title mb-1 text-muted">Not Submitted Yet</h3>
                             <p class="saas-card-text text-muted mb-auto">Start your journey today.</p>
                         }
                     </div>
@@ -163,7 +165,8 @@
                                                 _ => "success"
                                             };
                                             var statusLabel = Model.Status switch {
-                                                "Submitted" => "Under Review",
+                                                "Draft" => "In Progress",
+                                                "Submitted" => "Application Submitted",
                                                 "DocumentApproved" => "Tech Review",
                                                 "ProvisionalGranted" => "Site Visit",
                                                 _ => Model.Status
@@ -190,7 +193,7 @@
                                             <a asp-controller="Application" asp-action="Print" asp-route-id="@Model.Id" target="_blank" class="saas-icon-btn text-secondary bg-secondary-subtle" title="Print" data-bs-toggle="tooltip">
                                                 <i class="bi bi-printer"></i>
                                             </a>
-                                            <a asp-controller="Application" asp-action="Review" asp-route-id="@Model.Id" class="saas-icon-btn text-success bg-success-subtle" title="Review" data-bs-toggle="tooltip">
+                                            <a asp-controller="Application" asp-action="Resume" asp-route-id="@Model.Id" class="saas-icon-btn text-success bg-success-subtle" title="Track" data-bs-toggle="tooltip">
                                                 <i class="bi bi-arrow-right"></i>
                                             </a>
                                         }
@@ -402,11 +405,15 @@
 
     /* Badges & Tags */
     .saas-badge {
-        padding: 0.2rem 0.6rem;
+        padding: 0.4rem 0.8rem;
         border-radius: 50rem;
         font-size: 0.7rem;
-        font-weight: 600;
+        font-weight: 700;
         letter-spacing: 0.3px;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        line-height: 1;
     }
 
     .saas-tag {

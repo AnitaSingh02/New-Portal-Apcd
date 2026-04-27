@@ -1,0 +1,63 @@
+@model IEnumerable<APCD.Web.Models.EmpanelmentApplication>
+
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold text-dark">Consolidated Summary Sheet</h6>
+        <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-success rounded-pill px-3">
+                <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+            </button>
+            <button class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+            </button>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="p-3 bg-light rounded-4 border-start border-4 border-primary">
+                    <div class="small text-muted fw-bold">Total Applications</div>
+                    <h3 class="fw-bold mb-0">@Model.Count()</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 bg-light rounded-4 border-start border-4 border-success">
+                    <div class="small text-muted fw-bold">Total Devices Applied</div>
+                    <h3 class="fw-bold mb-0">@Model.Sum(a => a.Capabilities?.Count(c => c.IsAppliedForEmpanelment) ?? 0)</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 bg-light rounded-4 border-start border-4 border-info">
+                    <div class="small text-muted fw-bold">Total Fees Received</div>
+                    <h3 class="fw-bold mb-0">₹@((Model.SelectMany(a => a.Payments ?? new List<APCD.Web.Models.Payment>()).Sum(p => p.Amount ?? 0m) / 100000m).ToString("N2")) L</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered align-middle">
+                <thead class="bg-light extra-small fw-bold">
+                    <tr>
+                        <th>OEM Name</th>
+                        <th>Status</th>
+                        <th class="text-center">Devices</th>
+                        <th class="text-end">Paid (INR)</th>
+                        <th>Last Activity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var app in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">@app.User.CompanyName</td>
+                            <td><small>@app.Status</small></td>
+                            <td class="text-center">@(app.Capabilities?.Count(c => c.IsAppliedForEmpanelment) ?? 0)</td>
+                            <td class="text-end fw-bold">₹@((app.Payments?.Sum(p => p.Amount) ?? 0).ToString("N0"))</td>
+                            <td class="small">@(app.SubmittedAt?.ToShortDateString() ?? app.CreatedAt.ToShortDateString())</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

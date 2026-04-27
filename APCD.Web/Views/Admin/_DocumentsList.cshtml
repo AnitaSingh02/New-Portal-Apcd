@@ -1,0 +1,49 @@
+@model IEnumerable<APCD.Web.Models.ApplicationDocument>
+
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold text-dark">Document Submission Status</h6>
+        <div class="d-flex gap-2">
+            <select id="doc-status-filter" class="form-select form-select-sm rounded-pill" style="width: 150px;">
+                <option value="">All Documents</option>
+                <option value="Verified">Verified</option>
+                <option value="Pending">Pending</option>
+            </select>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light extra-small fw-bold text-muted text-uppercase">
+                    <tr>
+                        <th class="ps-4">Document Name</th>
+                        <th>Application ID</th>
+                        <th>OEM Name</th>
+                        <th>Upload Date</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var doc in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-bold small text-gov-blue">@doc.DocumentType</td>
+                            <td class="text-muted">@(doc.Application.ApplicationId ?? "#" + doc.ApplicationId.ToString("0000"))</td>
+                            <td class="fw-bold">@doc.Application.User.CompanyName</td>
+                            <td>@doc.UploadedAt.ToString("dd MMM yyyy")</td>
+                            <td>
+                                <span class="badge @(doc.IsVerified ? "bg-success" : "bg-warning text-dark") rounded-pill px-3">
+                                    @(doc.IsVerified ? "Verified" : "Pending Review")
+                                </span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-info rounded-pill">View Doc</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

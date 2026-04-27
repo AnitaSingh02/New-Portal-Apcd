@@ -94,11 +94,11 @@
                                     }
                                     <tr>
                                         <td style="width: 40%;">Number of APCD types applied for empanelment.</td>
-                                        <td class="fw-bold fs-5 px-2">@ViewBag.APCDCount</td>
+                                        <td class="fw-bold fs-5 px-2">@(isAmendment ? Model.APCDTypesCount : ViewBag.APCDCount)</td>
                                     </tr>
                                     <tr>
                                         <td>Amount required (in ₹)</td>
-                                        <td class="fw-bold text-primary px-2">₹@ViewBag.EmpFeeTotal.ToString("N2")</td>
+                                        <td class="fw-bold text-primary px-2">₹@(isAmendment ? (Model.EmpFeeAmountDeposited > 0 ? Model.EmpFeeAmountDeposited.ToString("N2") : (Model.APCDTypesCount * 65000 * 1.18m).ToString("N2")) : ViewBag.EmpFeeTotal.ToString("N2"))</td>
                                     </tr>
                                     <tr>
                                         <td>Amount Deposited</td>
@@ -142,8 +142,8 @@
                                                 <tr class="small">
                                                     <td class="ps-3 fw-bold">@p.Type</td>
                                                     <td class="text-uppercase">@p.UTRNumber</td>
-                                                    <td class="fw-bold text-primary">₹@p.Amount.ToString("N0")</td>
-                                                    <td>@p.PaymentDate.ToShortDateString()</td>
+                                                    <td>₹@(p.Amount?.ToString("N2") ?? "0.00")</td>
+                                                    <td>@(p.PaymentDate?.ToShortDateString() ?? "N/A")</td>
                                                     <td class="text-end pe-3"><span class="badge bg-secondary extra-small">@p.Status</span></td>
                                                 </tr>
                                             }
@@ -156,15 +156,18 @@
                         <!-- SUPPLEMENTAL PAYMENT SECTION -->
                         @if (ViewBag.IsSupplemental == true)
                         {
+                            <div class="form-section-title text-warning mt-5"><i class="bi bi-plus-circle-fill me-2"></i> New Supplemental Fee Required</div>
+                            <p class="text-muted small mb-4">You have added new APCD units after the initial submission. Please pay the incremental empanelment fee to proceed.</p>
+
                             <div class="alert alert-warning border-warning border-3 mb-4 rounded-4 shadow-sm animate-fade-in bg-warning bg-opacity-10">
                                 <div class="d-flex align-items-center">
-                                    <div class="me-3 fs-2 text-warning"><i class="bi bi-plus-circle-fill"></i></div>
+                                    <div class="me-3 fs-2 text-warning"><i class="bi bi-info-circle-fill"></i></div>
                                     <div>
-                                        <h6 class="fw-bold text-dark mb-1">New Supplemental Fee Required</h6>
-                                        <p class="small text-dark mb-0">You are adding @(ViewBag.NewCount - ViewBag.PaidCount) new APCD unit(s). Please provide the payment details for the balance amount below.</p>
+                                        <h6 class="fw-bold text-dark mb-1">Incremental Units Detection</h6>
+                                        <p class="small text-dark mb-0">Total Devices: <strong>@ViewBag.TotalCount</strong> | Previously Paid: <strong>@ViewBag.PaidCount</strong> | New Unpaid: <span class="badge bg-warning text-dark fs-6">@ViewBag.UnpaidCount</span></p>
                                     </div>
                                     <div class="ms-auto bg-white p-3 rounded-4 border border-warning shadow-sm text-center">
-                                        <div class="extra-small text-muted fw-bold text-uppercase">Balance Due</div>
+                                        <div class="extra-small text-muted fw-bold text-uppercase">Supplemental Due</div>
                                         <div class="fs-4 fw-bold text-primary">₹@ViewBag.BalanceDue.ToString("N2")</div>
                                     </div>
                                 </div>
@@ -172,18 +175,18 @@
 
                             <div class="card border-warning border-2 rounded-4 mb-4 shadow-sm overflow-hidden">
                                 <div class="card-header bg-warning bg-opacity-10 py-3 border-bottom border-warning border-opacity-25">
-                                    <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-credit-card-2-front me-2"></i> Enter Supplemental Payment Details</h6>
+                                    <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-credit-card-2-front me-2"></i> Supplemental Payment Details</h6>
                                 </div>
                                 <div class="card-body p-0">
                                     <table class="table table-bordered align-middle mb-0 border-0">
                                         <tbody>
                                             <tr class="border-bottom">
-                                                <td style="width: 40%;" class="ps-3 bg-light extra-small fw-bold text-muted">SUPPLEMENTAL UTR / NEFT NO</td>
+                                                <td style="width: 40%;" class="ps-3 bg-light extra-small fw-bold text-muted text-uppercase">Supplemental UTR / NEFT No</td>
                                                 <td class="p-0"><input asp-for="SupplementalUTR" class="form-control border-0 rounded-0 shadow-none px-3 py-3 text-uppercase fw-bold" placeholder="ENTER NEW UTR NUMBER" required /></td>
                                             </tr>
                                             <tr>
-                                                <td class="ps-3 bg-light extra-small fw-bold text-muted">AMOUNT DEPOSITED (₹)</td>
-                                                <td class="p-0"><input asp-for="SupplementalAmount" class="form-control border-0 rounded-0 shadow-none px-3 py-3 fw-bold text-primary" placeholder="0.00" required /></td>
+                                                <td class="ps-3 bg-light extra-small fw-bold text-muted text-uppercase">Amount to be Deposited (₹)</td>
+                                                <td class="p-0"><input asp-for="SupplementalAmount" class="form-control border-0 rounded-0 shadow-none px-3 py-3 fw-bold text-primary bg-light" readonly required /></td>
                                             </tr>
                                         </tbody>
                                     </table>

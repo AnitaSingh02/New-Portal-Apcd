@@ -139,6 +139,9 @@ namespace APCD.Web.Models
         public string DesignedCapacity { get; set; } = string.Empty; // Range
         public string TypeDetails { get; set; } = string.Empty; // For "Others" specify type
 
+        public bool IsPaid { get; set; } = false;
+        public int? PaymentId { get; set; }
+
         public virtual EmpanelmentApplication Application { get; set; }
     }
 
@@ -178,6 +181,12 @@ namespace APCD.Web.Models
         public string Location { get; set; } = string.Empty;
         public DateTime? InstallationDate { get; set; }
         public string PerformanceCertPath { get; set; } = string.Empty;
+
+        // New Field Verification Tracking
+        public string VerificationStatus { get; set; } = "Pending"; // Pending, Completed
+        public string? VerifiedBy { get; set; }
+        public DateTime? VerificationDate { get; set; }
+        public bool IsCertificateIssued { get; set; } = false;
 
         public virtual EmpanelmentApplication Application { get; set; }
     }
@@ -229,31 +238,30 @@ namespace APCD.Web.Models
 
         [Required]
         [Column(TypeName = "varchar(50)")]
-        public PaymentType Type { get; set; }
+        public PaymentType? Type { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
-        public decimal Amount { get; set; }
+        public decimal? Amount { get; set; }
 
-        [Required]
         [StringLength(100)]
-        public string UTRNumber { get; set; }
+        public string? UTRNumber { get; set; }
 
-        [Required]
         [StringLength(200)]
-        public string RemitterBank { get; set; }
+        public string? RemitterBank { get; set; }
 
-        public DateTime PaymentDate { get; set; }
+        public DateTime? PaymentDate { get; set; }
 
         [StringLength(50)]
-        public string Status { get; set; } = "Pending";
+        public string? Status { get; set; } = "Pending";
 
         [StringLength(500)]
-        public string ReceiptPath { get; set; }
+        public string? ReceiptPath { get; set; }
 
         // Contextual metric: How many APCD units does this specific payment cover?
         public int? APCDTypesCount { get; set; } 
+        public bool IsSupplemental { get; set; } = false;
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation property
         public virtual EmpanelmentApplication Application { get; set; }

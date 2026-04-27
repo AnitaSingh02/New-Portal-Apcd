@@ -109,5 +109,98 @@ namespace APCD.Web.Controllers
             }
             return RedirectToAction("Details", new { id = appId });
         }
+
+        #region Monitoring Dashboard Views (AJAX)
+
+        [HttpGet]
+        public async Task<IActionResult> GetApplicationsList(string status = null)
+        {
+            var query = _context.Applications
+                .Include(a => a.User)
+                .Include(a => a.User.CompanyProfile)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(a => a.Status == status);
+            }
+
+            var apps = await query.OrderByDescending(a => a.SubmittedAt).ToListAsync();
+            return PartialView("_ApplicationsList", apps);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDocumentsList(string status = null)
+        {
+            var query = _context.ApplicationDocuments
+                .Include(d => d.Application)
+                .ThenInclude(a => a.User)
+                .AsQueryable();
+
+            if (status == "Verified") query = query.Where(d => d.IsVerified);
+            else if (status == "Pending") query = query.Where(d => !d.IsVerified);
+
+            var docs = await query.OrderByDescending(d => d.Id).ToListAsync();
+            return PartialView("_DocumentsList", docs);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPaymentsList()
+        {
+            try
+            {
+                var payments = await _context.Payments
+                    .Include(p => p.Application)
+                        .ThenInclude(a => a.User)
+                    .Include(p => p.Application)
+                        .ThenInclude(a => a.Capabilities)
+                    .OrderByDescending(p => p.PaymentDate)
+                    .ToListAsync();
+
+                return PartialView("_PaymentsList", payments);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetInstallationsList(string state = null)
+        {
+            var query = _context.InstallationRecords
+                .Include(i => i.Application)
+                .ThenInclude(a => a.User)
+                .Include(a => a.Application.User.CompanyProfile)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(state))
+            {
+                query = query.Where(i => i.Application.User.CompanyProfile.State == state);
+            }
+
+            var installs = await query.OrderByDescending(i => i.Id).ToListAsync();
+            return PartialView("_InstallationsList", installs);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetEmpanelmentStats()
+        {
+            var apps = await _context.Applications.ToListAsync();
+            return PartialView("_EmpanelmentStats", apps);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSummarySheet()
+        {
+            var apps = await _context.Applications
+                .Include(a => a.User)
+                .Include(a => a.Payments)
+                .Include(a => a.Capabilities)
+                .ToListAsync();
+            return PartialView("_SummarySheet", apps);
+        }
+
+        #endregion
     }
 }

@@ -36,7 +36,7 @@
                                 <hr class="my-3">
                                 <div class="d-flex justify-content-between text-start mb-2">
                                     <span class="small text-muted">Status</span>
-                                    <span class="badge bg-warning text-dark px-3 py-2">@Model.Status</span>
+                                    <span class="badge bg-warning text-dark px-3 py-2">@(Model.Status == "Submitted" ? "Application Submitted" : Model.Status)</span>
                                 </div>
                                 <div class="d-flex justify-content-between text-start">
                                     <span class="small text-muted">Submitted On</span>

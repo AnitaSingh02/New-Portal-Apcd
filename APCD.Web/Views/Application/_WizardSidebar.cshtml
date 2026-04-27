@@ -24,7 +24,11 @@
         {
             var stepNum = i + 1;
             var isActive = stepNum == currentStep;
-            var isCompleted = stepNum < currentStep;
+            
+            // Completion is based on ViewBag.ActualStep if provided, otherwise fallback to currentStep
+            int actualStep = ViewBag.ActualStep ?? currentStep;
+            var isCompleted = stepNum < actualStep;
+            
             var stepClass = isActive ? "active" : (isCompleted ? "completed" : "");
             var actionName = stepNum == 1 ? "Profile" : 
                             stepNum == 6 ? "Review" : 

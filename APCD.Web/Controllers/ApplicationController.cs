@@ -70,7 +70,12 @@ namespace APCD.Web.Controllers
         {
             var application = await _context.Applications.FindAsync(id);
             if (application == null || application.UserId != GetUserId()) return RedirectToAction("Index", "Dashboard");
-            if (application.Status != "Draft") return RedirectToAction("Review", new { id });
+            
+            // If already submitted (ApplicationId exists or status isn't Draft), show the Success page
+            if (!string.IsNullOrEmpty(application.ApplicationId) || application.Status != "Draft") 
+            {
+                return RedirectToAction("Submit", new { id });
+            }
 
             return application.CurrentStep switch
             {
@@ -89,8 +94,26 @@ namespace APCD.Web.Controllers
         {
             var userId = GetUserId();
             var profile = await _context.CompanyProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
+            
+            if (profile == null)
+            {
+                var user = await _context.Users.FindAsync(userId);
+                profile = new CompanyProfile 
+                { 
+                    UserId = userId,
+                    CompanyName = user?.CompanyName ?? string.Empty,
+                    GSTNumber = user?.GSTNumber ?? string.Empty 
+                };
+            }
+            else if (string.IsNullOrEmpty(profile.GSTNumber) || string.IsNullOrEmpty(profile.CompanyName))
+            {
+                var user = await _context.Users.FindAsync(userId);
+                if (string.IsNullOrEmpty(profile.GSTNumber)) profile.GSTNumber = user?.GSTNumber ?? string.Empty;
+                if (string.IsNullOrEmpty(profile.CompanyName)) profile.CompanyName = user?.CompanyName ?? string.Empty;
+            }
+
             ViewBag.AppId = id;
-            return View(profile ?? new CompanyProfile { UserId = userId });
+            return View(profile);
         }
 
         [HttpPost]
@@ -603,51 +626,61 @@ namespace APCD.Web.Controllers
             ViewBag.AppFeeTotal = appFeeTotal;
             ViewBag.DiscountPercent = (int)(discountPercent * 100);
 
+            // Fetch the primary EmpFee record to show its specific count in history
+            var initialEmpFee = application.Payments.FirstOrDefault(p => p.Type == PaymentType.EmpFee);
+            
+            // BACKWARD COMPATIBILITY FIX: 
+            // If we have an EmpFee payment but devices aren't marked IsPaid, mark them now.
+            // This ensures "Previously Paid" doesn't show 0 for existing applications.
+            if (initialEmpFee != null && !application.Capabilities.Any(c => c.IsPaid))
+            {
+                var paidDevices = application.Capabilities.Where(c => c.IsAppliedForEmpanelment).Take(initialEmpFee.APCDTypesCount ?? 0).ToList();
+                foreach(var d in paidDevices) { d.IsPaid = true; d.PaymentId = initialEmpFee.Id; }
+                await _context.SaveChangesAsync();
+            }
+
             var paymentDetail = new PaymentViewModel { ApplicationId = id, Application = application };
             var appFee = application.Payments.FirstOrDefault(p => p.Type == PaymentType.AppFee);
             var empFee = application.Payments.FirstOrDefault(p => p.Type == PaymentType.EmpFee);
-            var suppFee = application.Payments.FirstOrDefault(p => p.Type == PaymentType.Supplemental);
+            var suppFeeList = application.Payments.Where(p => p.Type == PaymentType.Supplemental).ToList();
 
             if (appFee != null)
             {
-                paymentDetail.AppFeeAmountDeposited = appFee.Amount;
+                paymentDetail.AppFeeAmountDeposited = (decimal)appFee.Amount;
                 paymentDetail.AppFeeRemitterBank = appFee.RemitterBank;
                 paymentDetail.AppFeeUTRNumber = appFee.UTRNumber;
                 paymentDetail.AppFeePaymentDate = appFee.PaymentDate;
             }
             if (empFee != null)
             {
-                paymentDetail.EmpFeeAmountDeposited = empFee.Amount;
+                paymentDetail.EmpFeeAmountDeposited = (decimal)empFee.Amount;
                 paymentDetail.EmpFeeRemitterBank = empFee.RemitterBank;
                 paymentDetail.EmpFeeUTRNumber = empFee.UTRNumber;
                 paymentDetail.EmpFeePaymentDate = empFee.PaymentDate;
                 paymentDetail.APCDTypesCount = empFee.APCDTypesCount ?? 0;
             }
-            if (suppFee != null)
-            {
-                // Only pre-fill for viewing history if no NEW payment is required
-                // If IsSupplemental becomes true later, we will clear these
-                paymentDetail.SupplementalAmount = suppFee.Amount;
-                paymentDetail.SupplementalUTR = suppFee.UTRNumber;
-                paymentDetail.SupplementalPayDate = suppFee.PaymentDate;
-            }
+            // Supplemental payments are handled as a new entry below
+            paymentDetail.SupplementalAmount = null;
+            paymentDetail.SupplementalUTR = string.Empty;
+            paymentDetail.SupplementalPayDate = null;
             
             // --- Supplemental Payment detection ---
             if (application.Status != "Draft")
             {
-                int paidCount = application.Payments.Where(p => p.Type == PaymentType.EmpFee || p.Type == PaymentType.Supplemental).Sum(p => p.APCDTypesCount ?? 0);
+                var unpaidDevices = application.Capabilities.Where(c => c.IsAppliedForEmpanelment && !c.IsPaid).ToList();
+                int extraUnits = unpaidDevices.Count;
                 
-                if (currentApcdCount > paidCount)
+                if (extraUnits > 0)
                 {
-                    int extraUnits = currentApcdCount - paidCount;
                     decimal extraBase = extraUnits * 65000;
                     decimal extraGST = extraBase * 0.18m;
                     ViewBag.BalanceDue = extraBase + extraGST;
                     ViewBag.IsSupplemental = true;
-                    ViewBag.PaidCount = paidCount;
-                    ViewBag.NewCount = currentApcdCount;
+                    ViewBag.UnpaidCount = extraUnits;
+                    ViewBag.PaidCount = application.Capabilities.Count(c => c.IsAppliedForEmpanelment && c.IsPaid);
+                    ViewBag.TotalCount = currentApcdCount;
 
-                    // CLEAR the ViewModel fields for the NEW supplemental payment
+                    // AUTO-CALCULATE amount for the NEW supplemental payment
                     paymentDetail.SupplementalAmount = extraBase + extraGST;
                     paymentDetail.SupplementalUTR = string.Empty;
                     paymentDetail.SupplementalPayDate = null;
@@ -659,7 +692,7 @@ namespace APCD.Web.Controllers
                 }
             }
 
-            // Repopulate exact system calculations dynamically
+            // Initial calculation for Draft
             if (application.Status == "Draft")
             {
                 paymentDetail.Amount = total;
@@ -691,7 +724,18 @@ namespace APCD.Web.Controllers
                 empFee.UTRNumber = payment.EmpFeeUTRNumber;
                 empFee.RemitterBank = payment.EmpFeeRemitterBank;
                 empFee.PaymentDate = payment.EmpFeePaymentDate ?? DateTime.UtcNow;
-                empFee.APCDTypesCount = payment.APCDTypesCount;
+                
+                await _context.SaveChangesAsync(); // Save to get empFee.Id
+
+                // Mark devices as paid
+                var devices = await _context.APCDCapabilities
+                    .Where(c => c.ApplicationId == id && c.IsAppliedForEmpanelment)
+                    .ToListAsync();
+                foreach(var dev in devices) {
+                    dev.IsPaid = true;
+                    dev.PaymentId = empFee.Id;
+                }
+                empFee.APCDTypesCount = devices.Count;
 
                 application.Status = "Submitted";
                 application.SubmittedAt = DateTime.UtcNow;
@@ -701,16 +745,31 @@ namespace APCD.Web.Controllers
                 // Supplemental Payment logic
                 if (payment.SupplementalAmount > 0 && !string.IsNullOrEmpty(payment.SupplementalUTR))
                 {
-                    var suppFee = application.Payments.FirstOrDefault(p => p.Type == PaymentType.Supplemental && p.UTRNumber == payment.SupplementalUTR);
-                    if (suppFee == null) { suppFee = new Payment { ApplicationId = id, Type = PaymentType.Supplemental }; _context.Payments.Add(suppFee); }
-                    suppFee.Amount = payment.SupplementalAmount.Value;
-                    suppFee.UTRNumber = payment.SupplementalUTR;
-                    suppFee.RemitterBank = "Unknown"; // Can add field to UI later if needed
-                    suppFee.PaymentDate = payment.SupplementalPayDate ?? DateTime.UtcNow;
-                    
-                    int currentApcdCount = _context.APCDCapabilities.Count(c => c.ApplicationId == id && c.IsAppliedForEmpanelment);
-                    int paidCount = application.Payments.Where(p => p.Type == PaymentType.EmpFee || p.Type == PaymentType.Supplemental).Sum(p => p.APCDTypesCount ?? 0);
-                    suppFee.APCDTypesCount = currentApcdCount - paidCount; // Register the newly paid units
+                    var suppFee = new Payment 
+                    { 
+                        ApplicationId = id, 
+                        Type = PaymentType.Supplemental,
+                        IsSupplemental = true,
+                        Amount = payment.SupplementalAmount.Value,
+                        UTRNumber = payment.SupplementalUTR,
+                        RemitterBank = "Unknown",
+                        PaymentDate = payment.SupplementalPayDate ?? DateTime.UtcNow,
+                        Status = "Pending"
+                    };
+                    _context.Payments.Add(suppFee);
+                    await _context.SaveChangesAsync();
+
+                    // Link only newly added (unpaid) devices
+                    var unpaidDevices = await _context.APCDCapabilities
+                        .Where(c => c.ApplicationId == id && c.IsAppliedForEmpanelment && !c.IsPaid)
+                        .ToListAsync();
+
+                    foreach (var dev in unpaidDevices)
+                    {
+                        dev.IsPaid = true;
+                        dev.PaymentId = suppFee.Id;
+                    }
+                    suppFee.APCDTypesCount = unpaidDevices.Count;
                 }
             }
 
