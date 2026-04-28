@@ -71,8 +71,8 @@ namespace APCD.Web.Controllers
             var application = await _context.Applications.FindAsync(id);
             if (application == null || application.UserId != GetUserId()) return RedirectToAction("Index", "Dashboard");
             
-            // If already submitted (ApplicationId exists or status isn't Draft), show the Success page
-            if (!string.IsNullOrEmpty(application.ApplicationId) || application.Status != "Draft") 
+            // If already submitted (status isn't Draft), show the Success page
+            if (application.Status != "Draft") 
             {
                 return RedirectToAction("Submit", new { id });
             }

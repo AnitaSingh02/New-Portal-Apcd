@@ -1,0 +1,469 @@
+@model IEnumerable<APCD.Web.Models.EmpanelmentApplication>
+@using System.Security.Claims
+@{
+    ViewData["Title"] = "Task Queue";
+    var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+    var screenTitle = userRole switch {
+        "DEALING_HAND" => "Document Verification Queue",
+        "FIELD_VERIFIER" => "Field Inspection Queue",
+        "OFFICER" => "Tech Evaluation Queue",
+        "COMMITTEE" => "Committee Final Review",
+        "ADMIN" or "SUPER_ADMIN" => "Full Administrative Access",
+        _ => "Application Review"
+    };
+}
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<div class="dashboard-wrapper py-5 animate-fade-in" style="font-family: 'Inter', sans-serif;">
+    <div class="container-fluid px-4 px-lg-5">
+        
+        <!-- Header Section -->
+        <div class="row align-items-end mb-5">
+            <div class="col-md-8">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-2">
+                        <li class="breadcrumb-item"><a href="#" class="text-secondary text-decoration-none fw-medium"><i class="bi bi-shield-lock me-1"></i>NPC Portal</a></li>
+                        <li class="breadcrumb-item active text-dark fw-bold">Command Center</li>
+                    </ol>
+                </nav>
+                <h1 class="fw-bolder text-gradient-dark mb-1">@screenTitle</h1>
+                <p class="text-secondary fs-6 mb-0">You have <strong class="text-primary fs-5">@Model.Count()</strong> pending applications requiring your attention.</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-4 mt-md-0">
+                <div class="premium-system-badge d-inline-flex bg-white rounded-pill shadow-sm border border-light">
+                    <div class="px-4 py-2 border-end d-flex align-items-center">
+                        <div class="status-indicator active me-2"></div>
+                        <div>
+                            <small class="d-block text-muted text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Status</small>
+                            <span class="text-dark fw-bold small">Online</span>
+                        </div>
+                    </div>
+                    <div class="px-4 py-2 d-flex align-items-center">
+                        <i class="bi bi-clock text-secondary me-2 fs-5"></i>
+                        <div>
+                            <small class="d-block text-muted text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Time</small>
+                            <span class="text-dark fw-bold small">@DateTime.Now.ToString("HH:mm")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats for Admin -->
+        @if (userRole == "ADMIN" || userRole == "SUPER_ADMIN")
+        {
+            <div class="row g-4 mb-5">
+                <div class="col-xl-3 col-md-6">
+                    <div class="card premium-stat-card border-0 h-100 position-relative overflow-hidden">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h6 class="text-uppercase text-muted fw-bold small tracking-wide mb-1">Total Applications Received</h6>
+                                    <h2 class="fw-bolder mb-0 text-dark">@Model.Count()</h2>
+                                </div>
+                                <div class="premium-icon-box bg-primary-soft text-primary">
+                                    <i class="bi bi-file-earmark-text fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card premium-stat-card border-0 h-100 position-relative overflow-hidden">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h6 class="text-uppercase text-muted fw-bold small tracking-wide mb-1">Provisionally Empaneled OEMs</h6>
+                                    <h2 class="fw-bolder mb-0 text-dark">@Model.Count(a => a.Status == "Submitted")</h2>
+                                </div>
+                                <div class="premium-icon-box bg-warning-soft text-warning">
+                                    <i class="bi bi-clock-history fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: @(Model.Any() ? (Model.Count(a => a.Status == "Submitted") * 100 / Model.Count()) : 0)%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card premium-stat-card border-0 h-100 position-relative overflow-hidden">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h6 class="text-uppercase text-muted fw-bold small tracking-wide mb-1">Empaneled OEMs</h6>
+                                    <h2 class="fw-bolder mb-0 text-dark">@Model.Count(a => a.Status == "Empaneled")</h2>
+                                </div>
+                                <div class="premium-icon-box bg-success-soft text-success">
+                                    <i class="bi bi-shield-check fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: @(Model.Any() ? (Model.Count(a => a.Status == "Empaneled") * 100 / Model.Count()) : 0)%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card premium-stat-card border-0 h-100 position-relative overflow-hidden">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h6 class="text-uppercase text-muted fw-bold small tracking-wide mb-1">Fees Collected</h6>
+                                    <h2 class="fw-bolder mb-0 text-dark">
+                                        ₹@((Model.SelectMany(a => a.Payments ?? new List<APCD.Web.Models.Payment>())
+                                                                            .Sum(p => p.Amount ?? 0m) / 1000).ToString("N0"))K
+                                </h2>
+                                </div>
+                                <div class="premium-icon-box bg-info-soft text-info">
+                                    <i class="bi bi-wallet2 fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar bg-info" role="progressbar" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Applications Table & View Selection -->
+        <div class="card premium-table-card border-0 mb-5">
+            <div class="card-header bg-white py-4 px-4 border-0 d-flex flex-wrap align-items-center justify-content-between gap-3 rounded-top-4">
+                <div class="d-flex align-items-center gap-4">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-speedometer2 me-2 text-primary"></i>Command Center</h5>
+                    
+                    <div class="vr mx-2 d-none d-md-block" style="height: 30px;"></div>
+                    
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="small fw-bold text-muted text-uppercase mb-0">Select View:</label>
+                        <select id="admin-view-selector" class="form-select form-select-sm rounded-pill border-0 bg-light px-3 shadow-sm" style="width: 220px; height: 38px; cursor: pointer;">
+                            <option value="TaskQueue" selected>Task Queue (Default)</option>
+                            <option value="GetApplicationsList">Application Status</option>
+                            <option value="GetDocumentsList">Document Submitted Status</option>
+                            <option value="GetPaymentsList">Payment Status</option>
+                            <option value="GetInstallationsList">Client Installation</option>
+                            <option value="GetEmpanelmentStats">Empanelment Status</option>
+                            <option value="GetSummarySheet">Summary Sheet</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <form asp-action="Index" method="get" class="search-bar position-relative">
+                        <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
+                        <input type="text" name="search" value="@ViewBag.Search" class="form-control rounded-pill ps-5 bg-light border-0" placeholder="Search..." style="width: 250px; box-shadow: none;" />
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card-body p-0 position-relative" id="dynamic-content-area">
+                <div id="view-loader" class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-none align-items-center justify-content-center" style="z-index: 10;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                
+                <div id="main-task-queue">
+                    <div class="table-responsive pb-2 px-2">
+                        <table class="table table-hover align-middle mb-0 premium-table">
+                            <thead class="text-muted small">
+                                <tr>
+                                    <th class="ps-4 border-0 fw-bold text-uppercase tracking-wide">Reference</th>
+                                    <th class="border-0 fw-bold text-uppercase tracking-wide">Company Info</th>
+                                    <th class="border-0 fw-bold text-uppercase tracking-wide">Timeline</th>
+                                    <th class="border-0 fw-bold text-uppercase tracking-wide">Status</th>
+                                    <th class="border-0 fw-bold text-uppercase tracking-wide" style="width: 150px;">Progress</th>
+                                    <th class="text-end pe-4 border-0 fw-bold text-uppercase tracking-wide">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var app in Model)
+                                {
+                                    <tr class="premium-row">
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="fw-bolder text-primary">@(app.ApplicationId ?? "#" + app.Id.ToString("0000"))</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold text-dark text-truncate" style="max-width: 220px;">@(app.User.CompanyProfile?.CompanyName ?? app.User.CompanyName)</div>
+                                            <div class="small text-secondary d-flex align-items-center mt-1">
+                                                <i class="bi bi-envelope me-1"></i> <span class="text-truncate" style="max-width: 200px;">@app.User.Email</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold text-dark">@(app.SubmittedAt?.ToString("MMM dd, yyyy") ?? app.CreatedAt.ToString("MMM dd, yyyy"))</div>
+                                            <small class="text-secondary">@(app.SubmittedAt?.ToShortTimeString() ?? "")</small>
+                                        </td>
+                                        <td>
+                                            @switch (app.Status) {
+                                                case "Submitted":
+                                                    <span class="status-badge info">New Submission</span>
+                                                    break;
+                                                case "DocumentApproved":
+                                                    <span class="status-badge primary">Docs Verified</span>
+                                                    break;
+                                                case "ProvisionalGranted":
+                                                    <span class="status-badge warning">Provisional Grant</span>
+                                                    break;
+                                                case "FieldVerified":
+                                                    <span class="status-badge indigo">Site Inspected</span>
+                                                    break;
+                                                case "Empaneled":
+                                                    <span class="status-badge success-solid">Active (Empaneled)</span>
+                                                    break;
+                                                default:
+                                                    <span class="status-badge secondary">@app.Status</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex flex-column gap-1 pe-3">
+                                                @{
+                                                    var progress = app.Status switch {
+                                                        "Submitted" => 20,
+                                                        "DocumentApproved" => 40,
+                                                        "ProvisionalGranted" => 60,
+                                                        "FieldVerified" => 80,
+                                                        "Empaneled" => 100,
+                                                        _ => 10
+                                                    };
+                                                }
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="fw-bold text-dark" style="font-size: 0.7rem;">@progress%</small>
+                                                </div>
+                                                <div class="progress rounded-pill bg-light" style="height: 6px;">
+                                                    <div class="progress-bar rounded-pill @(progress == 100 ? "bg-success" : "bg-primary")" role="progressbar" style="width: @progress%"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <a asp-action="Details" asp-route-id="@app.Id" class="btn btn-premium-action shadow-sm rounded-pill">
+                                                Review <i class="bi bi-chevron-right ms-1" style="font-size: 0.75rem;"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    @if (!Model.Any())
+                    {
+                        <div class="empty-state-card text-center py-5 border-0">
+                            <div class="empty-state-icon mx-auto mb-4 bg-light text-muted">
+                                <i class="bi bi-inbox fs-1"></i>
+                            </div>
+                            <h4 class="fw-bolder text-dark mb-2">Queue is Empty</h4>
+                            <p class="text-secondary mx-auto mb-0" style="max-width: 350px;">There are currently no applications requiring your review. Check back later.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Premium Admin Dashboard Styles */
+    .dashboard-wrapper {
+        background-color: #f4f7f9;
+        min-height: calc(100vh - 80px);
+        margin-top: -1.5rem; 
+        padding-top: 3rem !important;
+    }
+
+    .text-gradient-dark {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .tracking-wide { letter-spacing: 0.5px; }
+    
+    /* System Badge */
+    .premium-system-badge {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .premium-system-badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.05) !important;
+    }
+    .status-indicator {
+        width: 10px; height: 10px; border-radius: 50%;
+    }
+    .status-indicator.active {
+        background-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        animation: pulse-green 2s infinite;
+    }
+    
+    @@keyframes pulse-green {
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+        70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    /* Stat Cards */
+    .premium-stat-card {
+        border-radius: 1.25rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: #ffffff;
+    }
+    .premium-stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+    }
+    .premium-icon-box {
+        width: 48px; height: 48px;
+        border-radius: 1rem;
+        display: flex; align-items: center; justify-content: center;
+    }
+    
+    .bg-primary-soft { background-color: rgba(13, 110, 253, 0.1); }
+    .bg-warning-soft { background-color: rgba(255, 193, 7, 0.15); color: #d39e00 !important; }
+    .bg-success-soft { background-color: rgba(25, 135, 84, 0.1); }
+    .bg-info-soft { background-color: rgba(13, 202, 240, 0.1); color: #087990 !important; }
+
+    /* Table Styles */
+    .premium-table-card {
+        border-radius: 1.25rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        background: #ffffff;
+        overflow: hidden;
+    }
+    .premium-table th {
+        font-size: 0.75rem;
+        padding-bottom: 1rem;
+        color: #64748b;
+    }
+    .premium-row {
+        transition: background-color 0.2s;
+    }
+    .premium-row:hover {
+        background-color: #f8fafc;
+    }
+    .premium-row td {
+        padding: 1.25rem 0.5rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .premium-row td:first-child { padding-left: 1.5rem !important; }
+    .premium-row td:last-child { padding-right: 1.5rem !important; }
+
+    /* Badges */
+    .status-badge {
+        padding: 0.4rem 1.1rem;
+        border-radius: 50rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+    .status-badge.warning { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
+    .status-badge.info { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+    .status-badge.primary { background: #dbeafe; color: #2563eb; border: 1px solid #bfdbfe; }
+    .status-badge.indigo { background: #e0e7ff; color: #4f46e5; border: 1px solid #c7d2fe; }
+    .status-badge.success-solid { background: #10b981; color: white; box-shadow: 0 4px 10px rgba(16,185,129,0.3); border: none; }
+    .status-badge.secondary { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+    /* Buttons */
+    .btn-premium-action {
+        background: white; color: #0f172a;
+        border: 1px solid #e2e8f0;
+        padding: 0.4rem 1.25rem;
+        font-size: 0.875rem; font-weight: 600;
+        transition: all 0.2s;
+    }
+    .btn-premium-action:hover { 
+        background: #0f172a; color: white; 
+        border-color: #0f172a;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(15,23,42,0.15) !important;
+    }
+
+    .empty-state-icon {
+        width: 90px; height: 90px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+    }
+</style>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const $selector = $('#admin-view-selector');
+            const $contentArea = $('#dynamic-content-area');
+            const $loader = $('#view-loader');
+            const $mainQueue = $('#main-task-queue');
+
+            $selector.on('change', function() {
+                const action = $(this).val();
+                
+                if (action === "TaskQueue") {
+                    $mainQueue.removeClass('d-none');
+                    $contentArea.find('.partial-view-container').remove();
+                    return;
+                }
+
+                // Show loader
+                $loader.removeClass('d-none').addClass('d-flex');
+                $mainQueue.addClass('d-none');
+                
+                // Remove existing partial view
+                $contentArea.find('.partial-view-container').remove();
+
+                // AJAX Load
+                $.ajax({
+                    url: '@Url.Action("Index", "Admin").Replace("/Index", "")/' + action,
+                    type: 'GET',
+                    success: function(data) {
+                        const $container = $('<div class="partial-view-container p-3 animate-fade-in"></div>').html(data);
+                        $contentArea.append($container);
+                        $loader.removeClass('d-flex').addClass('d-none');
+                    },
+                    error: function(xhr) {
+                        const errorMsg = xhr.responseText || 'Failed to load the selected view. Please try again.';
+                        alert('Error: ' + errorMsg);
+                        $loader.removeClass('d-flex').addClass('d-none');
+                        $mainQueue.removeClass('d-none');
+                        $selector.val('TaskQueue');
+                    }
+                });
+            });
+
+            // Delegate events for filters within partial views
+            $(document).on('change', '#status-filter', function() {
+                loadFilteredView('GetApplicationsList', { status: $(this).val() });
+            });
+
+            $(document).on('change', '#doc-status-filter', function() {
+                loadFilteredView('GetDocumentsList', { status: $(this).val() });
+            });
+
+            $(document).on('change', '#state-filter', function() {
+                loadFilteredView('GetInstallationsList', { state: $(this).val() });
+            });
+
+            function loadFilteredView(action, params) {
+                $loader.removeClass('d-none').addClass('d-flex');
+                $.ajax({
+                    url: '/Admin/' + action,
+                    type: 'GET',
+                    data: params,
+                    success: function(data) {
+                        $contentArea.find('.partial-view-container').html(data);
+                        $loader.removeClass('d-flex').addClass('d-none');
+                    }
+                });
+            }
+        });
+    </script>
+}
