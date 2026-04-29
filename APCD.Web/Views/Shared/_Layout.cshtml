@@ -167,6 +167,20 @@
             border-radius: 10px;
         }
 
+        /* Dropdown Submenu CSS */
+        .gov-navbar .dropdown-toggle::after {
+            display: none !important; /* Hide default Bootstrap caret */
+        }
+        .gov-navbar .dropdown-menu {
+            border-radius: 0 0 8px 8px;
+            margin-top: 0;
+            border: 1px solid rgba(0,0,0,.1);
+        }
+        .gov-navbar .dropdown-menu .dropdown-item:hover {
+            background-color: var(--gov-green);
+            color: white;
+        }
+
         /* Header Actions */
         .header-actions {
             display: flex;
@@ -355,6 +369,15 @@
                     }
                     <li class="nav-item">
                         <a class="nav-link @(controller == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            About <i class="bi bi-chevron-down ms-1" style="font-size: 0.8em; font-weight: bold;"></i>
+                        </a>
+                        <ul class="dropdown-menu border-0 shadow-sm" aria-labelledby="aboutDropdown">
+                            <li><a class="dropdown-item py-2" asp-controller="Home" asp-action="AboutScheme">About the Scheme</a></li>
+                            <li><a class="dropdown-item py-2" asp-controller="Home" asp-action="AboutNPC">About the NPC</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/#process">Process</a>

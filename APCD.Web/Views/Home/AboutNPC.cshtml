@@ -1,0 +1,223 @@
+@{
+    ViewData["Title"] = "About the NPC";
+}
+
+<style>
+    .npc-section {
+        background-color: #fafafa;
+        padding-bottom: 60px;
+        min-height: 100vh;
+    }
+    .npc-heading-container {
+        background-color: #f0f0f0;
+        padding: 20px 0;
+        margin-bottom: 40px;
+    }
+    .npc-heading {
+        font-size: 2.5rem;
+        font-weight: 300;
+        margin: 0;
+        letter-spacing: 0.5px;
+    }
+    .npc-subheading {
+        font-size: 2.2rem;
+        font-weight: 300;
+        margin-top: 45px;
+        margin-bottom: 25px;
+        letter-spacing: 0.5px;
+    }
+    .text-black-accent {
+        color: #222;
+        border-bottom: 2px solid #222;
+        padding-bottom: 4px;
+    }
+    .text-blue-accent {
+        color: #007bff; 
+    }
+    .npc-text {
+        color: #444;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        margin-bottom: 1.5rem;
+    }
+    .npc-list {
+        color: #444;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        padding-left: 20px;
+    }
+    .npc-list li {
+        margin-bottom: 12px;
+    }
+    
+    /* Timeline CSS */
+    .timeline-wrapper {
+        padding: 120px 0;
+        margin-top: 40px;
+    }
+    .timeline-line {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background-color: #d1d5db;
+        transform: translateY(-50%);
+        z-index: 0;
+    }
+    .timeline-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        height: 90px;
+    }
+    .timeline-icon {
+        width: 90px;
+        height: 90px;
+        background-color: #fff;
+        border: 2px solid #0ea5e9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: #0ea5e9;
+        z-index: 2;
+    }
+    .timeline-content {
+        position: absolute;
+        width: 140%;
+        left: -20%;
+        text-align: center;
+        font-size: 0.85rem;
+        color: #333;
+        line-height: 1.5;
+    }
+    .timeline-item.bottom-text .timeline-content {
+        top: 110px;
+    }
+    .timeline-item.top-text .timeline-content {
+        bottom: 110px;
+    }
+    @@media (max-width: 991px) {
+        .timeline-content { font-size: 0.75rem; width: 100%; left: 0; }
+        .timeline-icon { width: 70px; height: 70px; font-size: 1.8rem; }
+        .timeline-item { height: 70px; }
+        .timeline-item.bottom-text .timeline-content { top: 80px; }
+        .timeline-item.top-text .timeline-content { bottom: 80px; }
+    }
+</style>
+
+<div class="npc-section">
+    <!-- Citizen's Charter -->
+    <div class="npc-heading-container">
+        <div class="container">
+            <h1 class="npc-heading">
+                <span class="text-black-accent">Citizen's</span> <span class="text-blue-accent">Charter</span>
+            </h1>
+        </div>
+    </div>
+
+    <div class="container">
+        <p class="npc-text">
+            National Productivity Council of India (NPC), established in the year 1958, is an autonomous organization under Department for Promotion of Industry & Internal Trade, Ministry of Commerce and Industry, Government of India. Besides undertaking research in the area of productivity, NPC has been providing consultancy and training services in areas of Industrial Engineering, Agri-Business, Economic Services, Quality Management, Human Resources Management, Information Technology, Technology Management, Energy Management, Environmental Management etc., to the Government and Public & Private sector organizations. NPC is a constituent of the Tokyo-based Asian Productivity Organisation (APO), an Inter-Governmental Body of which the Government of India is a founding member.
+        </p>
+
+        <!-- Vision -->
+        <h2 class="npc-subheading">
+            <span class="text-black-accent">Visi</span><span class="text-blue-accent">on</span>
+        </h2>
+        <p class="npc-text">
+            NPC to be the knowledge leader in productivity to provide state of our services to the Indian economy to become globally competitive.
+        </p>
+
+        <!-- Mission -->
+        <h2 class="npc-subheading">
+            <span class="text-black-accent">Miss</span><span class="text-blue-accent">ion</span>
+        </h2>
+        <p class="npc-text">
+            Contribute to the sustainable, inclusive socioeconomic development of the country by enhancing productivity.
+        </p>
+
+        <!-- Objectives -->
+        <h2 class="npc-subheading">
+            <span class="text-black-accent">Obje</span><span class="text-blue-accent">ctives</span>
+        </h2>
+        <ul class="npc-list">
+            <li>To promote innovation - led productivity in a sustained manner in all spheres of national economy through holistic and inclusive approach by addressing the triple bottom line – Economic, Environmental and Social.</li>
+            <li>To propagate productivity consciousness and culture amongst Govt., Business and Society.</li>
+            <li>To demonstrate value addition through generation and application of advanced productivity tools and techniques for multiplier effect.</li>
+            <li>To act as a total solution provider for Industry, Services, and Agriculture sectors for augmenting productivity through Training, Consultancy and Research wherever needed through alliances and partnerships</li>
+            <li>To act as a catalyst in institution building and developing platforms for collaborative networking to strengthen the productivity movement.</li>
+            <li>To act as a think tank by providing productivity related evidence based policy support and advice in while tracking the emerging trends.</li>
+            <li>To be an independent oversight entity for various national programs, schemes and interventions.</li>
+            <li>To recognize productivity champions through awards, affiliations, certifications, accreditations etc.</li>
+            <li>To enhance international outreach for sharing the gains of productivity on mutual basis.</li>
+            <li>To be repository of productivity and competitiveness data across all sectors at the state and national level.</li>
+            <li>To devise national productivity standards across all sectors and self assessment web based measurement tools for productivity diagnosis.</li>
+        </ul>
+
+        <!-- Activities Timeline -->
+        <div class="mt-5 pt-4">
+            <h2 class="npc-subheading">
+                <span class="text-black-accent">Acti</span><span class="text-blue-accent">vities</span>
+            </h2>
+
+            <div class="timeline-wrapper position-relative overflow-hidden">
+                <!-- Horizontal Line -->
+                <div class="timeline-line"></div>
+                
+                <div class="row g-0 position-relative z-1">
+                    <!-- Node 1 -->
+                    <div class="col-2 timeline-item bottom-text">
+                        <div class="timeline-icon">
+                            <i class="bi bi-person-gear"></i>
+                        </div>
+                        <div class="timeline-content">To Stimulate and Promote<br>Productivity Consciousness</div>
+                    </div>
+                    
+                    <!-- Node 2 -->
+                    <div class="col-2 timeline-item top-text">
+                        <div class="timeline-icon">
+                            <i class="bi bi-person-workspace"></i>
+                        </div>
+                        <div class="timeline-content">To provide consultancy<br>services to increase<br>productivity</div>
+                    </div>
+                    
+                    <!-- Node 3 -->
+                    <div class="col-2 timeline-item bottom-text">
+                        <div class="timeline-icon">
+                            <i class="bi bi-graph-up-arrow"></i>
+                        </div>
+                        <div class="timeline-content">To undertake research in<br>productivity areas and<br>maintain database of<br>productivity</div>
+                    </div>
+                    
+                    <!-- Node 4 -->
+                    <div class="col-2 timeline-item top-text">
+                        <div class="timeline-icon">
+                            <i class="bi bi-card-checklist"></i>
+                        </div>
+                        <div class="timeline-content">To undertake preparation<br>& Implementation of<br>projects/schemes of Public<br>& private Sector.</div>
+                    </div>
+                    
+                    <!-- Node 5 -->
+                    <div class="col-2 timeline-item bottom-text">
+                        <div class="timeline-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div class="timeline-content">To facilitate strengthening<br>of regional/local and<br>sector-wise productivity<br>organizations</div>
+                    </div>
+                    
+                    <!-- Node 6 -->
+                    <div class="col-2 timeline-item top-text">
+                        <div class="timeline-icon">
+                            <i class="bi bi-pc-display"></i>
+                        </div>
+                        <div class="timeline-content">Promotion of IT enabled<br>services and e-<br>Governance</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -11,6 +11,16 @@ public class HomeController : Controller
         return View();
     }
 
+    public IActionResult AboutScheme()
+    {
+        return View();
+    }
+
+    public IActionResult AboutNPC()
+    {
+        return View();
+    }
+
     public IActionResult Privacy()
     {
         return View();
