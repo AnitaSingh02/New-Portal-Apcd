@@ -2,6 +2,7 @@
 @using System.Security.Claims
 @{
     ViewData["Title"] = "Admin Dashboard";
+    ViewData["HideHeaderFooter"] = true;
     var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
     var adminName = User.Identity?.Name?.Split('@')[0] ?? "Admin";
     // Capitalize first letter
@@ -24,10 +25,10 @@
     /* Layout */
     .admin-layout {
         display: flex;
-        min-height: calc(100vh - 75px);
-        margin-top: -1.5rem; /* Offset layout top margin */
+        height: 100vh;
         font-family: 'Inter', sans-serif;
         background-color: #f4f7f9;
+        overflow: hidden;
     }
     
     /* Sidebar */
@@ -36,6 +37,8 @@
         background: white;
         flex-shrink: 0;
         border-right: 1px solid #e9ecef;
+        height: 100vh;
+        overflow-y: auto;
     }
     
     .sidebar-nav .nav-link {
@@ -54,15 +57,16 @@
     }
     
     .sidebar-nav .nav-link.active {
-        background-color: var(--primary-blue);
-        color: white;
-        box-shadow: 0 4px 10px rgba(31, 94, 59, 0.2);
+        background-color: rgba(31, 94, 59, 0.1);
+        color: #1f5e3b;
+        font-weight: 600;
     }
     
     /* Main Content */
     .admin-main {
         flex-grow: 1;
         padding: 2.5rem;
+        height: 100vh;
         overflow-y: auto;
     }
     
@@ -114,6 +118,19 @@
                 <i class="bi bi-shield-check me-2"></i>Admin Panel
             </h5>
         </div>
+        
+        <!-- Dashboard & Logout Actions -->
+        <div class="p-3 border-bottom d-flex gap-2 bg-light bg-opacity-50">
+            <a class="btn btn-sm text-white w-100 d-flex align-items-center justify-content-center fw-bold rounded-3 shadow-sm" style="background-color: #1f5e3b;" asp-controller="Dashboard" asp-action="Index">
+                <i class="fa-solid fa-gauge-high me-2"></i> Dashboard
+            </a>
+            <form asp-controller="Auth" asp-action="Logout" method="post" class="m-0 p-0">
+                <button type="submit" class="btn btn-sm btn-white border d-flex align-items-center justify-content-center rounded-3 shadow-sm bg-white hover-elevate transition-all" title="Sign out" style="width: 36px; height: 36px;">
+                    <i class="fa-solid fa-power-off text-danger"></i>
+                </button>
+            </form>
+        </div>
+
         <div class="p-3 flex-grow-1">
             <ul class="nav flex-column sidebar-nav" id="admin-sidebar-nav">
                 <li class="nav-item">
