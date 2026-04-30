@@ -129,42 +129,25 @@
         .gov-navbar .nav-link {
             color: rgba(255, 255, 255, 0.9) !important;
             font-weight: 600;
-            padding: 14px 24px !important;
-            transition: all 0.3s;
+            padding: 10px 20px !important;
+            margin: 6px 4px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.8px;
-            position: relative;
-        }
-        
-        .gov-navbar .nav-link:after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 3px;
-            background: #ffffff;
-            transition: all 0.3s;
-            transform: translateX(-50%);
         }
 
         .gov-navbar .nav-link:hover {
             color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.15) !important;
         }
         
         .gov-navbar .nav-link.active {
-            color: #ffffff !important;
+            color: var(--gov-green) !important;
             font-weight: 700;
-            background: rgba(255,255,255,0.08) !important;
-        }
-
-        .gov-navbar .nav-link.active:after {
-            width: 40px;
-            height: 4px;
-            background: #ffffff;
-            bottom: 4px;
-            border-radius: 10px;
+            background: #ffffff !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
         }
 
         /* Dropdown Submenu CSS */
@@ -366,12 +349,13 @@
                 <ul class="navbar-nav w-100 justify-content-start">
                     @{
                         var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+                        var action = ViewContext.RouteData.Values["action"]?.ToString();
                     }
                     <li class="nav-item">
-                        <a class="nav-link @(controller == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Home</a>
+                        <a class="nav-link @(controller == "Home" && action == "Index" ? "active" : "")" asp-controller="Home" asp-action="Index">Home</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center @(controller == "Home" && (action == "AboutNPC" || action == "AboutScheme") ? "active" : "")" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             About <i class="bi bi-chevron-down ms-1" style="font-size: 0.8em; font-weight: bold;"></i>
                         </a>
                         <ul class="dropdown-menu border-0 shadow-sm" aria-labelledby="aboutDropdown">

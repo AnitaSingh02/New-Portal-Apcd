@@ -6,43 +6,41 @@
     <link rel="stylesheet" href="~/css/apcd-categories.css" asp-append-version="true" />
 }
 <style>
-    .hero-wrapper{
-    background:#ffffff;
-    padding:80px 0;
-}
+    .hero-wrapper {
+        background: #ffffff;
+        padding: 80px 0;
+    }
 
-.hero-content{
-    padding-left:6%;
-    padding-right:4%;
-}
+    .hero-content {
+        /* Standardized via bootstrap grid, removed manual percentages */
+    }
 
-.hero-title{
-    font-size:2.8rem;
-    line-height:1.2;
-    font-weight:800;
-    color:#222;
-    max-width:700px;
-}
+    .hero-title {
+        font-size: 2.8rem;
+        line-height: 1.25;
+        font-weight: 800;
+        color: #222222;
+        max-width: 700px;
+    }
 
-.hero-title span.text-highlight {
-    color: var(--gov-green);
-    border: none !important;
-    outline: none !important;
-}
+    .hero-title span.text-highlight {
+        color: var(--gov-green);
+        border: none !important;
+        outline: none !important;
+    }
 
-.hero-img-container{
-    position:relative;
-    padding-right:4%;
-}
+    .hero-img-container {
+        position: relative;
+    }
 
-.hero-img{
-    width:100%;
-    height:auto;
-    max-height:500px;
-    object-fit:cover;
-    border-radius:8px;
-    border: 1px solid #e5e5e5;
-}
+    .hero-img {
+        width: 100%;
+        height: auto;
+        max-height: 500px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #e5e5e5;
+    }
 
 .btn-primary-custom{
     background: var(--gov-green);
@@ -84,67 +82,6 @@
 
     .display-4 {
         font-size: 38px;
-    }
-
-    .pricing-section {
-        background: #fcfdfc;
-    }
-
-    .fee-card {
-        background: white;
-        border-radius: 14px;
-        padding: 35px 25px;
-        transition: all .3s ease;
-        border: 1px solid #e6e6e6;
-        height: 100%;
-    }
-
-        .fee-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
-        }
-
-    .fee-icon {
-        font-size: 32px;
-        color: var(--gov-green);
-        margin-bottom: 15px;
-    }
-
-    .fee-title {
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 13px;
-        color: #6c757d;
-    }
-
-    .fee-price {
-        font-size: 38px;
-        font-weight: 700;
-        color: var(--gov-green);
-        margin: 15px 0;
-    }
-
-    .fee-list {
-        list-style: none;
-        padding: 0;
-        margin-top: 20px;
-        text-align: left;
-    }
-
-        .fee-list li {
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .fee-list i {
-            margin-right: 6px;
-        }
-
-    /* Highlight card */
-    .highlight {
-        border: 2px solid var(--gov-green);
-        transform: scale(1.03);
-        box-shadow: 0 12px 35px rgba(31,94,59,0.15);
     }
 
     /* ============================= */
@@ -500,17 +437,105 @@
     }
 </style>
 
+<style>
+    /* Marquee Notification Bar */
+    .marquee-container {
+        width: 100%;
+        background-color: #fffbeb; /* Soft light yellow highlight */
+        color: #1f2937; /* Dark readable text */
+        padding: 10px 0;
+        overflow: hidden;
+        white-space: nowrap;
+        position: relative;
+        box-shadow: inset 0 -1px 0 rgba(245, 158, 11, 0.2), 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+    }
+    
+    .marquee-content {
+        display: inline-block;
+        animation: marquee 25s linear infinite;
+        padding-left: 100%; /* Start off-screen */
+    }
+    
+    .marquee-container:hover .marquee-content {
+        animation-play-state: paused;
+    }
+    
+    @@keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-100%); }
+    }
+    
+    .marquee-item {
+        display: inline-flex;
+        align-items: center;
+        color: #111827; /* Near black for high contrast */
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.95rem;
+        margin: 0 15px;
+        transition: all 0.2s ease;
+    }
+    
+    .marquee-item:hover {
+        color: var(--gov-green); /* Dark green on hover */
+        text-decoration: none;
+        text-shadow: 0 0 8px rgba(31, 94, 59, 0.15);
+    }
+    
+    .marquee-badge {
+        background-color: #f59e0b; /* Bright amber/orange */
+        color: #ffffff;
+        font-size: 0.7rem;
+        font-weight: 800;
+        padding: 3px 10px;
+        border-radius: 12px;
+        margin-right: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        animation: gentlePulseMarquee 2s infinite;
+        vertical-align: middle;
+        box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+    }
+
+    @@keyframes gentlePulseMarquee {
+        0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6); }
+        50% { opacity: 0.9; box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+    }
+    
+    .marquee-separator {
+        color: #d1d5db; /* Light gray separator */
+        font-weight: bold;
+        margin: 0 10px;
+    }
+</style>
+
+<!-- Marquee Notification Bar -->
+<div class="marquee-container">
+    <div class="marquee-content">
+        <span class="marquee-badge">IMPORTANT</span>
+        <a asp-controller="Auth" asp-action="Register" class="marquee-item">
+            Apply for Empanelment <i class="bi bi-arrow-right-circle-fill ms-2"></i>
+        </a>
+        <span class="marquee-separator">|</span>
+        <a href="#" class="marquee-item">
+            <i class="bi bi-search me-2"></i> View Empanelled OEMs
+        </a>
+    </div>
+</div>
+
 <!-- Hero Section -->
 <section class="hero-wrapper">
-    <div class="container-fluid">
-        <div class="row align-items-center">
+    <div class="container">
+        <div class="row align-items-center g-5">
 
             <!-- LEFT CONTENT -->
             <div class="col-lg-6 hero-content">
                 <h1 class="hero-title">
-                    Empanelment of <span class="text-highlight">Original Equipment Manufacturers</span> (OEMs)
-                    of Air Pollution Control Devices (APCDs) for
-                    Installation / Upgradation in Industrial Units in Delhi – NCR
+                    Empanelment of Original Equipment Manufacturers (OEMs)
+                    of Air Pollution Control Devices (APCDs)
                 </h1>
 
                 <div class="d-flex gap-3 mt-4">
@@ -525,189 +550,261 @@
             </div>
 
             <!-- RIGHT IMAGE -->
-            <div class="col-lg-6 hero-img-container">
+            <div class="col-lg-6 hero-img-container text-center">
                 <img src="~/images/hero.png" alt="Industrial Plant" class="hero-img">
             </div>
 
         </div>
     </div>
 </section>
+
+
 <!-- Our Objectives -->
 <section class="objectives-section">
-    <div class="container py-4">
-        <div class="section-head text-center mb-5">
-            <h2>Objectives</h2>
-            <p class="mx-auto" style="max-width: 700px;">The broad objective of the study is to undertake the empanelment of Origin Equipment Manufacturers (OEMs) of Air Pollution Control Device (APCD) with respect to industrial units in Delhi NCR by National Productivity Council (NPC).</p>
-            <p class="mx-auto" style="max-width: 700px;">This process ensures that only credible, technically competent,and compliant OEMs are recognized, thereby supporting effective implementation of air pollution control measures in industries acreoss the country.</p>
+    <div class="container py-5">
+        <div class="section-head text-center mb-5 animate-fade-up">
+            <h2 class="display-5 fw-bold text-dark">Objectives</h2>
+            <div class="mx-auto rounded-pill mb-4" style="width: 80px; height: 4px; background: var(--gov-green); opacity: 0.7;"></div>
+            
+            <p class="mx-auto text-muted mb-3" style="max-width: 900px; font-size: 1.05rem; line-height: 1.6;">
+                The broad objective of the study is to undertake the empanelment of Origin Equipment Manufacturers (OEMs) of Air Pollution Control Device (APCD) with respect to industrial units in Delhi NCR by National Productivity Council (NPC).
+            </p>
+            <p class="mx-auto text-muted" style="max-width: 900px; font-size: 1.05rem; line-height: 1.6;">
+                This process ensures that only credible, technically competent,and compliant OEMs are recognized, thereby supporting effective implementation of air pollution control measures in industries acreoss the country.
+            </p>
         </div>
-       
     </div>
 </section>
+
+<!-- Eligibility Criteria Section -->
+<section id="eligibility" class="py-5 bg-white overflow-hidden">
+    <div class="container py-5">
+        <div class="section-head text-center mb-5 animate-fade-up">
+            <h2 class="display-5 fw-bold text-dark">Eligibility Criteria (Key Highlights)</h2>
+            <div class="mx-auto rounded-pill mb-4" style="width: 80px; height: 4px; background: var(--gov-green); opacity: 0.7;"></div>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <!-- 1. Registered Entity -->
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="eligibility-card h-100 p-4 rounded-4 shadow-sm border-0 d-flex align-items-center">
+                    <div class="eligibility-icon-wrapper rounded-circle shadow-sm d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 55px; height: 55px; background: #e8f5e9; color: var(--gov-green);">
+                        <i class="bi bi-building fs-4"></i>
+                    </div>
+                    <div>
+                        <p class="mb-0 text-dark fw-semibold lh-base" style="font-size: 1.05rem;">Be a registered legal entity</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Experience -->
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="eligibility-card h-100 p-4 rounded-4 shadow-sm border-0 d-flex align-items-center">
+                    <div class="eligibility-icon-wrapper rounded-circle shadow-sm d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 55px; height: 55px; background: #e8f5e9; color: var(--gov-green);">
+                        <i class="bi bi-clock-history fs-4"></i>
+                    </div>
+                    <div>
+                        <p class="mb-0 text-dark fw-semibold lh-base" style="font-size: 1.05rem;">Have minimum 3 years’ experience in APCD manufacturing</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Installations -->
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="eligibility-card h-100 p-4 rounded-4 shadow-sm border-0 d-flex align-items-center">
+                    <div class="eligibility-icon-wrapper rounded-circle shadow-sm d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 55px; height: 55px; background: #e8f5e9; color: var(--gov-green);">
+                        <i class="bi bi-buildings fs-4"></i>
+                    </div>
+                    <div>
+                        <p class="mb-0 text-dark fw-semibold lh-base" style="font-size: 1.05rem;">Provide proof of minimum 3 operational installations in last 5 years (as per revised SOP)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Technical Team -->
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="eligibility-card h-100 p-4 rounded-4 shadow-sm border-0 d-flex align-items-center">
+                    <div class="eligibility-icon-wrapper rounded-circle shadow-sm d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 55px; height: 55px; background: #e8f5e9; color: var(--gov-green);">
+                        <i class="bi bi-people-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <p class="mb-0 text-dark fw-semibold lh-base" style="font-size: 1.05rem;">Possess technical team and infrastructure</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. ISO Certifications -->
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="eligibility-card h-100 p-4 rounded-4 shadow-sm border-0 d-flex align-items-center">
+                    <div class="eligibility-icon-wrapper rounded-circle shadow-sm d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 55px; height: 55px; background: #e8f5e9; color: var(--gov-green);">
+                        <i class="bi bi-patch-check-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <p class="mb-0 text-dark fw-semibold lh-base" style="font-size: 1.05rem;">Hold ISO certifications (ISO 9001 / 14001)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Financial Stability -->
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="eligibility-card h-100 p-4 rounded-4 shadow-sm border-0 d-flex align-items-center">
+                    <div class="eligibility-icon-wrapper rounded-circle shadow-sm d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 55px; height: 55px; background: #e8f5e9; color: var(--gov-green);">
+                        <i class="bi bi-shield-check fs-4"></i>
+                    </div>
+                    <div>
+                        <p class="mb-0 text-dark fw-semibold lh-base" style="font-size: 1.05rem;">Have financial stability and no blacklisting history</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .eligibility-card {
+        background-color: #fcfdfc;
+        border: 1px solid #eef2f0 !important;
+        transition: all 0.3s ease;
+    }
+    .eligibility-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(31, 94, 59, 0.08) !important;
+        border-color: var(--gov-green) !important;
+        background-color: #ffffff;
+    }
+    .eligibility-icon-wrapper {
+        transition: all 0.3s ease;
+    }
+    .eligibility-card:hover .eligibility-icon-wrapper {
+        background: var(--gov-green) !important;
+        color: #ffffff !important;
+        transform: scale(1.1);
+    }
+</style>
 
 <!-- Process Timeline Redesigned -->
 <section id="process" class="py-5 bg-white overflow-hidden">
     <div class="container py-5">
         <div class="section-head text-center mb-5 animate-fade-up">
-            <span class="section-tag" style="background: rgba(31, 94, 59, 0.1); color: var(--gov-green); padding: 5px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">Step-by-Step</span>
-            <h2 class="display-5 fw-bold text-dark mt-3">Empanelment Process of OEMs</h2>
+            <h2 class="display-5 fw-bold text-dark">Empanelment Process of OEMs</h2>
+            <div class="mx-auto rounded-pill mb-4" style="width: 80px; height: 4px; background: var(--gov-green); opacity: 0.7;"></div>
         </div>
 
-        <div class="journey-timeline position-relative">
-            <!-- Central Line -->
-            <div class="timeline-central-line d-none d-lg-block"></div>
+        <div class="stepper-wrapper">
+            <div class="row g-4 stepper-row">
+                <!-- Step 01 -->
+                <div class="col-lg-3 col-md-6 col-12 step-col">
+                    <div class="step-card">
+                        <div class="step-header">
+                            <div class="step-icon">
+                                <i class="bi bi-person-plus-fill"></i>
+                            </div>
+                            <div class="step-number">01</div>
+                        </div>
+                        <h4 class="step-title">OEM Registration</h4>
+                        <p class="step-desc">Create your account with basic company profile and contact information to start the registration process.</p>
+                    </div>
+                </div>
 
-            <!-- Step 01 -->
-            <div class="journey-item row g-0 align-items-center mb-5">
-                <div class="col-lg-5 journey-card-container order-2 order-lg-1">
-                    <div class="journey-card left-card shadow-sm border-0 rounded-4 p-4 bg-white animate-fade-right">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="step-num-pill me-3">01</div>
-                            <h4 class="mb-0 fw-bold">OEM Registration</h4>
+                <!-- Step 02 -->
+                <div class="col-lg-3 col-md-6 col-12 step-col">
+                    <div class="step-card">
+                        <div class="step-header">
+                            <div class="step-icon">
+                                <i class="bi bi-file-earmark-arrow-up-fill"></i>
+                            </div>
+                            <div class="step-number">02</div>
                         </div>
-                        <p class="text-muted mb-0 small">Create your account with basic company profile and contact information to start the registration process.</p>
+                        <h4 class="step-title">Application Submission</h4>
+                        <p class="step-desc">OEMs submit online applications with technial,financial and legal documents.</p>
                     </div>
                 </div>
-                <div class="col-lg-2 d-none d-lg-flex justify-content-center order-lg-2">
-                    <div class="journey-icon-marker bg-white shadow-sm">
-                        <i class="bi bi-person-plus-fill"></i>
-                    </div>
-                </div>
-                <div class="col-lg-5 order-3 order-lg-3"></div>
-            </div>
 
-            <!-- Step 02 -->
-            <div class="journey-item row g-0 align-items-center mb-5">
-                <div class="col-lg-5 order-lg-1"></div>
-                <div class="col-lg-2 d-none d-lg-flex justify-content-center order-lg-2">
-                    <div class="journey-icon-marker bg-white shadow-sm">
-                        <i class="bi bi-file-earmark-arrow-up-fill"></i>
-                    </div>
-                </div>
-                <div class="col-lg-5 journey-card-container order-2 order-lg-3">
-                    <div class="journey-card right-card shadow-sm border-0 rounded-4 p-4 bg-white animate-fade-left">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="step-num-pill me-3">02</div>
-                            <h4 class="mb-0 fw-bold">Application Submission</h4>
+                <!-- Step 03 -->
+                <div class="col-lg-3 col-md-6 col-12 step-col">
+                    <div class="step-card">
+                        <div class="step-header">
+                            <div class="step-icon">
+                                <i class="bi bi-search"></i>
+                            </div>
+                            <div class="step-number">03</div>
                         </div>
-                        <p class="text-muted mb-0 small">OEMs submit online applications with technial,financial and legal documents.</p>
+                        <h4 class="step-title">Screening</h4>
+                        <p class="step-desc">Applications are screened within 7 days for eligibility and completeness.</p>
                     </div>
                 </div>
-            </div>
-            <!-- Step 03 -->
-            <div class="journey-item row g-0 align-items-center mb-5">
-                <div class="col-lg-5 order-lg-1"></div>
-                <div class="col-lg-2 d-none d-lg-flex justify-content-center order-lg-2">
-                    <div class="journey-icon-marker bg-white shadow-sm">
-                        <i class="bi bi-file-earmark-arrow-up-fill"></i>
-                    </div>
-                </div>
-                <div class="col-lg-5 journey-card-container order-2 order-lg-3">
-                    <div class="journey-card right-card shadow-sm border-0 rounded-4 p-4 bg-white animate-fade-left">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="step-num-pill me-3">03</div>
-                            <h4 class="mb-0 fw-bold">Screening</h4>
-                        </div>
-                        <p class="text-muted mb-0 small">Applications are screened within 7 days for eligibility and completeness.</p>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Step 04 -->
-            <div class="journey-item row g-0 align-items-center mb-5">
-                <div class="col-lg-5 journey-card-container order-2 order-lg-1">
-                    <div class="journey-card left-card shadow-sm border-0 rounded-4 p-4 bg-white animate-fade-right">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="step-num-pill me-3">04</div>
-                            <h4 class="mb-0 fw-bold">Technical Evaluation</h4>
+                <!-- Step 04 -->
+                <div class="col-lg-3 col-md-6 col-12 step-col">
+                    <div class="step-card">
+                        <div class="step-header">
+                            <div class="step-icon">
+                                <i class="bi bi-gear-fill"></i>
+                            </div>
+                            <div class="step-number">04</div>
                         </div>
-                        <p class="text-muted mb-0 small">Assesment based on:<ul><li>Design Specification</li><li>Previous Experience(last 3 years)</li></ul></p>
+                        <h4 class="step-title">Technical Evaluation</h4>
+                        <div class="step-desc">Assesment based on:<ul><li>Design Specification</li><li>Previous Experience(last 3 years)</li></ul></div>
                     </div>
                 </div>
-                <div class="col-lg-2 d-none d-lg-flex justify-content-center order-lg-2">
-                    <div class="journey-icon-marker bg-white shadow-sm">
-                        <i class="bi bi-people-fill"></i>
-                    </div>
-                </div>
-                <div class="col-lg-5 order-lg-3"></div>
-            </div>
 
-            <!-- Step 05 -->
-            <div class="journey-item row g-0 align-items-center mb-5">
-                <div class="col-lg-5 order-lg-1"></div>
-                <div class="col-lg-2 d-none d-lg-flex justify-content-center order-lg-2">
-                    <div class="journey-icon-marker bg-white shadow-sm">
-                        <i class="bi bi-search"></i>
-                    </div>
-                </div>
-                <div class="col-lg-5 journey-card-container order-2 order-lg-3">
-                    <div class="journey-card right-card shadow-sm border-0 rounded-4 p-4 bg-white animate-fade-left">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="step-num-pill me-3">05</div>
-                            <h4 class="mb-0 fw-bold">Field Verification</h4>
+                <!-- Step 05 -->
+                <div class="col-lg-3 col-md-6 col-12 step-col">
+                    <div class="step-card">
+                        <div class="step-header">
+                            <div class="step-icon">
+                                <i class="bi bi-geo-alt-fill"></i>
+                            </div>
+                            <div class="step-number">05</div>
                         </div>
-                        <p class="text-muted mb-0 small">On site inspection of installed APCDs to verify:<ul><li>Performance</li><li>Design Capacity</li><li>Operational Effectiveness</li></ul></p>
+                        <h4 class="step-title">Field Verification</h4>
+                        <div class="step-desc">On site inspection of installed APCDs to verify:<ul><li>Performance</li><li>Design Capacity</li><li>Operational Effectiveness</li></ul></div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Step 06 -->
-            <div class="journey-item row g-0 align-items-center mb-5">
-                <div class="col-lg-5 journey-card-container order-2 order-lg-1">
-                    <div class="journey-card left-card shadow-sm border-0 rounded-4 p-4 bg-white animate-fade-right">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="step-num-pill me-3">06</div>
-                            <h4 class="mb-0 fw-bold">Committee Review</h4>
+                <!-- Step 06 -->
+                <div class="col-lg-3 col-md-6 col-12 step-col">
+                    <div class="step-card">
+                        <div class="step-header">
+                            <div class="step-icon">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                            <div class="step-number">06</div>
                         </div>
-                        <p class="text-muted mb-0 small">Evaluation Committee review applicatory and recommends:<ul><li>Performe Empanalement Approval</li><li>Rejection</li></ul></p>
+                        <h4 class="step-title">Committee Review</h4>
+                        <div class="step-desc">Evaluation Committee review applicatory and recommends:<ul><li>Performe Empanalement Approval</li><li>Rejection</li></ul></div>
                     </div>
                 </div>
-                <div class="col-lg-2 d-none d-lg-flex justify-content-center order-lg-2">
-                    <div class="journey-icon-marker bg-white shadow-sm">
-                        <i class="bi bi-clipboard-check-fill"></i>
-                    </div>
-                </div>
-                <div class="col-lg-5 order-lg-3"></div>
-            </div>
 
-            <!-- Step 07 -->
-            <div class="journey-item row g-0 align-items-center mb-5">
-                <div class="col-lg-5 order-lg-1"></div>
-                <div class="col-lg-2 d-none d-lg-flex justify-content-center order-lg-2">
-                    <div class="journey-icon-marker bg-white shadow-sm last">
-                        <i class="bi bi-award-fill"></i>
+                <!-- Step 07 -->
+                <div class="col-lg-3 col-md-6 col-12 step-col">
+                    <div class="step-card">
+                        <div class="step-header">
+                            <div class="step-icon">
+                                <i class="bi bi-patch-check-fill"></i>
+                            </div>
+                            <div class="step-number">07</div>
+                        </div>
+                        <h4 class="step-title">Empanelment</h4>
+                        <div class="step-desc">Approved OEMs receive:<ul><li>Empanelment Certificate</li><li>Unique Empanelment ID</li><li>Listing on NPC portal</li></ul></div>
                     </div>
                 </div>
-                <div class="col-lg-5 journey-card-container order-2 order-lg-3">
-                    <div class="journey-card right-card shadow-sm border-0 rounded-4 p-4 bg-white animate-fade-left">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="step-num-pill me-3">07</div>
-                            <h4 class="mb-0 fw-bold">Empanelment</h4>
+
+                <!-- Step 08 -->
+                <div class="col-lg-3 col-md-6 col-12 step-col">
+                    <div class="step-card">
+                        <div class="step-header">
+                            <div class="step-icon">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </div>
+                            <div class="step-number">08</div>
                         </div>
-                        <p class="text-muted mb-0 small">Approved OEMs receive:<ul><li>Empanelment Certificate</li><li>Unique Empanelment ID</li><li>Listing on NPC portal</li></ul></p>
+                        <h4 class="step-title">Monitoring & Renewal</h4>
+                        <div class="step-desc"><ul><li>Validity: 2 years</li><li>Renewal based on performance</li><li>Survillance inspections and audit conducted</li></ul></div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Step 08 -->
-        <div class="journey-item row g-0 align-items-center mb-5">
-            <div class="col-lg-5 order-lg-1"></div>
-            <div class="col-lg-2 d-none d-lg-flex justify-content-center order-lg-2">
-                <div class="journey-icon-marker bg-white shadow-sm last">
-                    <i class="bi bi-award-fill"></i>
-                </div>
-            </div>
-            <div class="col-lg-5 journey-card-container order-2 order-lg-3">
-                <div class="journey-card right-card shadow-sm border-0 rounded-4 p-4 bg-white animate-fade-left">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="step-num-pill me-3">08</div>
-                        <h4 class="mb-0 fw-bold">Monitoring & Renewal</h4>
-                    </div>
-                    <p class="text-muted mb-0 small"><ul><li>Validity: 2 years</li><li>Renewal based on performance</li><li>Survillance inspections and audit conducted</li></ul></p>
-                </div>
-            </div>
-        </div>
-    </div>
-
 
         <div class="text-center mt-5">
             <a href="~/documents/empanelment-guidelines.pdf" download class="btn-download-premium shadow-sm">
@@ -718,54 +815,78 @@
 </section>
 
 <style>
-    .journey-timeline { padding: 30px 0; }
-    .timeline-central-line {
-        position: absolute;
-        left: 50%;
-        top: 0;
-        bottom: 0;
-        width: 3px;
-        background: linear-gradient(to bottom, #f0f0f0, var(--gov-green), #f0f0f0);
-        transform: translateX(-50%);
-        opacity: 0.3;
+    /* Modern Stepper Layout */
+    .stepper-wrapper {
+        position: relative;
+        padding: 20px 0;
     }
-    .journey-icon-marker {
-        width: 60px;
-        height: 60px;
+    .step-card {
+        background: #ffffff;
+        border: 1px solid #eef2f0;
+        border-radius: 12px;
+        padding: 25px;
+        height: 100%;
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 2;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    }
+    .step-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(31, 94, 59, 0.1);
+        border-color: var(--gov-green);
+    }
+    .step-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    .step-icon {
+        width: 50px;
+        height: 50px;
+        background: #f0f7f3;
+        color: var(--gov-green);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.5rem;
-        color: var(--gov-green);
-        border: 4px solid #fff;
-        z-index: 5;
         transition: all 0.3s ease;
     }
-    .journey-item:hover .journey-icon-marker {
+    .step-card:hover .step-icon {
         background: var(--gov-green);
-        color: #fff;
+        color: #ffffff;
         transform: scale(1.1);
     }
-    .journey-card {
-        border: 1px solid #f0f0f0 !important;
-        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-        position: relative;
-    }
-    .journey-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 45px rgba(0,0,0,0.08) !important;
-        border-color: var(--gov-green) !important;
-    }
-    .step-num-pill {
-        background: rgba(31, 94, 59, 0.08);
-        color: var(--gov-green);
-        padding: 4px 12px;
-        border-radius: 10px;
+    .step-number {
+        font-size: 1.5rem;
         font-weight: 800;
-        font-size: 0.85rem;
-        letter-spacing: 1px;
+        color: #e2e8f0;
+        transition: color 0.3s ease;
     }
+    .step-card:hover .step-number {
+        color: var(--gov-green);
+        opacity: 0.3;
+    }
+    .step-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 10px;
+    }
+    .step-desc {
+        color: #718096;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 0;
+    }
+    .step-desc ul {
+        padding-left: 1.2rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0;
+    }
+
     .btn-download-premium {
         display: inline-flex;
         align-items: center;
@@ -785,44 +906,243 @@
         box-shadow: 0 8px 25px rgba(31, 94, 59, 0.2);
     }
 
-    /* Directional Arrows for Cards on Desktop */
-    @@media (min-width: 992px) {
-        .left-card::after {
-            content: "";
-            position: absolute;
-            right: -10px;
-            top: 50%;
-            transform: translateY(-50%) rotate(45deg);
-            width: 20px;
-            height: 20px;
-            background: white;
-            border-right: 1px solid #f0f0f0;
-            border-top: 1px solid #f0f0f0;
+    /* Connecting Lines */
+    @@media (min-width: 992px) { /* Desktop */
+        .step-col {
+            position: relative;
         }
-        .right-card::after {
-            content: "";
+        .step-col:not(:nth-child(4n))::after {
+            content: '';
             position: absolute;
-            left: -10px;
-            top: 50%;
-            transform: translateY(-50%) rotate(45deg);
-            width: 20px;
-            height: 20px;
-            background: white;
-            border-left: 1px solid #f0f0f0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .journey-card:hover::after {
-            border-color: var(--gov-green);
+            top: 50px; /* Middle of header */
+            right: -12px; /* Half of gap */
+            width: 24px;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: 1;
         }
     }
-
-    @@media (max-width: 991px) {
-        .journey-card { margin: 10px 0; }
-        .journey-item { margin-bottom: 40px !important; }
+    @@media (min-width: 768px) and (max-width: 991px) { /* Tablet */
+        .step-col {
+            position: relative;
+        }
+        .step-col:not(:nth-child(2n))::after {
+            content: '';
+            position: absolute;
+            top: 50px;
+            right: -12px;
+            width: 24px;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: 1;
+        }
+    }
+    @@media (max-width: 767px) { /* Mobile Vertical Stepper */
+        .stepper-row {
+            position: relative;
+        }
+        .stepper-row::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            bottom: 20px;
+            left: 50px; /* Aligns with icons assuming left padding */
+            width: 2px;
+            background: #e2e8f0;
+            z-index: 0;
+        }
     }
 </style>
 
+<!-- Methodology Section -->
+<section id="methodology" class="py-5 overflow-hidden" style="background-color: #f8fafc;">
+    <div class="container py-5">
+        <div class="section-head text-center mb-5 animate-fade-up">
+            <h2 class="display-5 fw-bold text-dark">Methodology</h2>
+            <div class="mx-auto rounded-pill mb-4" style="width: 80px; height: 4px; background: var(--gov-green); opacity: 0.7;"></div>
+            <p class="mx-auto text-muted" style="max-width: 900px; font-size: 1.05rem; line-height: 1.6;">
+                The comprehensive Empanelment of Original Equipment Manufacturers (OEMs) of Air Pollution Control Device (APCD) with respect to industrial units in Delhi NCR. The overall indicative methodology for the scope of work envisaged is under as:
+            </p>
+        </div>
 
+        <div class="methodology-flow position-relative mt-5">
+            <div class="row g-4 position-relative">
+                
+                <!-- Step 1 -->
+                <div class="col-lg-4 col-md-6 col-12 method-step">
+                    <div class="method-card h-100 p-4 rounded-4 shadow-sm" style="background-color: #fff1f2; border-top: 4px solid #fb7185;">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="method-icon-wrapper shadow-sm" style="background: #fb7185; color: white;">
+                                <i class="bi bi-file-earmark-text-fill"></i>
+                            </div>
+                            <div class="ms-3">
+                                <span class="text-muted fw-bold small text-uppercase" style="color: #fb7185 !important; letter-spacing: 1px;">Step 01</span>
+                                <h4 class="mb-0 fw-bold fs-5 text-dark mt-1">Application Process</h4>
+                            </div>
+                        </div>
+                        <ul class="method-list text-muted small mb-0 ps-3" style="list-style-type: lower-alpha;">
+                            <li class="mb-2">NPC will take online application form covering technical, financial, and legal criteria as per the SOP.</li>
+                            <li>OEMs will submit applications with supporting documents through the NPC portal.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="col-lg-4 col-md-6 col-12 method-step">
+                    <div class="method-card h-100 p-4 rounded-4 shadow-sm" style="background-color: #f0fdf4; border-top: 4px solid #4ade80;">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="method-icon-wrapper shadow-sm" style="background: #4ade80; color: white;">
+                                <i class="bi bi-card-checklist"></i>
+                            </div>
+                            <div class="ms-3">
+                                <span class="text-muted fw-bold small text-uppercase" style="color: #4ade80 !important; letter-spacing: 1px;">Step 02</span>
+                                <h4 class="mb-0 fw-bold fs-5 text-dark mt-1">Evaluation & Shortlisting</h4>
+                            </div>
+                        </div>
+                        <ul class="method-list text-muted small mb-0 ps-3" style="list-style-type: lower-alpha;">
+                            <li class="mb-2">Applications will be screened within 7 days for completeness and eligibility.</li>
+                            <li class="mb-2">Shortlisting will be based on technical specifications, past installations, and its performance/efficiency.</li>
+                            <li>Online consultations may be held in case of any clarifications.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="col-lg-4 col-md-6 col-12 method-step">
+                    <div class="method-card h-100 p-4 rounded-4 shadow-sm" style="background-color: #f5f3ff; border-top: 4px solid #a78bfa;">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="method-icon-wrapper shadow-sm" style="background: #a78bfa; color: white;">
+                                <i class="bi bi-search"></i>
+                            </div>
+                            <div class="ms-3">
+                                <span class="text-muted fw-bold small text-uppercase" style="color: #a78bfa !important; letter-spacing: 1px;">Step 03</span>
+                                <h4 class="mb-0 fw-bold fs-5 text-dark mt-1">Verification & Inspection</h4>
+                            </div>
+                        </div>
+                        <ul class="method-list text-muted small mb-0 ps-3" style="list-style-type: lower-alpha;">
+                            <li class="mb-2">Submitted documents will be verified.</li>
+                            <li>Field verification of installations for Performance evaluation to be conducted to check design, capacity, and equipment performance.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="col-lg-4 col-md-6 col-12 method-step">
+                    <div class="method-card h-100 p-4 rounded-4 shadow-sm" style="background-color: #eff6ff; border-top: 4px solid #60a5fa;">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="method-icon-wrapper shadow-sm" style="background: #60a5fa; color: white;">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                            <div class="ms-3">
+                                <span class="text-muted fw-bold small text-uppercase" style="color: #60a5fa !important; letter-spacing: 1px;">Step 04</span>
+                                <h4 class="mb-0 fw-bold fs-5 text-dark mt-1">Committee Review & Approval</h4>
+                            </div>
+                        </div>
+                        <ul class="method-list text-muted small mb-0 ps-3" style="list-style-type: lower-alpha;">
+                            <li class="mb-2">Evaluation Committee will review the application, documents, and inspection findings.</li>
+                            <li>Based on the review, OEMs will be approved, deferred, or rejected.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="col-lg-4 col-md-6 col-12 method-step">
+                    <div class="method-card h-100 p-4 rounded-4 shadow-sm" style="background-color: #fff7ed; border-top: 4px solid #fb923c;">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="method-icon-wrapper shadow-sm" style="background: #fb923c; color: white;">
+                                <i class="bi bi-award-fill"></i>
+                            </div>
+                            <div class="ms-3">
+                                <span class="text-muted fw-bold small text-uppercase" style="color: #fb923c !important; letter-spacing: 1px;">Step 05</span>
+                                <h4 class="mb-0 fw-bold fs-5 text-dark mt-1">Certification & Monitoring</h4>
+                            </div>
+                        </div>
+                        <ul class="method-list text-muted small mb-0 ps-3" style="list-style-type: lower-alpha;">
+                            <li class="mb-2">Approved OEMs will be issued an Empanelment ID and empanelment letter.</li>
+                            <li>NPC will publish the empaneled OEMs on its portal and monitor performance through feedback and periodic checks as per guideline.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Step 6 -->
+                <div class="col-lg-4 col-md-6 col-12 method-step">
+                    <div class="method-card h-100 p-4 rounded-4 shadow-sm" style="background-color: #fdf2f8; border-top: 4px solid #f472b6;">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="method-icon-wrapper shadow-sm" style="background: #f472b6; color: white;">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </div>
+                            <div class="ms-3">
+                                <span class="text-muted fw-bold small text-uppercase" style="color: #f472b6 !important; letter-spacing: 1px;">Step 06</span>
+                                <h4 class="mb-0 fw-bold fs-5 text-dark mt-1">Renewal</h4>
+                            </div>
+                        </div>
+                        <ul class="method-list text-muted small mb-0 ps-3" style="list-style-type: lower-alpha;">
+                            <li class="mb-2">Empanelment shall initially be valid for 02 year and upon satisfactory performance, may be extended/renewed on yearly basis upto 02 years.</li>
+                            <li>Renewal will depend on performance, and efficiency.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .methodology-flow {
+        padding: 10px 0;
+    }
+    .method-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        z-index: 2;
+    }
+    .method-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.08) !important;
+    }
+    .method-icon-wrapper {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+    }
+    .method-list li {
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    /* Connecting Arrows */
+    @@media (min-width: 992px) { /* Desktop */
+        .method-step:not(:nth-child(3n)) .method-card::after {
+            content: '\F138'; /* bootstrap icon right arrow */
+            font-family: 'bootstrap-icons';
+            position: absolute;
+            top: 50px;
+            right: -22px;
+            font-size: 1.8rem;
+            color: #cbd5e1;
+            z-index: 1;
+            line-height: 1;
+        }
+    }
+    
+    @@media (min-width: 768px) and (max-width: 991px) { /* Tablet */
+        .method-step:not(:nth-child(2n)) .method-card::after {
+            content: '\F138';
+            font-family: 'bootstrap-icons';
+            position: absolute;
+            top: 50px;
+            right: -22px;
+            font-size: 1.8rem;
+            color: #cbd5e1;
+            z-index: 1;
+            line-height: 1;
+        }
+    }
+</style>
 <!-- Types of APCD Based on Category Section -->
 <section class="apcd-section">
     <div class="container">
@@ -996,19 +1316,19 @@
 
 <!-- Fee Structure -->
 <section id="fees" class="pricing-section py-5">
-    <div class="container">
+    <div class="container py-5">
 
-        <div class="section-head text-center mb-5">
-            <span class="section-tag">Pricing</span>
-            <h2 class="fw-bold">Empanelment Fee Structure</h2>
-            <p class="text-muted">Transparent fee structure for OEM empanelment and certification</p>
+        <div class="section-head text-center mb-5 animate-fade-up">
+            <h2 class="display-5 fw-bold text-dark">Empanelment Fee Structure</h2>
+            <div class="mx-auto rounded-pill mb-4" style="width: 80px; height: 4px; background: var(--gov-green); opacity: 0.7;"></div>
+            <p class="mx-auto text-muted mb-3" style="max-width: 900px; font-size: 1.05rem; line-height: 1.6;">Transparent fee structure for OEM empanelment and certification</p>
         </div>
 
-        <div class="row g-4 justify-content-center">
+        <div class="row g-4 justify-content-center align-items-stretch">
 
             <!-- Application Fee -->
             <div class="col-lg-3 col-md-6">
-                <div class="fee-card text-center">
+                <div class="fee-card text-center d-flex flex-column">
                     <div class="fee-icon">
                         <i class="bi bi-file-earmark-text"></i>
                     </div>
@@ -1019,17 +1339,15 @@
 
                     <p class="small fee-note">+18% GST Extra<br>Non-Refundable</p>
 
-                    <ul class="fee-list">
-                        <li><i class="bi bi-check-circle-fill text-success"></i> OEMs Registration</li>
+                    <ul class="fee-list mt-auto">
+                        <li><i class="bi bi-check-circle-fill" style="color: var(--gov-green);"></i> OEMs Registration</li>
                     </ul>
                 </div>
             </div>
 
             <!-- Empanelment Fee (Highlighted) -->
             <div class="col-lg-3 col-md-6">
-                <div class="fee-card highlight text-center">
-
-
+                <div class="fee-card highlight text-center d-flex flex-column">
                     <div class="fee-icon">
                         <i class="bi bi-award"></i>
                     </div>
@@ -1039,19 +1357,17 @@
                     <h2 class="fee-price">₹65,000</h2>
                     <p class="small fee-note">+18% GST Extra<br>Non-Refundable</p>
 
-                    <p class="text-muted small">Per APCD Technology Type</p> 
+                    <p class="text-muted small mb-4">Per APCD Technology Type</p> 
 
-                    <ul class="fee-list">
-                        <li><i class="bi bi-check-circle-fill text-success"></i>Evallution for Provisional Empanelment</li>
+                    <ul class="fee-list mt-auto">
+                        <li><i class="bi bi-check-circle-fill" style="color: var(--gov-green);"></i> Evaluation for Provisional Empanelment</li>
                     </ul>
-
                 </div>
             </div>
 
             <!-- Field Verification -->
             <div class="col-lg-3 col-md-6">
-                <div class="fee-card text-center">
-
+                <div class="fee-card text-center d-flex flex-column">
                     <div class="fee-icon">
                         <i class="bi bi-search"></i>
                     </div>
@@ -1059,21 +1375,20 @@
                     <h6 class="fee-title">Field Verification Fee</h6>
 
                     <h2 class="fee-price">₹57,000</h2>
-                    <p class="small fee-note">+18% GST Extra<br>Non-Refundable</p><p>excluding Lab charges(as per actual)</p>
+                    <p class="small fee-note mb-1">+18% GST Extra<br>Non-Refundable</p>
+                    <p class="small text-muted mb-3">excluding Lab charges (as per actual)</p>
 
-                    <p class="text-muted small">Per APCD Technology Type</p>
+                    <p class="text-muted small mb-4">Per APCD Technology Type</p>
 
-                    <ul class="fee-list">
-                        <li><i class="bi bi-check-circle-fill text-success"></i> Inspection and Field Verification By Audit Team</li>
+                    <ul class="fee-list mt-auto">
+                        <li><i class="bi bi-check-circle-fill" style="color: var(--gov-green);"></i> Inspection and Field Verification By Audit Team</li>
                     </ul>
-
                 </div>
             </div>
 
             <!-- Renewal Fee -->
             <div class="col-lg-3 col-md-6">
-                <div class="fee-card text-center">
-
+                <div class="fee-card text-center d-flex flex-column">
                     <div class="fee-icon">
                         <i class="bi bi-arrow-repeat"></i>
                     </div>
@@ -1083,15 +1398,33 @@
                     <h2 class="fee-price">₹35,000</h2>
                     <p class="small fee-note">+18% GST Extra<br>Non-Refundable</p>
 
-                    <p class="text-muted small">Every 2 Years<br>Per APCD Technology Type</p>
+                    <p class="text-muted small mb-4">Every 2 Years<br>Per APCD Technology Type</p>
 
-                    <ul class="fee-list">
-                        <li><i class="bi bi-check-circle-fill text-success"></i>Renewal of Empanelment Certificate</li>
+                    <ul class="fee-list mt-auto">
+                        <li><i class="bi bi-check-circle-fill" style="color: var(--gov-green);"></i> Renewal of Empanelment Certificate</li>
                     </ul>
-
                 </div>
             </div>
 
+            <!--Survillanc Fee-->
+            <div class="col-lg-3 col-md-6">
+                <div class="fee-card text-center d-flex flex-column">
+                    <div class="fee-icon">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </div>
+
+                    <h6 class="fee-title">Survillance Fee</h6>
+
+                    <h2 class="fee-price">₹45,000</h2>
+                    <p class="small fee-note">+18% GST Extra<br>Non-Refundable</p>
+
+                    <p class="text-muted small mb-4">Every 2 Years<br>Per APCD Technology Type</p>
+
+                    <ul class="fee-list mt-auto">
+                        <li><i class="bi bi-check-circle-fill" style="color: var(--gov-green);"></i> </li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -1099,10 +1432,10 @@
 
 <!-- FAQ Section -->
 <section id="faq" class="py-5 bg-light">
-    <div class="container">
-        <div class="section-head text-center">
-            <span class="section-tag">Questions</span>
-            <h2>Frequently Asked Questions</h2>
+    <div class="container py-5">
+        <div class="section-head text-center mb-5 animate-fade-up">
+            <h2 class="display-5 fw-bold text-dark">Frequently Asked Questions</h2>
+            <div class="mx-auto rounded-pill mb-4" style="width: 80px; height: 4px; background: var(--gov-green); opacity: 0.7;"></div>
         </div>
         <div class="row justify-content-center">
             <div class="col-lg-8">
@@ -1138,10 +1471,10 @@
 </section>
 
 <!-- Final CTA -->
-<section class="py-5 text-center" style="background: #fcfdfc; border-top: 1px solid #eee;">
+<section class="py-5 text-center" style="background: #fcfdfc; border-top: 1px solid #eef2f0;">
     <div class="container py-5">
-        <h2 class="display-5 mb-4" style="color: #2c3e50; font-weight: 700;">Ready to Register Your Company?</h2>
-        <p class="lead mb-5" style="color: #666;">Join the network of certified APCD manufacturers and contribute to a cleaner environment.</p>
+        <h2 class="display-5 fw-bold text-dark mb-4">Ready to Register Your Company?</h2>
+        <p class="lead text-muted mb-5">Join the network of certified APCD manufacturers and contribute to a cleaner environment.</p>
         <div class="d-flex justify-content-center gap-3">
             <a asp-controller="Auth" asp-action="Register" class="btn-primary-custom px-5">Register Now</a>
             <a asp-controller="Auth" asp-action="Login" class="btn-secondary-custom px-5">Login Account</a>
