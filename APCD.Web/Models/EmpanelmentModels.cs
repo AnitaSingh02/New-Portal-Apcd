@@ -217,6 +217,12 @@ namespace APCD.Web.Models
         public bool IsVerified { get; set; }
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
 
+        // Rejection tracking
+        public bool IsRejected { get; set; }
+        public string RejectionType { get; set; } = string.Empty;
+        public string RejectionReason { get; set; } = string.Empty;
+        public DateTime? RejectedAt { get; set; }
+
         public virtual EmpanelmentApplication Application { get; set; }
     }
 

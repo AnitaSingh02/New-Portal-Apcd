@@ -121,15 +121,22 @@
                                                 <td class="ps-4 fw-bold small text-gov-blue">@doc.DocumentType</td>
                                                 <td class="text-muted small text-truncate" style="max-width: 250px;">@doc.FileName</td>
                                                 <td class="text-end pe-4">
-                                                    <div class="d-flex justify-content-end align-items-center gap-3">
+                                                    <div id="doc-actions-@doc.Id" class="d-flex justify-content-end align-items-center gap-3" data-doc-type="@Html.Raw(doc.DocumentType.Replace("\"", "&quot;"))" data-file-path="@doc.FilePath">
                                                         <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-gov-blue py-1 shadow-sm"><i class="bi bi-eye"></i></a>
-                                                        <form asp-action="VerifyDocument" method="post" class="d-inline">
-                                                            <input type="hidden" name="docId" value="@doc.Id" />
-                                                            <input type="hidden" name="appId" value="@Model.Id" />
-                                                            <button type="submit" class="btn btn-sm @(doc.IsVerified ? "btn-success" : "btn-outline-danger") rounded-pill px-3 py-1 extra-small fw-bold">
-                                                                <i class="bi @(doc.IsVerified ? "bi-check-circle-fill" : "bi-x-circle") me-1"></i>@(doc.IsVerified ? "Verified" : "Verify")
+                                                        
+                                                        @if (doc.IsRejected)
+                                                        {
+                                                            <span class="badge bg-danger rounded-pill px-3 py-2 extra-small fw-bold" title="@doc.RejectionReason"><i class="bi bi-x-circle-fill me-1"></i> Rejected</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 extra-small fw-bold" onclick="openRejectModal(@doc.Id, '@Html.Raw(doc.DocumentType.Replace("'", "\\'"))')">
+                                                                <i class="bi bi-x-circle me-1"></i>Reject
                                                             </button>
-                                                        </form>
+                                                            <button type="button" onclick="toggleVerify(@doc.Id, @Model.Id)" class="btn btn-sm @(doc.IsVerified ? "btn-success" : "btn-outline-success") rounded-pill px-3 py-1 extra-small fw-bold verify-btn">
+                                                                <i class="bi @(doc.IsVerified ? "bi-check-circle-fill" : "bi-check-circle") me-1"></i>@(doc.IsVerified ? "Verified" : "Verify")
+                                                            </button>
+                                                        }
                                                     </div>
                                                 </td>
                                             </tr>
@@ -154,15 +161,22 @@
                                                         <td class="ps-4 small text-gov-blue" style="width: 40%">@doc.DocumentType</td>
                                                         <td class="text-muted small text-truncate" style="max-width: 200px;">@doc.FileName</td>
                                                         <td class="text-end pe-4">
-                                                            <div class="d-flex justify-content-end align-items-center gap-3">
-                                                                <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-gov-blue py-1"><i class="bi bi-eye"></i></a>
-                                                                <form asp-action="VerifyDocument" method="post" class="d-inline">
-                                                                    <input type="hidden" name="docId" value="@doc.Id" />
-                                                                    <input type="hidden" name="appId" value="@Model.Id" />
-                                                                    <button type="submit" class="btn btn-sm @(doc.IsVerified ? "btn-success" : "btn-outline-danger") rounded-pill px-3 py-1 extra-small fw-bold">
-                                                                        <i class="bi @(doc.IsVerified ? "bi-check-circle-fill" : "bi-x-circle") me-1"></i>@(doc.IsVerified ? "Verified" : "Verify")
+                                                            <div id="doc-actions-@doc.Id" class="d-flex justify-content-end align-items-center gap-3" data-doc-type="@Html.Raw(doc.DocumentType.Replace("\"", "&quot;"))" data-file-path="@doc.FilePath">
+                                                                <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-gov-blue py-1 shadow-sm"><i class="bi bi-eye"></i></a>
+                                                                
+                                                                @if (doc.IsRejected)
+                                                                {
+                                                                    <span class="badge bg-danger rounded-pill px-3 py-2 extra-small fw-bold" title="@doc.RejectionReason"><i class="bi bi-x-circle-fill me-1"></i> Rejected</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 extra-small fw-bold" onclick="openRejectModal(@doc.Id, '@Html.Raw(doc.DocumentType.Replace("'", "\\'"))')">
+                                                                        <i class="bi bi-x-circle me-1"></i>Reject
                                                                     </button>
-                                                                </form>
+                                                                    <button type="button" onclick="toggleVerify(@doc.Id, @Model.Id)" class="btn btn-sm @(doc.IsVerified ? "btn-success" : "btn-outline-success") rounded-pill px-3 py-1 extra-small fw-bold verify-btn">
+                                                                        <i class="bi @(doc.IsVerified ? "bi-check-circle-fill" : "bi-check-circle") me-1"></i>@(doc.IsVerified ? "Verified" : "Verify")
+                                                                    </button>
+                                                                }
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -285,6 +299,230 @@
         </div>
     </div>
 </div>
+
+<!-- Reject Document Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header bg-danger text-white rounded-top-4 border-0">
+                <h5 class="modal-title fw-bold" id="rejectModalLabel"><i class="bi bi-exclamation-triangle-fill me-2"></i>Reject Document</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-muted small mb-3">Please select a reason for rejecting the document <strong id="rejectDocName" class="text-dark"></strong>:</p>
+                <form id="rejectForm">
+                    <input type="hidden" id="rejectDocId" name="documentId" />
+                    
+                    <div class="mb-3">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input rejection-radio" type="radio" name="rejectionType" id="reason1" value="Incomplete Document" required>
+                            <label class="form-check-label text-dark" for="reason1">Incomplete Document</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input rejection-radio" type="radio" name="rejectionType" id="reason2" value="Invalid Format">
+                            <label class="form-check-label text-dark" for="reason2">Invalid Format</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input rejection-radio" type="radio" name="rejectionType" id="reason3" value="Incorrect Information">
+                            <label class="form-check-label text-dark" for="reason3">Incorrect Information</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input rejection-radio" type="radio" name="rejectionType" id="reason4" value="Not Relevant Document">
+                            <label class="form-check-label text-dark" for="reason4">Not Relevant Document</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input rejection-radio" type="radio" name="rejectionType" id="reason5" value="Other">
+                            <label class="form-check-label text-dark" for="reason5">Other</label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 d-none" id="otherReasonContainer">
+                        <label for="otherReasonText" class="form-label small fw-bold text-muted">Please specify reason <span class="text-danger">*</span></label>
+                        <textarea class="form-control bg-light" id="otherReasonText" name="rejectionReason" rows="3" placeholder="Enter custom reason here..."></textarea>
+                        <div class="invalid-feedback">Please provide a reason.</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger rounded-pill px-4" id="saveRejectBtn">Save Rejection <i class="bi bi-check2 ms-1"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-success text-white border-0">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong class="me-auto">Success</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body bg-white text-dark" id="toastMessage">
+            Document rejected successfully.
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function updateDocUI(docId, isVerified, isRejected, rejectionReason) {
+            const container = document.getElementById(`doc-actions-${docId}`);
+            if (!container) return;
+
+            const filePath = container.getAttribute('data-file-path');
+            const docType = container.getAttribute('data-doc-type');
+            const safeDocType = docType.replace(/'/g, "\\'");
+
+            let html = `<a href="${filePath}" target="_blank" class="btn btn-sm btn-outline-gov-blue py-1 shadow-sm"><i class="bi bi-eye"></i></a>`;
+
+            if (isRejected) {
+                html += `<span class="badge bg-danger rounded-pill px-3 py-2 extra-small fw-bold" title="${rejectionReason}"><i class="bi bi-x-circle-fill me-1"></i> Rejected</span>`;
+            } else {
+                html += `
+                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 extra-small fw-bold" onclick="openRejectModal(${docId}, '${safeDocType}')">
+                        <i class="bi bi-x-circle me-1"></i>Reject
+                    </button>
+                    <button type="button" onclick="toggleVerify(${docId}, @Model.Id)" class="btn btn-sm ${isVerified ? 'btn-success' : 'btn-outline-success'} rounded-pill px-3 py-1 extra-small fw-bold verify-btn">
+                        <i class="bi ${isVerified ? 'bi-check-circle-fill' : 'bi-check-circle'} me-1"></i>${isVerified ? 'Verified' : 'Verify'}
+                    </button>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function toggleVerify(docId, appId) {
+            const btn = event.currentTarget;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('docId', docId);
+            formData.append('appId', appId);
+
+            fetch('/Admin/VerifyDocument', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    updateDocUI(docId, result.isVerified, false, '');
+                    
+                    document.getElementById('toastMessage').innerText = result.isVerified ? 'Document verified successfully.' : 'Verification removed.';
+                    var toastEl = document.getElementById('liveToast');
+                    var toast = new bootstrap.Toast(toastEl);
+                    toast.show();
+                } else {
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                    alert(result.message || 'Error updating verification status.');
+                }
+            })
+            .catch(error => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+                console.error('Error:', error);
+                alert('A network error occurred.');
+            });
+        }
+
+        function openRejectModal(docId, docType) {
+            document.getElementById('rejectDocId').value = docId;
+            document.getElementById('rejectDocName').innerText = docType;
+            
+            // Reset form
+            document.getElementById('rejectForm').reset();
+            document.getElementById('otherReasonContainer').classList.add('d-none');
+            document.getElementById('otherReasonText').removeAttribute('required');
+            document.getElementById('otherReasonText').classList.remove('is-invalid');
+            
+            var modal = new bootstrap.Modal(document.getElementById('rejectModal'));
+            modal.show();
+        }
+
+        document.querySelectorAll('.rejection-radio').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const otherContainer = document.getElementById('otherReasonContainer');
+                const otherTextarea = document.getElementById('otherReasonText');
+                
+                if (this.value === 'Other') {
+                    otherContainer.classList.remove('d-none');
+                    otherTextarea.setAttribute('required', 'required');
+                } else {
+                    otherContainer.classList.add('d-none');
+                    otherTextarea.removeAttribute('required');
+                    otherTextarea.classList.remove('is-invalid');
+                    otherTextarea.value = '';
+                }
+            });
+        });
+
+        document.getElementById('saveRejectBtn').addEventListener('click', function() {
+            const form = document.getElementById('rejectForm');
+            const otherTextarea = document.getElementById('otherReasonText');
+            
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                if (document.getElementById('reason5').checked && !otherTextarea.value.trim()) {
+                    otherTextarea.classList.add('is-invalid');
+                }
+                return;
+            }
+
+            const formData = new FormData(form);
+            const data = {
+                documentId: parseInt(formData.get('documentId')),
+                rejectionType: formData.get('rejectionType'),
+                rejectionReason: formData.get('rejectionType') === 'Other' ? formData.get('rejectionReason') : formData.get('rejectionType')
+            };
+
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
+            btn.disabled = true;
+
+            fetch('/Admin/RejectDocument', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                if (result.success) {
+                    var modalEl = document.getElementById('rejectModal');
+                    var modal = bootstrap.Modal.getInstance(modalEl);
+                    modal.hide();
+                    
+                    updateDocUI(data.documentId, false, true, data.rejectionReason);
+
+                    document.getElementById('toastMessage').innerText = result.message || 'Document rejected successfully.';
+                    var toastEl = document.getElementById('liveToast');
+                    var toast = new bootstrap.Toast(toastEl);
+                    toast.show();
+                } else {
+                    alert(result.message || 'An error occurred.');
+                }
+            })
+            .catch(error => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                console.error('Error:', error);
+                alert('A network error occurred. Please try again.');
+            });
+        });
+    </script>
+}
 
 <style>
     body { background-color: #f8f9fa; }

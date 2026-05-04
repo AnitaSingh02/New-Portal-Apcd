@@ -105,9 +105,34 @@ namespace APCD.Web.Controllers
             if (doc != null)
             {
                 doc.IsVerified = !doc.IsVerified;
+                if (doc.IsVerified) {
+                    doc.IsRejected = false;
+                    doc.RejectionType = string.Empty;
+                    doc.RejectionReason = string.Empty;
+                    doc.RejectedAt = null;
+                }
                 await _context.SaveChangesAsync();
+                return Json(new { success = true, isVerified = doc.IsVerified });
             }
-            return RedirectToAction("Details", new { id = appId });
+            return Json(new { success = false, message = "Document not found." });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RejectDocument([FromBody] RejectDocumentRequest request)
+        {
+            var doc = await _context.ApplicationDocuments.FindAsync(request.DocumentId);
+            if (doc != null)
+            {
+                doc.IsVerified = false;
+                doc.IsRejected = true;
+                doc.RejectionType = request.RejectionType ?? string.Empty;
+                doc.RejectionReason = request.RejectionReason ?? string.Empty;
+                doc.RejectedAt = DateTime.UtcNow;
+                
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = "Document rejected successfully." });
+            }
+            return Json(new { success = false, message = "Document not found." });
         }
 
         #region Monitoring Dashboard Views (AJAX)
@@ -202,5 +227,12 @@ namespace APCD.Web.Controllers
         }
 
         #endregion
+    }
+
+    public class RejectDocumentRequest
+    {
+        public int DocumentId { get; set; }
+        public string RejectionType { get; set; }
+        public string RejectionReason { get; set; }
     }
 }
