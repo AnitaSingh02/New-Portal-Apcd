@@ -29,6 +29,10 @@ namespace APCD.Web.Controllers
             {
                 try
                 {
+                    if (model.CompanyName != null)
+                    {
+                        model.CompanyName = model.CompanyName.Trim();
+                    }
                     model.CreateTime = DateTime.Now;
                     _context.ContactUs.Add(model);
                     await _context.SaveChangesAsync();

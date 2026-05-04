@@ -16,6 +16,10 @@ namespace APCD.Web.Models
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
 
+        [Required(ErrorMessage = "Company Name is required")]
+        [Display(Name = "Company Name")]
+        public string CompanyName { get; set; }
+
         public string? City { get; set; }
 
         public string? State { get; set; }

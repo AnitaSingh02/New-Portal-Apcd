@@ -2,222 +2,244 @@
     ViewData["Title"] = "About the NPC";
 }
 
-<style>
-    .npc-section {
-        background-color: #fafafa;
-        padding-bottom: 60px;
-        min-height: 100vh;
-    }
-    .npc-heading-container {
-        background-color: #f0f0f0;
-        padding: 20px 0;
-        margin-bottom: 40px;
-    }
-    .npc-heading {
-        font-size: 2.5rem;
-        font-weight: 300;
-        margin: 0;
-        letter-spacing: 0.5px;
-    }
-    .npc-subheading {
-        font-size: 2.2rem;
-        font-weight: 300;
-        margin-top: 45px;
-        margin-bottom: 25px;
-        letter-spacing: 0.5px;
-    }
-    .text-black-accent {
-        color: #222;
-        border-bottom: 2px solid #222;
-        padding-bottom: 4px;
-    }
-    .text-blue-accent {
-        color: #007bff; 
-    }
-    .npc-text {
-        color: #444;
-        font-size: 1.05rem;
-        line-height: 1.8;
-        margin-bottom: 1.5rem;
-    }
-    .npc-list {
-        color: #444;
-        font-size: 1.05rem;
-        line-height: 1.8;
-        padding-left: 20px;
-    }
-    .npc-list li {
-        margin-bottom: 12px;
-    }
-    
-    /* Timeline CSS */
-    .timeline-wrapper {
-        padding: 120px 0;
-        margin-top: 40px;
-    }
-    .timeline-line {
-        position: absolute;
-        top: 50%;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background-color: #d1d5db;
-        transform: translateY(-50%);
-        z-index: 0;
-    }
-    .timeline-item {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        height: 90px;
-    }
-    .timeline-icon {
-        width: 90px;
-        height: 90px;
-        background-color: #fff;
-        border: 2px solid #0ea5e9;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.5rem;
-        color: #0ea5e9;
-        z-index: 2;
-    }
-    .timeline-content {
-        position: absolute;
-        width: 140%;
-        left: -20%;
-        text-align: center;
-        font-size: 0.85rem;
-        color: #333;
-        line-height: 1.5;
-    }
-    .timeline-item.bottom-text .timeline-content {
-        top: 110px;
-    }
-    .timeline-item.top-text .timeline-content {
-        bottom: 110px;
-    }
-    @@media (max-width: 991px) {
-        .timeline-content { font-size: 0.75rem; width: 100%; left: 0; }
-        .timeline-icon { width: 70px; height: 70px; font-size: 1.8rem; }
-        .timeline-item { height: 70px; }
-        .timeline-item.bottom-text .timeline-content { top: 80px; }
-        .timeline-item.top-text .timeline-content { bottom: 80px; }
-    }
-</style>
-
-<div class="npc-section">
-    <!-- Citizen's Charter -->
-    <div class="npc-heading-container">
-        <div class="container">
-            <h1 class="npc-heading">
-                <span class="text-black-accent">Citizen's</span> <span class="text-blue-accent">Charter</span>
-            </h1>
-        </div>
-    </div>
-
-    <div class="container">
-        <p class="npc-text">
+<!-- Section Header / Citizen's Charter -->
+<div class="bg-light py-5 border-bottom">
+    <div class="container py-4 text-center">
+        <h1 class="display-5 fw-bold text-dark mb-3">About the NPC</h1>
+        <div class="mx-auto rounded-pill mb-4" style="width: 80px; height: 4px; background: var(--gov-green); opacity: 0.7;"></div>
+        <p class="text-muted mx-auto" style="max-width: 1000px; font-size: 1.1rem; line-height: 1.7;">
             National Productivity Council of India (NPC), established in the year 1958, is an autonomous organization under Department for Promotion of Industry & Internal Trade, Ministry of Commerce and Industry, Government of India. Besides undertaking research in the area of productivity, NPC has been providing consultancy and training services in areas of Industrial Engineering, Agri-Business, Economic Services, Quality Management, Human Resources Management, Information Technology, Technology Management, Energy Management, Environmental Management etc., to the Government and Public & Private sector organizations. NPC is a constituent of the Tokyo-based Asian Productivity Organisation (APO), an Inter-Governmental Body of which the Government of India is a founding member.
         </p>
+    </div>
+</div>
 
-        <!-- Vision -->
-        <h2 class="npc-subheading">
-            <span class="text-black-accent">Visi</span><span class="text-blue-accent">on</span>
-        </h2>
-        <p class="npc-text">
-            NPC to be the knowledge leader in productivity to provide state of our services to the Indian economy to become globally competitive.
-        </p>
+<!-- Vision & Mission -->
+<section class="py-5 bg-white">
+    <div class="container py-4">
+        <div class="row g-4 justify-content-center">
+            <!-- Vision -->
+            <div class="col-lg-6 col-md-6 col-12">
+                <div class="eligibility-card h-100 p-5 rounded-4 shadow-sm border-0 text-center">
+                    <div class="eligibility-icon-wrapper rounded-circle shadow-sm d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 70px; height: 70px; background: #e8f5e9; color: var(--gov-green);">
+                        <i class="bi bi-eye fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-3">Vision</h3>
+                    <p class="text-muted lh-base mb-0" style="font-size: 1.05rem;">
+                        NPC to be the knowledge leader in productivity to provide state of our services to the Indian economy to become globally competitive.
+                    </p>
+                </div>
+            </div>
 
-        <!-- Mission -->
-        <h2 class="npc-subheading">
-            <span class="text-black-accent">Miss</span><span class="text-blue-accent">ion</span>
-        </h2>
-        <p class="npc-text">
-            Contribute to the sustainable, inclusive socioeconomic development of the country by enhancing productivity.
-        </p>
-
-        <!-- Objectives -->
-        <h2 class="npc-subheading">
-            <span class="text-black-accent">Obje</span><span class="text-blue-accent">ctives</span>
-        </h2>
-        <ul class="npc-list">
-            <li>To promote innovation - led productivity in a sustained manner in all spheres of national economy through holistic and inclusive approach by addressing the triple bottom line – Economic, Environmental and Social.</li>
-            <li>To propagate productivity consciousness and culture amongst Govt., Business and Society.</li>
-            <li>To demonstrate value addition through generation and application of advanced productivity tools and techniques for multiplier effect.</li>
-            <li>To act as a total solution provider for Industry, Services, and Agriculture sectors for augmenting productivity through Training, Consultancy and Research wherever needed through alliances and partnerships</li>
-            <li>To act as a catalyst in institution building and developing platforms for collaborative networking to strengthen the productivity movement.</li>
-            <li>To act as a think tank by providing productivity related evidence based policy support and advice in while tracking the emerging trends.</li>
-            <li>To be an independent oversight entity for various national programs, schemes and interventions.</li>
-            <li>To recognize productivity champions through awards, affiliations, certifications, accreditations etc.</li>
-            <li>To enhance international outreach for sharing the gains of productivity on mutual basis.</li>
-            <li>To be repository of productivity and competitiveness data across all sectors at the state and national level.</li>
-            <li>To devise national productivity standards across all sectors and self assessment web based measurement tools for productivity diagnosis.</li>
-        </ul>
-
-        <!-- Activities Timeline -->
-        <div class="mt-5 pt-4">
-            <h2 class="npc-subheading">
-                <span class="text-black-accent">Acti</span><span class="text-blue-accent">vities</span>
-            </h2>
-
-            <div class="timeline-wrapper position-relative overflow-hidden">
-                <!-- Horizontal Line -->
-                <div class="timeline-line"></div>
-                
-                <div class="row g-0 position-relative z-1">
-                    <!-- Node 1 -->
-                    <div class="col-2 timeline-item bottom-text">
-                        <div class="timeline-icon">
-                            <i class="bi bi-person-gear"></i>
-                        </div>
-                        <div class="timeline-content">To Stimulate and Promote<br>Productivity Consciousness</div>
+            <!-- Mission -->
+            <div class="col-lg-6 col-md-6 col-12">
+                <div class="eligibility-card h-100 p-5 rounded-4 shadow-sm border-0 text-center">
+                    <div class="eligibility-icon-wrapper rounded-circle shadow-sm d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 70px; height: 70px; background: #e8f5e9; color: var(--gov-green);">
+                        <i class="bi bi-bullseye fs-2"></i>
                     </div>
-                    
-                    <!-- Node 2 -->
-                    <div class="col-2 timeline-item top-text">
-                        <div class="timeline-icon">
-                            <i class="bi bi-person-workspace"></i>
-                        </div>
-                        <div class="timeline-content">To provide consultancy<br>services to increase<br>productivity</div>
-                    </div>
-                    
-                    <!-- Node 3 -->
-                    <div class="col-2 timeline-item bottom-text">
-                        <div class="timeline-icon">
-                            <i class="bi bi-graph-up-arrow"></i>
-                        </div>
-                        <div class="timeline-content">To undertake research in<br>productivity areas and<br>maintain database of<br>productivity</div>
-                    </div>
-                    
-                    <!-- Node 4 -->
-                    <div class="col-2 timeline-item top-text">
-                        <div class="timeline-icon">
-                            <i class="bi bi-card-checklist"></i>
-                        </div>
-                        <div class="timeline-content">To undertake preparation<br>& Implementation of<br>projects/schemes of Public<br>& private Sector.</div>
-                    </div>
-                    
-                    <!-- Node 5 -->
-                    <div class="col-2 timeline-item bottom-text">
-                        <div class="timeline-icon">
-                            <i class="bi bi-people"></i>
-                        </div>
-                        <div class="timeline-content">To facilitate strengthening<br>of regional/local and<br>sector-wise productivity<br>organizations</div>
-                    </div>
-                    
-                    <!-- Node 6 -->
-                    <div class="col-2 timeline-item top-text">
-                        <div class="timeline-icon">
-                            <i class="bi bi-pc-display"></i>
-                        </div>
-                        <div class="timeline-content">Promotion of IT enabled<br>services and e-<br>Governance</div>
-                    </div>
+                    <h3 class="fw-bold text-dark mb-3">Mission</h3>
+                    <p class="text-muted lh-base mb-0" style="font-size: 1.05rem;">
+                        Contribute to the sustainable, inclusive socioeconomic development of the country by enhancing productivity.
+                    </p>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Objectives Section -->
+<section class="objectives-section py-5">
+    <div class="container py-4">
+        <div class="section-head text-center mb-5">
+            <h2 class="display-5 fw-bold text-dark">Objectives</h2>
+            <div class="mx-auto rounded-pill mb-4" style="width: 80px; height: 4px; background: var(--gov-green); opacity: 0.7;"></div>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm border" style="border-color: #eef2f0 !important;">
+                    <ul class="text-muted mb-0" style="font-size: 1.05rem; line-height: 1.8; list-style-type: none; padding-left: 0;">
+                        <li class="mb-3 d-flex"><i class="bi bi-check-circle-fill mt-1 me-3" style="color: var(--gov-green);"></i><div>To promote innovation - led productivity in a sustained manner in all spheres of national economy through holistic and inclusive approach by addressing the triple bottom line – Economic, Environmental and Social.</div></li>
+                        <li class="mb-3 d-flex"><i class="bi bi-check-circle-fill mt-1 me-3" style="color: var(--gov-green);"></i><div>To propagate productivity consciousness and culture amongst Govt., Business and Society.</div></li>
+                        <li class="mb-3 d-flex"><i class="bi bi-check-circle-fill mt-1 me-3" style="color: var(--gov-green);"></i><div>To demonstrate value addition through generation and application of advanced productivity tools and techniques for multiplier effect.</div></li>
+                        <li class="mb-3 d-flex"><i class="bi bi-check-circle-fill mt-1 me-3" style="color: var(--gov-green);"></i><div>To act as a total solution provider for Industry, Services, and Agriculture sectors for augmenting productivity through Training, Consultancy and Research wherever needed through alliances and partnerships</div></li>
+                        <li class="mb-3 d-flex"><i class="bi bi-check-circle-fill mt-1 me-3" style="color: var(--gov-green);"></i><div>To act as a catalyst in institution building and developing platforms for collaborative networking to strengthen the productivity movement.</div></li>
+                        <li class="mb-3 d-flex"><i class="bi bi-check-circle-fill mt-1 me-3" style="color: var(--gov-green);"></i><div>To act as a think tank by providing productivity related evidence based policy support and advice in while tracking the emerging trends.</div></li>
+                        <li class="mb-3 d-flex"><i class="bi bi-check-circle-fill mt-1 me-3" style="color: var(--gov-green);"></i><div>To be an independent oversight entity for various national programs, schemes and interventions.</div></li>
+                        <li class="mb-3 d-flex"><i class="bi bi-check-circle-fill mt-1 me-3" style="color: var(--gov-green);"></i><div>To recognize productivity champions through awards, affiliations, certifications, accreditations etc.</div></li>
+                        <li class="mb-3 d-flex"><i class="bi bi-check-circle-fill mt-1 me-3" style="color: var(--gov-green);"></i><div>To enhance international outreach for sharing the gains of productivity on mutual basis.</div></li>
+                        <li class="mb-3 d-flex"><i class="bi bi-check-circle-fill mt-1 me-3" style="color: var(--gov-green);"></i><div>To be repository of productivity and competitiveness data across all sectors at the state and national level.</div></li>
+                        <li class="mb-0 d-flex"><i class="bi bi-check-circle-fill mt-1 me-3" style="color: var(--gov-green);"></i><div>To devise national productivity standards across all sectors and self assessment web based measurement tools for productivity diagnosis.</div></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Activities Section -->
+<section class="py-5 bg-white">
+    <div class="container py-4">
+        <div class="section-head text-center mb-5">
+            <h2 class="display-5 fw-bold text-dark">Activities</h2>
+            <div class="mx-auto rounded-pill mb-4" style="width: 80px; height: 4px; background: var(--gov-green); opacity: 0.7;"></div>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <!-- Activity 1 -->
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="step-card h-100">
+                    <div class="step-header">
+                        <div class="step-icon">
+                            <i class="bi bi-person-gear"></i>
+                        </div>
+                    </div>
+                    <h4 class="step-title">Promote Consciousness</h4>
+                    <p class="step-desc">To Stimulate and Promote Productivity Consciousness</p>
+                </div>
+            </div>
+
+            <!-- Activity 2 -->
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="step-card h-100">
+                    <div class="step-header">
+                        <div class="step-icon">
+                            <i class="bi bi-person-workspace"></i>
+                        </div>
+                    </div>
+                    <h4 class="step-title">Consultancy Services</h4>
+                    <p class="step-desc">To provide consultancy services to increase productivity</p>
+                </div>
+            </div>
+
+            <!-- Activity 3 -->
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="step-card h-100">
+                    <div class="step-header">
+                        <div class="step-icon">
+                            <i class="bi bi-graph-up-arrow"></i>
+                        </div>
+                    </div>
+                    <h4 class="step-title">Research & Database</h4>
+                    <p class="step-desc">To undertake research in productivity areas and maintain database of productivity</p>
+                </div>
+            </div>
+
+            <!-- Activity 4 -->
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="step-card h-100">
+                    <div class="step-header">
+                        <div class="step-icon">
+                            <i class="bi bi-card-checklist"></i>
+                        </div>
+                    </div>
+                    <h4 class="step-title">Project Implementation</h4>
+                    <p class="step-desc">To undertake preparation & Implementation of projects/schemes of Public & private Sector.</p>
+                </div>
+            </div>
+
+            <!-- Activity 5 -->
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="step-card h-100">
+                    <div class="step-header">
+                        <div class="step-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                    </div>
+                    <h4 class="step-title">Strengthen Organizations</h4>
+                    <p class="step-desc">To facilitate strengthening of regional/local and sector-wise productivity organizations</p>
+                </div>
+            </div>
+
+            <!-- Activity 6 -->
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="step-card h-100">
+                    <div class="step-header">
+                        <div class="step-icon">
+                            <i class="bi bi-pc-display"></i>
+                        </div>
+                    </div>
+                    <h4 class="step-title">IT & e-Governance</h4>
+                    <p class="step-desc">Promotion of IT enabled services and e-Governance</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Card Styles adapted from global theme */
+    .eligibility-card {
+        background-color: #fcfdfc;
+        border: 1px solid #eef2f0 !important;
+        transition: all 0.3s ease;
+    }
+    .eligibility-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(31, 94, 59, 0.08) !important;
+        border-color: var(--gov-green) !important;
+        background-color: #ffffff;
+    }
+    .eligibility-icon-wrapper {
+        transition: all 0.3s ease;
+    }
+    .eligibility-card:hover .eligibility-icon-wrapper {
+        background: var(--gov-green) !important;
+        color: #ffffff !important;
+        transform: scale(1.1);
+    }
+    
+    .objectives-section {
+        background: #f8fafc !important; 
+        border-top: 1px solid #edf2f7;
+        border-bottom: 1px solid #edf2f7;
+    }
+    
+    .step-card {
+        background: #ffffff;
+        border: 1px solid #eef2f0;
+        border-radius: 12px;
+        padding: 25px;
+        height: 100%;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    }
+    .step-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(31, 94, 59, 0.1);
+        border-color: var(--gov-green);
+    }
+    .step-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .step-icon {
+        width: 55px;
+        height: 55px;
+        background: #f0f7f3;
+        color: var(--gov-green);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    .step-card:hover .step-icon {
+        background: var(--gov-green);
+        color: #ffffff;
+        transform: scale(1.1);
+    }
+    .step-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 10px;
+    }
+    .step-desc {
+        color: #718096;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 0;
+    }
+</style>

@@ -59,6 +59,11 @@
                                     <span asp-validation-for="LastName" class="text-danger small"></span>
                                 </div>
                                 <div class="col-md-6">
+                                    <label asp-for="CompanyName" class="form-label fw-semibold text-dark">Company Name *</label>
+                                    <input asp-for="CompanyName" class="form-control form-control-lg border-0 bg-light rounded-3" placeholder="Enter company name" style="font-size: 0.95rem;">
+                                    <span asp-validation-for="CompanyName" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-6">
                                     <label asp-for="Email" class="form-label fw-semibold text-dark">Email Address *</label>
                                     <input asp-for="Email" class="form-control form-control-lg border-0 bg-light rounded-3" placeholder="john@example.com" style="font-size: 0.95rem;">
                                     <span asp-validation-for="Email" class="text-danger small"></span>
