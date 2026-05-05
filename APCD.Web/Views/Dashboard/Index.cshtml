@@ -227,28 +227,12 @@
             </button>
         </div>
 
-        <div class="card saas-table-card border-0 mb-5">
-            <div class="table-responsive">
-                <table class="table saas-table mb-0 align-middle" id="oemDocumentsTable">
-                    <thead>
-                        <tr>
-                            <th class="ps-4">Document Name</th>
-                            <th>Version</th>
-                            <th>Upload Date</th>
-                            <th>Status</th>
-                            <th>Remarks / Reason</th>
-                            <th class="text-end pe-4">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="oemDocsBody">
-                        <tr>
-                            <td colspan="5" class="text-center py-5">
-                                <div class="spinner-border spinner-border-sm text-gov-blue me-2" role="status"></div>
-                                <span class="text-muted">Loading documents...</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+        <div class="card saas-table-card border-0 mb-5 p-4">
+            <div id="oemDocsContainer">
+                <div class="text-center py-5">
+                    <div class="spinner-border spinner-border-sm text-gov-blue me-2" role="status"></div>
+                    <span class="text-muted">Loading documents...</span>
+                </div>
             </div>
         </div>
 
@@ -563,8 +547,16 @@
         border: 1px dashed #cbd5e1;
         border-radius: 1rem;
     }
-    .saas-empty-icon {
-        font-size: 2.5rem;
+    .saas-doc-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .saas-doc-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
+        border-color: #003366 !important;
+    }
+    .letter-spacing-1 {
+        letter-spacing: 1px;
     }
 </style>
 
@@ -575,61 +567,63 @@
         });
 
         function loadOEMDocuments() {
-            const tbody = document.getElementById('oemDocsBody');
+            const container = document.getElementById('oemDocsContainer');
             
             fetch('/OEM/GetDocuments')
                 .then(response => response.json())
-                .then(docs => {
-                    if (docs.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted small">No documents uploaded yet.</td></tr>';
+                .then(data => {
+                    if (data.commonGroups.length === 0 && data.apcdGroups.length === 0) {
+                        container.innerHTML = '<div class="text-center py-4 text-muted small">No documents uploaded yet.</div>';
                         return;
                     }
 
                     let html = '';
-                    docs.forEach(doc => {
-                        let statusBadge = '';
-                        let remarks = doc.reason || '';
-                        let actionBtn = '';
 
-                        if (doc.status === 'Verified') {
-                            statusBadge = '<span class="saas-badge bg-success-subtle text-success border-success-subtle"><i class="bi bi-check-circle-fill me-1"></i>Verified</span>';
-                            remarks = '<span class="text-success small">Approved</span>';
-                            actionBtn = `<button disabled class="btn btn-sm btn-outline-secondary rounded-pill px-3 extra-small fw-bold" title="Document already verified" data-bs-toggle="tooltip">
-                                            <i class="bi bi-lock-fill me-1"></i>Upload Again
-                                         </button>`;
-                        } else if (doc.status === 'Rejected') {
-                            statusBadge = '<span class="saas-badge bg-danger-subtle text-danger border-danger-subtle"><i class="bi bi-x-circle-fill me-1"></i>Rejected</span>';
-                            remarks = `<div class="d-flex flex-column"><span class="text-danger small fw-bold">Reason:</span><span class="text-muted extra-small">${doc.reason}</span></div>`;
-                            actionBtn = `<button class="btn btn-sm btn-saas-primary px-3 extra-small fw-bold" onclick="openReUploadModal(${doc.id}, '${doc.name.replace(/'/g, "\\'")}')">
-                                            <i class="bi bi-cloud-arrow-up me-1"></i>Upload Again
-                                         </button>`;
-                        } else {
-                            statusBadge = '<span class="saas-badge bg-warning-subtle text-warning border-warning-subtle"><i class="bi bi-clock-fill me-1"></i>Pending</span>';
-                            remarks = '<span class="text-muted small italic">Under Review</span>';
-                            actionBtn = `<button disabled class="btn btn-sm btn-outline-secondary rounded-pill px-3 extra-small fw-bold" title="Currently under review" data-bs-toggle="tooltip">
-                                            <i class="bi bi-hourglass-split me-1"></i>Upload Again
-                                         </button>`;
-                        }
+                    // Common Documents
+                    if (data.commonGroups.length > 0) {
+                        html += `<div class="mb-4">
+                                    <h6 class="text-gov-blue fw-bold mb-3 d-flex align-items-center">
+                                        <i class="bi bi-files me-2"></i>Common Documents (Step-wise)
+                                    </h6>`;
+                        
+                        data.commonGroups.forEach(group => {
+                            html += `
+                                <div class="mb-4 ps-3 border-start border-2 border-light">
+                                    <div class="small fw-bold text-muted mb-3 text-uppercase letter-spacing-1">${group.stepName}</div>
+                                    <div class="row g-3">`;
+                            
+                            group.documents.forEach(doc => {
+                                html += renderDocCard(doc);
+                            });
+                            
+                            html += `</div></div>`;
+                        });
+                        html += `</div>`;
+                    }
 
-                        html += `
-                            <tr>
-                                <td class="ps-4 py-3 fw-semibold small text-gov-blue">${doc.name}</td>
-                                <td class="small fw-bold text-muted">v${doc.version}</td>
-                                <td class="small text-muted">${doc.uploadedAt}</td>
-                                <td>${statusBadge}</td>
-                                <td>${remarks}</td>
-                                <td class="text-end pe-4">
-                                    <div class="d-flex gap-2 justify-content-end">
-                                        <button class="btn btn-sm btn-outline-gov-blue rounded-pill px-2 py-1 extra-small fw-bold" onclick="viewHistory(${doc.id})" title="View History">
-                                            <i class="bi bi-clock-history"></i>
-                                        </button>
-                                        ${actionBtn}
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                    tbody.innerHTML = html;
+                    // APCD Specific Documents
+                    if (data.apcdGroups.length > 0) {
+                        html += `<div class="mb-2">
+                                    <h6 class="text-gov-blue fw-bold mb-3 d-flex align-items-center">
+                                        <i class="bi bi-cpu me-2"></i>APCD Specific Documents
+                                    </h6>`;
+                        
+                        data.apcdGroups.forEach(group => {
+                            html += `
+                                <div class="mb-4 ps-3 border-start border-2 border-light">
+                                    <div class="small fw-bold text-muted mb-3 text-uppercase letter-spacing-1">Documents for: ${group.apcd}</div>
+                                    <div class="row g-3">`;
+                            
+                            group.documents.forEach(doc => {
+                                html += renderDocCard(doc);
+                            });
+                            
+                            html += `</div></div>`;
+                        });
+                        html += `</div>`;
+                    }
+
+                    container.innerHTML = html;
                     
                     // Re-init tooltips
                     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -639,8 +633,59 @@
                 })
                 .catch(err => {
                     console.error('Error loading documents:', err);
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-danger small">Failed to load documents.</td></tr>';
+                    container.innerHTML = '<div class="text-center py-4 text-danger small">Failed to load documents.</div>';
                 });
+        }
+
+        function renderDocCard(doc) {
+            let statusBadge = '';
+            let statusClass = '';
+            let actionBtn = '';
+            let remarks = doc.reason || '';
+
+            if (doc.status === 'Verified') {
+                statusBadge = '<i class="bi bi-check-circle-fill me-1"></i>Verified';
+                statusClass = 'text-success bg-success-subtle border-success-subtle';
+                actionBtn = `<button disabled class="btn btn-sm btn-outline-secondary rounded-pill px-3 extra-small fw-bold" title="Document already verified" data-bs-toggle="tooltip">
+                                <i class="bi bi-lock-fill me-1"></i>Upload Again
+                             </button>`;
+            } else if (doc.status === 'Rejected') {
+                statusBadge = '<i class="bi bi-x-circle-fill me-1"></i>Rejected';
+                statusClass = 'text-danger bg-danger-subtle border-danger-subtle';
+                actionBtn = `<button class="btn btn-sm btn-saas-primary px-3 extra-small fw-bold" onclick="openReUploadModal(${doc.id}, '${doc.name.replace(/'/g, "\\'")}')">
+                                <i class="bi bi-cloud-arrow-up me-1"></i>Upload Again
+                             </button>`;
+            } else {
+                statusBadge = '<i class="bi bi-clock-fill me-1"></i>Pending';
+                statusClass = 'text-warning bg-warning-subtle border-warning-subtle';
+                actionBtn = `<button disabled class="btn btn-sm btn-outline-secondary rounded-pill px-3 extra-small fw-bold" title="Currently under review" data-bs-toggle="tooltip">
+                                <i class="bi bi-hourglass-split me-1"></i>Upload Again
+                             </button>`;
+            }
+
+            return `
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 border rounded-4 saas-doc-card shadow-sm-hover">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="fw-bold small text-gov-blue text-truncate pe-2" title="${doc.name}">${doc.name}</div>
+                                <span class="badge bg-light text-muted extra-small border">v${doc.version}</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="saas-badge ${statusClass} extra-small py-1 px-2 rounded-pill fw-bold">${statusBadge}</span>
+                                <span class="ms-auto extra-small text-muted"><i class="bi bi-calendar3 me-1"></i>${doc.uploadedAt}</span>
+                            </div>
+                            ${doc.status === 'Rejected' ? `<div class="bg-danger-subtle p-2 rounded-3 mb-3 extra-small text-danger border border-danger-subtle"><i class="bi bi-exclamation-triangle-fill me-1"></i>${doc.reason}</div>` : ''}
+                            <div class="d-flex gap-2 align-items-center mt-auto pt-2 border-top">
+                                <button class="btn btn-sm btn-light rounded-pill px-2 py-1 extra-small fw-bold text-gov-blue" onclick="viewHistory(${doc.id})" title="View History">
+                                    <i class="bi bi-clock-history me-1"></i>History
+                                </button>
+                                <div class="ms-auto">${actionBtn}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
         function openReUploadModal(docId, docType) {

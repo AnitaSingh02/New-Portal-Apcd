@@ -100,97 +100,126 @@
                         </div>
                         <div class="col-12">
                             @{ 
-                                 var commonDocs = Model.Documents.Where(d => string.IsNullOrEmpty(d.AssociatedTech) && d.IsActive).ToList();
-                                 var techDocs = Model.Documents.Where(d => !string.IsNullOrEmpty(d.AssociatedTech) && d.IsActive).GroupBy(d => d.AssociatedTech);
-                             }
+                                var activeDocs = Model.Documents.Where(d => d.IsActive).ToList();
+                                var commonGroups = activeDocs
+                                    .Where(d => d.DocumentCategory == "Common")
+                                    .GroupBy(d => d.StepNumber)
+                                    .OrderBy(g => g.Key);
+                                
+                                var apcdGroups = activeDocs
+                                    .Where(d => d.DocumentCategory == "APCD")
+                                    .GroupBy(d => d.AssociatedTech)
+                                    .OrderBy(g => g.Key);
 
-                            <!-- Common Documents -->
-                            <div class="table-responsive rounded-4 border mb-4">
-                                <table class="table table-hover mb-0 align-middle">
-                                    <thead class="bg-light extra-small fw-bold text-muted text-uppercase">
-                                        <tr>
-                                            <th class="ps-4 py-3">General Document Type</th>
-                                            <th>File Name</th>
-                                            <th class="text-end pe-4">Verification Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var doc in commonDocs)
-                                        {
-                                            <tr>
-                                                <td class="ps-4 fw-bold small text-gov-blue">@doc.DocumentType</td>
-                                                <td class="text-muted small text-truncate" style="max-width: 250px;">@doc.FileName</td>
-                                                <td class="text-end pe-4">
-                                                    <div id="doc-actions-@doc.Id" class="d-flex justify-content-end align-items-center gap-3" data-doc-type="@Html.Raw(doc.DocumentType.Replace("\"", "&quot;"))" data-file-path="@doc.FilePath">
-                                                         <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1 extra-small fw-bold" onclick="viewHistory(@doc.Id)" title="View History">
-                                                             <i class="bi bi-clock-history"></i>
-                                                         </button>
-                                                         <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-gov-blue py-1 shadow-sm"><i class="bi bi-eye"></i></a>
-                                                         
-                                                         @if (doc.DocumentStatus == "Rejected")
-                                                         {
-                                                             <span class="badge bg-danger rounded-pill px-3 py-2 extra-small fw-bold" title="@doc.RejectionReason"><i class="bi bi-x-circle-fill me-1"></i> Rejected</span>
-                                                         }
-                                                         else
-                                                         {
-                                                             <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 extra-small fw-bold" onclick="openRejectModal(@doc.Id, '@Html.Raw(doc.DocumentType.Replace("'", "\\'"))')">
-                                                                 <i class="bi bi-x-circle me-1"></i>Reject
-                                                             </button>
-                                                             <button type="button" onclick="toggleVerify(@doc.Id, @Model.Id)" class="btn btn-sm @(doc.DocumentStatus == "Verified" ? "btn-success" : "btn-outline-success") rounded-pill px-3 py-1 extra-small fw-bold verify-btn">
-                                                                 <i class="bi @(doc.DocumentStatus == "Verified" ? "bi-check-circle-fill" : "bi-check-circle") me-1"></i>@(doc.DocumentStatus == "Verified" ? "Verified" : "Verify")
-                                                             </button>
-                                                         }
-                                                     </div>
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
+                                string GetStepName(int step) => step switch {
+                                    2 => "Step 2: Classifications",
+                                    3 => "Step 3: Key Personnel",
+                                    4 => "Step 4: Technical Scope (Common)",
+                                    5 => "Step 5: Financials & Documents",
+                                    _ => $"Step {step}"
+                                };
+                            }
 
-                            <!-- Technology-specific Documents -->
-                            @foreach (var techGroup in techDocs)
+                            @if (commonGroups.Any())
                             {
-                                <div class="mb-4">
-                                    <div class="bg-gov-blue text-white px-3 py-2 rounded-top-4 small fw-bold">
-                                        <i class="bi bi-gear-fill me-2"></i> Technical Documents: @techGroup.Key
-                                    </div>
-                                    <div class="table-responsive rounded-bottom-4 border-start border-end border-bottom">
-                                        <table class="table table-hover mb-0 align-middle">
-                                            <tbody>
-                                                @foreach (var doc in techGroup)
-                                                {
-                                                    <tr>
-                                                        <td class="ps-4 small text-gov-blue" style="width: 40%">@doc.DocumentType</td>
-                                                        <td class="text-muted small text-truncate" style="max-width: 200px;">@doc.FileName</td>
-                                                        <td class="text-end pe-4">
-                                                            <div id="doc-actions-@doc.Id" class="d-flex justify-content-end align-items-center gap-3" data-doc-type="@Html.Raw(doc.DocumentType.Replace("\"", "&quot;"))" data-file-path="@doc.FilePath">
-                                                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1 extra-small fw-bold" onclick="viewHistory(@doc.Id)" title="View History">
-                                                                    <i class="bi bi-clock-history"></i>
-                                                                </button>
-                                                                <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-gov-blue py-1 shadow-sm"><i class="bi bi-eye"></i></a>
-                                                                
-                                                                @if (doc.DocumentStatus == "Rejected")
-                                                                {
-                                                                    <span class="badge bg-danger rounded-pill px-3 py-2 extra-small fw-bold" title="@doc.RejectionReason"><i class="bi bi-x-circle-fill me-1"></i> Rejected</span>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 extra-small fw-bold" onclick="openRejectModal(@doc.Id, '@Html.Raw(doc.DocumentType.Replace("'", "\\'"))')">
-                                                                        <i class="bi bi-x-circle me-1"></i>Reject
+                                <h6 class="text-gov-blue fw-bold mb-3 d-flex align-items-center">
+                                    <i class="bi bi-files me-2"></i>Common Documents (Step-wise)
+                                </h6>
+                                
+                                @foreach (var group in commonGroups)
+                                {
+                                    <div class="mb-4">
+                                        <div class="bg-light border-start border-4 border-gov-blue px-3 py-2 small fw-bold text-gov-blue mb-0 rounded-end">
+                                            @GetStepName(group.Key)
+                                        </div>
+                                        <div class="table-responsive rounded-bottom-4 border-start border-end border-bottom">
+                                            <table class="table table-hover mb-0 align-middle">
+                                                <tbody>
+                                                    @foreach (var doc in group)
+                                                    {
+                                                        <tr>
+                                                            <td class="ps-4 small text-gov-blue fw-semibold" style="width: 40%">@doc.DocumentType</td>
+                                                            <td class="text-muted small text-truncate" style="max-width: 200px;">@doc.FileName</td>
+                                                            <td class="text-end pe-4">
+                                                                <div id="doc-actions-@doc.Id" class="d-flex justify-content-end align-items-center gap-2" data-doc-type="@Html.Raw(doc.DocumentType.Replace("\"", "&quot;"))" data-file-path="@doc.FilePath">
+                                                                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1 extra-small fw-bold" onclick="viewHistory(@doc.Id)" title="View History">
+                                                                        <i class="bi bi-clock-history"></i>
                                                                     </button>
-                                                                    <button type="button" onclick="toggleVerify(@doc.Id, @Model.Id)" class="btn btn-sm @(doc.DocumentStatus == "Verified" ? "btn-success" : "btn-outline-success") rounded-pill px-3 py-1 extra-small fw-bold verify-btn">
-                                                                        <i class="bi @(doc.DocumentStatus == "Verified" ? "bi-check-circle-fill" : "bi-check-circle") me-1"></i>@(doc.DocumentStatus == "Verified" ? "Verified" : "Verify")
-                                                                    </button>
-                                                                }
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                }
-                                            </tbody>
-                                        </table>
+                                                                    <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-gov-blue py-1 shadow-sm"><i class="bi bi-eye"></i></a>
+                                                                    
+                                                                    @if (doc.DocumentStatus == "Rejected")
+                                                                    {
+                                                                        <span class="badge bg-danger rounded-pill px-3 py-2 extra-small fw-bold" title="@doc.RejectionReason"><i class="bi bi-x-circle-fill me-1"></i> Rejected</span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 extra-small fw-bold" onclick="openRejectModal(@doc.Id, '@Html.Raw(doc.DocumentType.Replace("'", "\\'"))')">
+                                                                            <i class="bi bi-x-circle me-1"></i>Reject
+                                                                        </button>
+                                                                        <button type="button" onclick="toggleVerify(@doc.Id, @Model.Id)" class="btn btn-sm @(doc.DocumentStatus == "Verified" ? "btn-success" : "btn-outline-success") rounded-pill px-3 py-1 extra-small fw-bold verify-btn">
+                                                                            <i class="bi @(doc.DocumentStatus == "Verified" ? "bi-check-circle-fill" : "bi-check-circle") me-1"></i>@(doc.DocumentStatus == "Verified" ? "Verified" : "Verify")
+                                                                        </button>
+                                                                    }
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
-                                </div>
+                                }
+                            }
+
+                            @if (apcdGroups.Any())
+                            {
+                                <h6 class="text-gov-blue fw-bold mb-3 mt-5 d-flex align-items-center">
+                                    <i class="bi bi-cpu me-2"></i>APCD Specific Documents
+                                </h6>
+                                
+                                @foreach (var group in apcdGroups)
+                                {
+                                    <div class="mb-4">
+                                        <div class="bg-gov-blue text-white px-3 py-2 rounded-top-4 small fw-bold">
+                                            <i class="bi bi-gear-fill me-2"></i> Documents for: @group.Key
+                                        </div>
+                                        <div class="table-responsive rounded-bottom-4 border-start border-end border-bottom">
+                                            <table class="table table-hover mb-0 align-middle">
+                                                <tbody>
+                                                    @foreach (var doc in group)
+                                                    {
+                                                        <tr>
+                                                            <td class="ps-4 small text-gov-blue fw-semibold" style="width: 40%">@doc.DocumentType</td>
+                                                            <td class="text-muted small text-truncate" style="max-width: 200px;">@doc.FileName</td>
+                                                            <td class="text-end pe-4">
+                                                                <div id="doc-actions-@doc.Id" class="d-flex justify-content-end align-items-center gap-2" data-doc-type="@Html.Raw(doc.DocumentType.Replace("\"", "&quot;"))" data-file-path="@doc.FilePath">
+                                                                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1 extra-small fw-bold" onclick="viewHistory(@doc.Id)" title="View History">
+                                                                        <i class="bi bi-clock-history"></i>
+                                                                    </button>
+                                                                    <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-gov-blue py-1 shadow-sm"><i class="bi bi-eye"></i></a>
+                                                                    
+                                                                    @if (doc.DocumentStatus == "Rejected")
+                                                                    {
+                                                                        <span class="badge bg-danger rounded-pill px-3 py-2 extra-small fw-bold" title="@doc.RejectionReason"><i class="bi bi-x-circle-fill me-1"></i> Rejected</span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 extra-small fw-bold" onclick="openRejectModal(@doc.Id, '@Html.Raw(doc.DocumentType.Replace("'", "\\'"))')">
+                                                                            <i class="bi bi-x-circle me-1"></i>Reject
+                                                                        </button>
+                                                                        <button type="button" onclick="toggleVerify(@doc.Id, @Model.Id)" class="btn btn-sm @(doc.DocumentStatus == "Verified" ? "btn-success" : "btn-outline-success") rounded-pill px-3 py-1 extra-small fw-bold verify-btn">
+                                                                            <i class="bi @(doc.DocumentStatus == "Verified" ? "bi-check-circle-fill" : "bi-check-circle") me-1"></i>@(doc.DocumentStatus == "Verified" ? "Verified" : "Verify")
+                                                                        </button>
+                                                                    }
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                }
                             }
                         </div>
                     </div>

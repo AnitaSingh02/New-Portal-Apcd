@@ -230,6 +230,11 @@ namespace APCD.Web.Models
         public string DocumentStatus { get; set; } = "Pending"; // Pending, Verified, Rejected
         public bool IsActive { get; set; } = true;
 
+        // Categorization
+        public int StepNumber { get; set; } = 0;
+        public string DocumentCategory { get; set; } = "Common"; // Common, APCD
+
+
         public virtual EmpanelmentApplication Application { get; set; }
         public virtual ICollection<DocumentReviewHistory> ReviewHistories { get; set; } = new List<DocumentReviewHistory>();
     }

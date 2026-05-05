@@ -183,15 +183,17 @@ namespace APCD.Web.Controllers
             application.CurrentStep = Math.Max(application.CurrentStep, 3);
 
             string oemFolder = await GetOEMFolderName(id);
+            string category = "Common";
+            int step = 2;
 
-            await ProcessFileUpload(id, "isoStandardsFile", "ISOStandardsCertificate", oemFolder);
-            await ProcessFileUpload(id, "mseFile", "MSECertificate", oemFolder);
-            await ProcessFileUpload(id, "startupFile", "StartupCertificate", oemFolder);
-            await ProcessFileUpload(id, "localSupplierFile", "LocalSupplierCertificate", oemFolder);
-            await ProcessFileUpload(id, "coRegFile", "CompanyRegistration", oemFolder);
-            await ProcessFileUpload(id, "gstinFile", "GSTINCertificate", oemFolder);
-            await ProcessFileUpload(id, "panFile", "PANCard", oemFolder);
-            await ProcessFileUpload(id, "ctoFile", "CTOCertificate", oemFolder);
+            await ProcessFileUpload(id, "isoStandardsFile", "ISOStandardsCertificate", oemFolder, step, category);
+            await ProcessFileUpload(id, "mseFile", "MSECertificate", oemFolder, step, category);
+            await ProcessFileUpload(id, "startupFile", "StartupCertificate", oemFolder, step, category);
+            await ProcessFileUpload(id, "localSupplierFile", "LocalSupplierCertificate", oemFolder, step, category);
+            await ProcessFileUpload(id, "coRegFile", "CompanyRegistration", oemFolder, step, category);
+            await ProcessFileUpload(id, "gstinFile", "GSTINCertificate", oemFolder, step, category);
+            await ProcessFileUpload(id, "panFile", "PANCard", oemFolder, step, category);
+            await ProcessFileUpload(id, "ctoFile", "CTOCertificate", oemFolder, step, category);
 
             await _context.SaveChangesAsync();
             return RedirectToAction("Step3", new { id });
@@ -245,8 +247,8 @@ namespace APCD.Web.Controllers
         public async Task<IActionResult> SaveStep3Docs(int id)
         {
             string oemFolder = await GetOEMFolderName(id);
-            await ProcessFileUpload(id, "orgChartFile", "OrganizationalChart", oemFolder);
-            await ProcessFileUpload(id, "staffQualFile", "StaffQualification", oemFolder);
+            await ProcessFileUpload(id, "orgChartFile", "OrganizationalChart", oemFolder, 3, "Common");
+            await ProcessFileUpload(id, "staffQualFile", "StaffQualification", oemFolder, 3, "Common");
             var application = await _context.Applications.FindAsync(id);
             if (application != null) application.CurrentStep = Math.Max(application.CurrentStep, 4);
             await _context.SaveChangesAsync();
@@ -368,7 +370,7 @@ namespace APCD.Web.Controllers
             string oemFolder = await GetOEMFolderName(id);
             
             // Common documents (Card 13 stays common)
-            await ProcessFileUpload(id, "techCatalogueFile", "TechnicalCatalogue", oemFolder);
+            await ProcessFileUpload(id, "techCatalogueFile", "TechnicalCatalogue", oemFolder, 4, "Common");
 
             // Per-technology documents
             var appliedTechs = capabilities.Where(c => c.IsAppliedForEmpanelment).ToList();
@@ -391,7 +393,7 @@ namespace APCD.Web.Controllers
                 foreach (var docType in docTypes)
                 {
                     string fileKey = $"{docType.Value}_{safeTechName}";
-                    await ProcessFileUpload(id, fileKey, docType.Key, oemFolder, tech.SubTech);
+                    await ProcessFileUpload(id, fileKey, docType.Key, oemFolder, 4, "APCD", tech.SubTech);
                 }
             }
 
@@ -478,21 +480,21 @@ namespace APCD.Web.Controllers
             }
 
             // Save mandatory documents
-            await ProcessFileUpload(id, "consolidatedTurnoverFile", "ConsolidatedTurnover", oemFolder);
-            await ProcessFileUpload(id, "bankSolvencyFile", "BankSolvency", oemFolder);
-            await ProcessFileUpload(id, "bankAccountFile", "BankAccountDetails", oemFolder);
-            await ProcessFileUpload(id, "serviceSupportFile", "ServiceSupportUndertaking", oemFolder);
-            await ProcessFileUpload(id, "nonBlacklistingFile", "NonBlacklistingUndertaking", oemFolder);
-            await ProcessFileUpload(id, "testCertificateFile", "TestCertificate", oemFolder);
-            await ProcessFileUpload(id, "gstFilingFile", "GSTFiling", oemFolder);
-            await ProcessFileUpload(id, "noLegalDisputesFile", "NoLegalDisputes", oemFolder);
-            await ProcessFileUpload(id, "complaintPolicyFile", "ComplaintPolicy", oemFolder);
-            await ProcessFileUpload(id, "escalationMechFile", "EscalationMechanism", oemFolder);
-            await ProcessFileUpload(id, "unitPhotographsFile", "UnitPhotographs", oemFolder);
+            await ProcessFileUpload(id, "consolidatedTurnoverFile", "ConsolidatedTurnover", oemFolder, 5, "Common");
+            await ProcessFileUpload(id, "bankSolvencyFile", "BankSolvency", oemFolder, 5, "Common");
+            await ProcessFileUpload(id, "bankAccountFile", "BankAccountDetails", oemFolder, 5, "Common");
+            await ProcessFileUpload(id, "serviceSupportFile", "ServiceSupportUndertaking", oemFolder, 5, "Common");
+            await ProcessFileUpload(id, "nonBlacklistingFile", "NonBlacklistingUndertaking", oemFolder, 5, "Common");
+            await ProcessFileUpload(id, "testCertificateFile", "TestCertificate", oemFolder, 5, "Common");
+            await ProcessFileUpload(id, "gstFilingFile", "GSTFiling", oemFolder, 5, "Common");
+            await ProcessFileUpload(id, "noLegalDisputesFile", "NoLegalDisputes", oemFolder, 5, "Common");
+            await ProcessFileUpload(id, "complaintPolicyFile", "ComplaintPolicy", oemFolder, 5, "Common");
+            await ProcessFileUpload(id, "escalationMechFile", "EscalationMechanism", oemFolder, 5, "Common");
+            await ProcessFileUpload(id, "unitPhotographsFile", "UnitPhotographs", oemFolder, 5, "Common");
 
             for (int i = 1; i <= 3; i++)
             {
-                await ProcessFileUpload(id, $"testimonialFile_{i}", $"ClientTestimonial_{i}", oemFolder);
+                await ProcessFileUpload(id, $"testimonialFile_{i}", $"ClientTestimonial_{i}", oemFolder, 5, "Common");
             }
 
             application.CurrentStep = Math.Max(application.CurrentStep, 6);
@@ -533,17 +535,17 @@ namespace APCD.Web.Controllers
             return $"/uploads/{folderName}/{fileName}";
         }
 
-        private async Task ProcessFileUpload(int id, string fileKey, string docType, string folderName, string associatedTech = "")
+        private async Task ProcessFileUpload(int id, string fileKey, string docType, string folderName, int step, string category, string associatedTech = "")
         {
             var file = Request.Form.Files[fileKey];
             if (file != null && file.Length > 0)
             {
                 var path = await SaveFileAsync(file, folderName);
-                await AddOrUpdateDocument(id, docType, file.FileName, path, associatedTech);
+                await AddOrUpdateDocument(id, docType, file.FileName, path, step, category, associatedTech);
             }
         }
 
-        private async Task AddOrUpdateDocument(int applicationId, string documentType, string fileName, string filePath, string associatedTech = "")
+        private async Task AddOrUpdateDocument(int applicationId, string documentType, string fileName, string filePath, int step, string category, string associatedTech = "")
         {
             var query = _context.ApplicationDocuments
                 .Where(d => d.ApplicationId == applicationId && d.DocumentType == documentType);
@@ -551,6 +553,11 @@ namespace APCD.Web.Controllers
             if (!string.IsNullOrEmpty(associatedTech))
             {
                 query = query.Where(d => d.AssociatedTech == associatedTech);
+            }
+            else
+            {
+                // For common documents, also check step to distinguish duplicates like TestCertificate in Step 4 vs 5
+                query = query.Where(d => d.StepNumber == step || d.StepNumber == 0);
             }
 
             var doc = await query.FirstOrDefaultAsync();
@@ -561,6 +568,8 @@ namespace APCD.Web.Controllers
                 doc.FilePath = filePath;
                 doc.UploadedAt = DateTime.UtcNow;
                 doc.AssociatedTech = associatedTech;
+                doc.StepNumber = step;
+                doc.DocumentCategory = category;
             }
             else
             {
@@ -570,7 +579,9 @@ namespace APCD.Web.Controllers
                     DocumentType = documentType,
                     FileName = fileName,
                     FilePath = filePath,
-                    AssociatedTech = associatedTech
+                    AssociatedTech = associatedTech,
+                    StepNumber = step,
+                    DocumentCategory = category
                 });
             }
         }
@@ -774,8 +785,8 @@ namespace APCD.Web.Controllers
             }
 
             string oemFolder = await GetOEMFolderName(id);
-            await ProcessFileUpload(id, "paymentReceiptFile", "PaymentReceipt", oemFolder);
-            await ProcessFileUpload(id, "supplementalReceiptFile", "SupplementalReceipt", oemFolder);
+            await ProcessFileUpload(id, "paymentReceiptFile", "PaymentReceipt", oemFolder, 5, "Common");
+            await ProcessFileUpload(id, "supplementalReceiptFile", "SupplementalReceipt", oemFolder, 5, "Common");
 
             await _context.SaveChangesAsync();
             return RedirectToAction("Submit", new { id });

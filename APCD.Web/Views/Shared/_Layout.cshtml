@@ -36,88 +36,68 @@
         /* Header Section */
         .gov-header {
             background: #ffffff;
-            padding: 12px 0;
+            padding: 10px 0;
             border-bottom: 1px solid #f0f0f0;
-            position: relative;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.02);
         }
         
         .gov-header-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            max-width: 1320px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
+            gap: 20px;
         }
         
-        .brand-section {
+        .header-left, .header-center, .header-right {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            min-height: 80px;
         }
-        
-        .brand-logos {
+
+        .header-center {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .header-right {
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .logo-group {
             display: flex;
             align-items: center;
-            gap: 1.25rem;
+            gap: 12px;
         }
-        
-        .brand-logos img {
+
+        .logo-img {
             height: 60px;
             width: auto;
             object-fit: contain;
             transition: transform 0.3s;
         }
 
-        .brand-logos img:hover {
+        .logo-img:hover {
             transform: scale(1.05);
         }
         
-        .brand-title {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        
-        .brand-title h1 {
-            font-size: 1.15rem;
-            margin: 0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--gov-green);
-            font-weight: 800;
-            line-height: 1.2;
-        }
-        
-        .brand-title p {
-            font-size: 0.8rem;
-            margin: 0;
-            color: #666;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .brand-divider {
-            width: 1px;
-            height: 45px;
-            background: #e0e0e0;
-            margin: 0 0.5rem;
-        }
-
         .scheme-info {
-            display: flex;
-            flex-direction: column;
+            text-align: left;
         }
 
         .scheme-info h2 {
-            font-size: 1.25rem;
+            font-size: 1.6rem;
             margin: 0;
-            color: #2c3e50;
+            color: #1f3c5a;
             font-weight: 700;
-            line-height: 1.3;
-            max-width: 450px;
+            line-height: 1.2;
+            max-width: 400px;
         }
+
+
 
         /* Navbar Section */
         .gov-navbar {
@@ -275,11 +255,11 @@
             color: #ffffff !important;
         }
         
-        @@media (max-width: 991px) {
-            .gov-header-container { flex-direction: column; text-align: center; gap: 1rem; }
-            .brand-section { flex-direction: column; }
-            .brand-title { border-left: none; padding-left: 0; margin-top: 0.5rem; }
-            .header-actions { margin-bottom: 0.5rem; }
+        @@media (max-width: 1199px) {
+            .gov-header-container { flex-direction: column; text-align: center; gap: 1.5rem; padding: 1.5rem 0; }
+            .header-left, .header-center, .header-right { flex-direction: column; text-align: center; justify-content: center; width: 100%; min-height: auto; }
+            .scheme-info h2 { font-size: 1.25rem; max-width: 100%; }
+            .header-actions { margin-top: 1rem; }
             .gov-navbar .nav-link { padding: 10px 15px !important; text-align: center; }
         }
 
@@ -293,48 +273,53 @@
         <!-- Government Style Header -->
         <header class="gov-header">
         <div class="gov-header-container">
-            <!-- Left: Logos and Title -->
-            <div class="brand-section">
-                <div class="brand-logos">
-                    <img src="~/images/npc-logo.png" alt="NPC Logo" />
-                    <div class="brand-title">
-                        <h1>National Productivity Council</h1>
-                        <p>(Under Ministry of Commerce & Industry Govt. of India)</p>
-                    </div>
+            <!-- Left Section (NPC) -->
+            <div class="header-left">
+                <div class="logo-group">
+                    <img src="~/images/npc_logo_main.png" alt="NPC Logo" class="logo-img" />
                 </div>
-                
-                <div class="brand-divider"></div>
-                
-                <div class="brand-logos">
-                    <img src="~/images/apcd-logo.png" alt="APCD Logo" />
+            </div>
+
+            <!-- Center Section (CPCB) -->
+            <div class="header-center">
+                <div class="logo-group">
+                    <img src="~/images/cpcb-logo.jpg" alt="CPCB Logo" class="logo-img" />
+                    <img src="~/images/cpcb-logo-name.jpg" alt="CPCB Branding" class="logo-img" />
+                </div>
+            </div>
+
+            <!-- Right Section (APCD + Actions) -->
+            <div class="header-right">
+                <div class="logo-group">
+                    <img src="~/images/apcd-logo.png" alt="APCD Logo" class="logo-img" />
                     <div class="scheme-info">
                         <h2>Air Pollution Control Device Empanelment Scheme</h2>
                     </div>
                 </div>
-            </div>
 
-            <!-- Right: Actions -->
-            <div class="header-actions">
-                @if (User.Identity?.IsAuthenticated == true)
-                {
-                    <a class="btn-dashboard" asp-controller="Dashboard" asp-action="Index">
-                        <i class="fa-solid fa-gauge-high me-2"></i> Dashboard
-                    </a>
-                    <form asp-controller="Auth" asp-action="Logout" method="post" class="m-0 p-0">
-                        <button type="submit" class="btn-action" title="Sign out">
-                            <i class="fa-solid fa-power-off text-danger"></i>
-                        </button>
-                    </form>
-                }
-                else
-                {
-                    <a class="btn-action" asp-controller="Auth" asp-action="Login" title="Sign In">
-                        <i class="fa-solid fa-right-to-bracket"></i>
-                    </a>
-                    <a class="btn-action" asp-controller="Auth" asp-action="Register" title="Create Account">
-                        <i class="fa-solid fa-user-plus"></i>
-                    </a>
-                }
+                <!-- Right: Actions (Icons) -->
+                <div class="header-actions">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a class="btn-action" asp-controller="Dashboard" asp-action="Index" title="Dashboard">
+                            <i class="fa-solid fa-gauge-high"></i>
+                        </a>
+                        <form asp-controller="Auth" asp-action="Logout" method="post" class="m-0 p-0">
+                            <button type="submit" class="btn-action" title="Sign out">
+                                <i class="fa-solid fa-power-off text-danger"></i>
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a class="btn-action" asp-controller="Auth" asp-action="Login" title="Sign In">
+                            <i class="fa-solid fa-right-to-bracket"></i>
+                        </a>
+                        <a class="btn-action" asp-controller="Auth" asp-action="Register" title="Create Account">
+                            <i class="fa-solid fa-user-plus"></i>
+                        </a>
+                    }
+                </div>
             </div>
         </div>
     </header>

@@ -31,9 +31,49 @@ namespace APCD.Web.Controllers
                 .OrderByDescending(a => a.CreatedAt)
                 .FirstOrDefaultAsync();
 
-            if (application == null) return Json(new List<object>());
+            if (application == null) return Json(new { commonGroups = new List<object>(), apcdGroups = new List<object>() });
 
-            var docs = application.Documents.Where(d => d.IsActive).Select(d => new
+            var activeDocs = application.Documents.Where(d => d.IsActive).ToList();
+
+            var commonGroups = activeDocs
+                .Where(d => d.DocumentCategory == "Common")
+                .GroupBy(d => d.StepNumber)
+                .OrderBy(g => g.Key)
+                .Select(g => new
+                {
+                    step = g.Key,
+                    stepName = GetStepName(g.Key),
+                    documents = g.Select(d => MapDoc(d)).ToList()
+                }).ToList();
+
+            var apcdGroups = activeDocs
+                .Where(d => d.DocumentCategory == "APCD")
+                .GroupBy(d => d.AssociatedTech)
+                .OrderBy(g => g.Key)
+                .Select(g => new
+                {
+                    apcd = g.Key,
+                    documents = g.Select(d => MapDoc(d)).ToList()
+                }).ToList();
+
+            return Json(new { commonGroups, apcdGroups });
+        }
+
+        private string GetStepName(int step)
+        {
+            return step switch
+            {
+                2 => "Step 2: Classifications",
+                3 => "Step 3: Key Personnel",
+                4 => "Step 4: Technical Scope (Common)",
+                5 => "Step 5: Financials & Documents",
+                _ => $"Step {step}"
+            };
+        }
+
+        private object MapDoc(ApplicationDocument d)
+        {
+            return new
             {
                 id = d.Id,
                 name = d.DocumentType,
@@ -43,9 +83,7 @@ namespace APCD.Web.Controllers
                 status = d.DocumentStatus,
                 reason = d.DocumentStatus == "Rejected" ? d.RejectionReason : (d.DocumentStatus == "Verified" ? "Approved" : "Under Review"),
                 canUpload = d.DocumentStatus == "Rejected"
-            }).ToList();
-
-            return Json(docs);
+            };
         }
 
         [HttpPost]
@@ -89,7 +127,9 @@ namespace APCD.Web.Controllers
                     ParentDocumentId = oldDoc.ParentDocumentId ?? oldDoc.Id,
                     Version = oldDoc.Version + 1,
                     DocumentStatus = "Pending",
-                    IsActive = true
+                    IsActive = true,
+                    StepNumber = oldDoc.StepNumber,
+                    DocumentCategory = oldDoc.DocumentCategory
                 };
 
                 _context.ApplicationDocuments.Add(newDoc);
