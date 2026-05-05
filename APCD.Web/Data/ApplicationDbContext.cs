@@ -21,6 +21,7 @@ namespace APCD.Web.Data
         public DbSet<APCDCapability> APCDCapabilities { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<ContactUs> ContactUs { get; set; }
+        public DbSet<DocumentReviewHistory> DocumentReviewHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

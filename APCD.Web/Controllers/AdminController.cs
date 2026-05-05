@@ -106,11 +106,30 @@ namespace APCD.Web.Controllers
             {
                 doc.IsVerified = !doc.IsVerified;
                 if (doc.IsVerified) {
+                    doc.DocumentStatus = "Verified";
                     doc.IsRejected = false;
                     doc.RejectionType = string.Empty;
                     doc.RejectionReason = string.Empty;
                     doc.RejectedAt = null;
+                    doc.VerifiedAt = DateTime.UtcNow;
                 }
+                else
+                {
+                    doc.DocumentStatus = "Pending";
+                    doc.VerifiedAt = null;
+                }
+
+                // Record history
+                var history = new DocumentReviewHistory
+                {
+                    DocumentId = doc.Id,
+                    Status = doc.DocumentStatus,
+                    ActionBy = User.Identity?.Name ?? "Admin",
+                    ActionAt = DateTime.UtcNow,
+                    RejectionReason = doc.DocumentStatus == "Verified" ? "Approved by Admin" : "Verification removed"
+                };
+                _context.DocumentReviewHistories.Add(history);
+
                 await _context.SaveChangesAsync();
                 return Json(new { success = true, isVerified = doc.IsVerified });
             }
@@ -125,9 +144,22 @@ namespace APCD.Web.Controllers
             {
                 doc.IsVerified = false;
                 doc.IsRejected = true;
+                doc.DocumentStatus = "Rejected";
                 doc.RejectionType = request.RejectionType ?? string.Empty;
                 doc.RejectionReason = request.RejectionReason ?? string.Empty;
                 doc.RejectedAt = DateTime.UtcNow;
+
+                // Record history
+                var history = new DocumentReviewHistory
+                {
+                    DocumentId = doc.Id,
+                    Status = "Rejected",
+                    RejectionType = doc.RejectionType,
+                    RejectionReason = doc.RejectionReason,
+                    ActionBy = User.Identity?.Name ?? "Admin",
+                    ActionAt = DateTime.UtcNow
+                };
+                _context.DocumentReviewHistories.Add(history);
                 
                 await _context.SaveChangesAsync();
                 return Json(new { success = true, message = "Document rejected successfully." });

@@ -100,9 +100,9 @@
                         </div>
                         <div class="col-12">
                             @{ 
-                                var commonDocs = Model.Documents.Where(d => string.IsNullOrEmpty(d.AssociatedTech)).ToList();
-                                var techDocs = Model.Documents.Where(d => !string.IsNullOrEmpty(d.AssociatedTech)).GroupBy(d => d.AssociatedTech);
-                            }
+                                 var commonDocs = Model.Documents.Where(d => string.IsNullOrEmpty(d.AssociatedTech) && d.IsActive).ToList();
+                                 var techDocs = Model.Documents.Where(d => !string.IsNullOrEmpty(d.AssociatedTech) && d.IsActive).GroupBy(d => d.AssociatedTech);
+                             }
 
                             <!-- Common Documents -->
                             <div class="table-responsive rounded-4 border mb-4">
@@ -122,22 +122,25 @@
                                                 <td class="text-muted small text-truncate" style="max-width: 250px;">@doc.FileName</td>
                                                 <td class="text-end pe-4">
                                                     <div id="doc-actions-@doc.Id" class="d-flex justify-content-end align-items-center gap-3" data-doc-type="@Html.Raw(doc.DocumentType.Replace("\"", "&quot;"))" data-file-path="@doc.FilePath">
-                                                        <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-gov-blue py-1 shadow-sm"><i class="bi bi-eye"></i></a>
-                                                        
-                                                        @if (doc.IsRejected)
-                                                        {
-                                                            <span class="badge bg-danger rounded-pill px-3 py-2 extra-small fw-bold" title="@doc.RejectionReason"><i class="bi bi-x-circle-fill me-1"></i> Rejected</span>
-                                                        }
-                                                        else
-                                                        {
-                                                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 extra-small fw-bold" onclick="openRejectModal(@doc.Id, '@Html.Raw(doc.DocumentType.Replace("'", "\\'"))')">
-                                                                <i class="bi bi-x-circle me-1"></i>Reject
-                                                            </button>
-                                                            <button type="button" onclick="toggleVerify(@doc.Id, @Model.Id)" class="btn btn-sm @(doc.IsVerified ? "btn-success" : "btn-outline-success") rounded-pill px-3 py-1 extra-small fw-bold verify-btn">
-                                                                <i class="bi @(doc.IsVerified ? "bi-check-circle-fill" : "bi-check-circle") me-1"></i>@(doc.IsVerified ? "Verified" : "Verify")
-                                                            </button>
-                                                        }
-                                                    </div>
+                                                         <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1 extra-small fw-bold" onclick="viewHistory(@doc.Id)" title="View History">
+                                                             <i class="bi bi-clock-history"></i>
+                                                         </button>
+                                                         <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-gov-blue py-1 shadow-sm"><i class="bi bi-eye"></i></a>
+                                                         
+                                                         @if (doc.DocumentStatus == "Rejected")
+                                                         {
+                                                             <span class="badge bg-danger rounded-pill px-3 py-2 extra-small fw-bold" title="@doc.RejectionReason"><i class="bi bi-x-circle-fill me-1"></i> Rejected</span>
+                                                         }
+                                                         else
+                                                         {
+                                                             <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 extra-small fw-bold" onclick="openRejectModal(@doc.Id, '@Html.Raw(doc.DocumentType.Replace("'", "\\'"))')">
+                                                                 <i class="bi bi-x-circle me-1"></i>Reject
+                                                             </button>
+                                                             <button type="button" onclick="toggleVerify(@doc.Id, @Model.Id)" class="btn btn-sm @(doc.DocumentStatus == "Verified" ? "btn-success" : "btn-outline-success") rounded-pill px-3 py-1 extra-small fw-bold verify-btn">
+                                                                 <i class="bi @(doc.DocumentStatus == "Verified" ? "bi-check-circle-fill" : "bi-check-circle") me-1"></i>@(doc.DocumentStatus == "Verified" ? "Verified" : "Verify")
+                                                             </button>
+                                                         }
+                                                     </div>
                                                 </td>
                                             </tr>
                                         }
@@ -162,9 +165,12 @@
                                                         <td class="text-muted small text-truncate" style="max-width: 200px;">@doc.FileName</td>
                                                         <td class="text-end pe-4">
                                                             <div id="doc-actions-@doc.Id" class="d-flex justify-content-end align-items-center gap-3" data-doc-type="@Html.Raw(doc.DocumentType.Replace("\"", "&quot;"))" data-file-path="@doc.FilePath">
+                                                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1 extra-small fw-bold" onclick="viewHistory(@doc.Id)" title="View History">
+                                                                    <i class="bi bi-clock-history"></i>
+                                                                </button>
                                                                 <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-gov-blue py-1 shadow-sm"><i class="bi bi-eye"></i></a>
                                                                 
-                                                                @if (doc.IsRejected)
+                                                                @if (doc.DocumentStatus == "Rejected")
                                                                 {
                                                                     <span class="badge bg-danger rounded-pill px-3 py-2 extra-small fw-bold" title="@doc.RejectionReason"><i class="bi bi-x-circle-fill me-1"></i> Rejected</span>
                                                                 }
@@ -173,8 +179,8 @@
                                                                     <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 extra-small fw-bold" onclick="openRejectModal(@doc.Id, '@Html.Raw(doc.DocumentType.Replace("'", "\\'"))')">
                                                                         <i class="bi bi-x-circle me-1"></i>Reject
                                                                     </button>
-                                                                    <button type="button" onclick="toggleVerify(@doc.Id, @Model.Id)" class="btn btn-sm @(doc.IsVerified ? "btn-success" : "btn-outline-success") rounded-pill px-3 py-1 extra-small fw-bold verify-btn">
-                                                                        <i class="bi @(doc.IsVerified ? "bi-check-circle-fill" : "bi-check-circle") me-1"></i>@(doc.IsVerified ? "Verified" : "Verify")
+                                                                    <button type="button" onclick="toggleVerify(@doc.Id, @Model.Id)" class="btn btn-sm @(doc.DocumentStatus == "Verified" ? "btn-success" : "btn-outline-success") rounded-pill px-3 py-1 extra-small fw-bold verify-btn">
+                                                                        <i class="bi @(doc.DocumentStatus == "Verified" ? "bi-check-circle-fill" : "bi-check-circle") me-1"></i>@(doc.DocumentStatus == "Verified" ? "Verified" : "Verify")
                                                                     </button>
                                                                 }
                                                             </div>
@@ -300,6 +306,39 @@
     </div>
 </div>
 
+<!-- Document History Modal -->
+<div class="modal fade" id="historyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-gov-blue">Document Review History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle small">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Version</th>
+                                <th>Status</th>
+                                <th>Reason / Comments</th>
+                                <th>Date</th>
+                                <th>Action By</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyBody">
+                            <!-- History items will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Reject Document Modal -->
 <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -375,7 +414,11 @@
             const docType = container.getAttribute('data-doc-type');
             const safeDocType = docType.replace(/'/g, "\\'");
 
-            let html = `<a href="${filePath}" target="_blank" class="btn btn-sm btn-outline-gov-blue py-1 shadow-sm"><i class="bi bi-eye"></i></a>`;
+            let html = `
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1 extra-small fw-bold" onclick="viewHistory(${docId})" title="View History">
+                    <i class="bi bi-clock-history"></i>
+                </button>
+                <a href="${filePath}" target="_blank" class="btn btn-sm btn-outline-gov-blue py-1 shadow-sm"><i class="bi bi-eye"></i></a>`;
 
             if (isRejected) {
                 html += `<span class="badge bg-danger rounded-pill px-3 py-2 extra-small fw-bold" title="${rejectionReason}"><i class="bi bi-x-circle-fill me-1"></i> Rejected</span>`;
@@ -389,6 +432,47 @@
                     </button>`;
             }
             container.innerHTML = html;
+        }
+
+        function viewHistory(docId) {
+            const tbody = document.getElementById('historyBody');
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3"><div class="spinner-border spinner-border-sm text-gov-blue" role="status"></div></td></tr>';
+            
+            var modal = new bootstrap.Modal(document.getElementById('historyModal'));
+            modal.show();
+
+            // Using the same endpoint as OEM dashboard
+            fetch(`/OEM/GetDocumentHistory?documentId=${docId}`)
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        if (result.history.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">No history found.</td></tr>';
+                            return;
+                        }
+
+                        let html = '';
+                        result.history.forEach(h => {
+                            let badgeClass = h.status === 'Verified' ? 'bg-success' : (h.status === 'Rejected' ? 'bg-danger' : (h.status === 'Re-uploaded' ? 'bg-primary' : 'bg-warning'));
+                            html += `
+                                <tr>
+                                    <td><span class="badge bg-light text-dark">v${h.version}</span></td>
+                                    <td><span class="badge ${badgeClass}">${h.status}</span></td>
+                                    <td style="max-width: 200px;" class="text-wrap">${h.reason || (h.type || '-')}</td>
+                                    <td>${h.date}</td>
+                                    <td>${h.by}</td>
+                                </tr>
+                            `;
+                        });
+                        tbody.innerHTML = html;
+                    } else {
+                        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-3 text-danger">${result.message}</td></tr>`;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching history:', err);
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-danger">Failed to load history.</td></tr>';
+                });
         }
 
         function toggleVerify(docId, appId) {

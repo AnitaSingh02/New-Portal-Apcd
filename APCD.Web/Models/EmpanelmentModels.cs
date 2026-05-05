@@ -222,8 +222,30 @@ namespace APCD.Web.Models
         public string RejectionType { get; set; } = string.Empty;
         public string RejectionReason { get; set; } = string.Empty;
         public DateTime? RejectedAt { get; set; }
+        public DateTime? VerifiedAt { get; set; }
+
+        // Versioning & Audit
+        public int? ParentDocumentId { get; set; }
+        public int Version { get; set; } = 1;
+        public string DocumentStatus { get; set; } = "Pending"; // Pending, Verified, Rejected
+        public bool IsActive { get; set; } = true;
 
         public virtual EmpanelmentApplication Application { get; set; }
+        public virtual ICollection<DocumentReviewHistory> ReviewHistories { get; set; } = new List<DocumentReviewHistory>();
+    }
+
+    public class DocumentReviewHistory
+    {
+        [Key]
+        public int Id { get; set; }
+        public int DocumentId { get; set; }
+        public string Status { get; set; } // Pending, Verified, Rejected, Re-uploaded
+        public string RejectionType { get; set; } = string.Empty;
+        public string RejectionReason { get; set; } = string.Empty;
+        public string ActionBy { get; set; }
+        public DateTime ActionAt { get; set; } = DateTime.UtcNow;
+
+        public virtual ApplicationDocument Document { get; set; }
     }
 
     public enum PaymentType

@@ -4,6 +4,7 @@ using APCD.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace APCD.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260504093035_AddVerifiedAtToDocument")]
+    partial class AddVerifiedAtToDocument
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,10 +89,6 @@ namespace APCD.Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("DocumentStatus")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("DocumentType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -103,17 +101,11 @@ namespace APCD.Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsRejected")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsVerified")
                         .HasColumnType("bit");
-
-                    b.Property<int?>("ParentDocumentId")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("RejectedAt")
                         .HasColumnType("datetime2");
@@ -131,9 +123,6 @@ namespace APCD.Web.Migrations
 
                     b.Property<DateTime?>("VerifiedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Version")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -355,43 +344,6 @@ namespace APCD.Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ContactUs");
-                });
-
-            modelBuilder.Entity("APCD.Web.Models.DocumentReviewHistory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("ActionAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ActionBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("DocumentId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RejectionReason")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RejectionType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DocumentId");
-
-                    b.ToTable("DocumentReviewHistories");
                 });
 
             modelBuilder.Entity("APCD.Web.Models.EmpanelmentApplication", b =>
@@ -694,17 +646,6 @@ namespace APCD.Web.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("APCD.Web.Models.DocumentReviewHistory", b =>
-                {
-                    b.HasOne("APCD.Web.Models.ApplicationDocument", "Document")
-                        .WithMany("ReviewHistories")
-                        .HasForeignKey("DocumentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Document");
-                });
-
             modelBuilder.Entity("APCD.Web.Models.EmpanelmentApplication", b =>
                 {
                     b.HasOne("APCD.Web.Models.ApplicationUser", "User")
@@ -758,11 +699,6 @@ namespace APCD.Web.Migrations
                         .IsRequired();
 
                     b.Navigation("Application");
-                });
-
-            modelBuilder.Entity("APCD.Web.Models.ApplicationDocument", b =>
-                {
-                    b.Navigation("ReviewHistories");
                 });
 
             modelBuilder.Entity("APCD.Web.Models.ApplicationUser", b =>
