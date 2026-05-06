@@ -19,6 +19,18 @@
             <!-- Main Content -->
             <div class="col-lg-9 bg-white">
                 <div class="wizard-main text-center py-5">
+                    @if (ViewBag.IsSubmitted == true)
+                    {
+                        <div class="alert alert-info d-flex align-items-center border-0 shadow-sm mb-4 py-3 text-start mx-lg-5" style="background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); border-left: 5px solid #0ea5e9 !important;">
+                            <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark">View Mode – Submission Completed</h6>
+                                <p class="small mb-0 text-muted">This application has been submitted and is currently in read-only mode. No further edits are allowed.</p>
+                            </div>
+                            <i class="bi bi-lock-fill ms-auto fs-3 text-info opacity-25"></i>
+                        </div>
+                    }
+
                     <div class="mb-5">
                         <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
                             <i class="bi bi-check-circle-fill text-success" style="font-size: 3.5rem;"></i>

@@ -30,218 +30,248 @@
             <!-- Main Content -->
             <div class="col-lg-9 bg-white">
                 <div class="wizard-main">
+                    @if (ViewBag.IsSubmitted == true)
+                    {
+                        <div class="alert alert-info d-flex align-items-center border-0 shadow-sm mb-4 py-3" style="background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); border-left: 5px solid #0ea5e9 !important;">
+                            <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark">View Mode – Submission Completed</h6>
+                                <p class="small mb-0 text-muted">This application has been submitted and is currently in read-only mode. No further edits are allowed.</p>
+                            </div>
+                            <i class="bi bi-lock-fill ms-auto fs-3 text-info opacity-25"></i>
+                        </div>
+                    }
+
                     <form asp-action="SaveCapabilities" asp-route-id="@appId" method="post" enctype="multipart/form-data">
-                        <div class="form-section-title">Step 4: Technical Scope (APCD Technologies)</div>
-                        <p class="text-muted small mb-4">Point 25: Specify the APCDs currently manufactured and those for which empanelment is sought.</p>
+                        <fieldset @(ViewBag.IsSubmitted == true && ViewBag.IsAddMoreMode != true ? "disabled" : "")>
+                            <div class="form-section-title">Step 4: Technical Scope (APCD Technologies)</div>
+                            <p class="text-muted small mb-4">Point 25: Specify the APCDs currently manufactured and those for which empanelment is sought.</p>
 
-                        <div class="table-responsive border rounded-4 overflow-hidden mb-4">
-                            <table class="table tech-matrix-table mb-0 align-middle">
-                                <thead style="background-color: #c9daf8;">
-                                    <tr>
-                                        <th style="width: 18%;">Sl. No. & Main Technology</th>
-                                        <th style="width: 25%;">Type of APCDs based on technology</th>
-                                        <th class="text-center bg-light text-dark" style="width: 12%;">Pt 25: Mfgr.<br/><small class="fw-normal">Yes/No</small></th>
-                                        <th class="text-center bg-light text-dark" style="width: 12%;">Pt 26: Apply<br/><small class="fw-normal">Yes/No</small></th>
-                                        <th class="text-center" style="width: 15%;">Pt 25: Category<br/><small class="fw-normal">(1/2/Both)</small></th>
-                                        <th style="width: 18%;">Designed Capacity<br/><small class="fw-normal">(give range)</small></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @{ 
-                                        int i = 0; 
-                                        int mainTechCounter = 1;
-                                    }
-                                    @foreach (var tech in technologies)
-                                    {
-                                        bool isFirst = true;
-                                        @foreach (var sub in tech.Subs)
-                                        {
-                                            var existing = Model.FirstOrDefault(c => c.MainType == tech.Main && c.SubTech == sub);
-                                            bool isLocked = ViewBag.IsAddMoreMode == true && existing?.IsAppliedForEmpanelment == true;
-                                            
-                                            <tr class="data-grid-row @(isLocked ? "bg-light opacity-75" : "")">
-                                                @if (isFirst)
-                                                {
-                                                    <td rowspan="@tech.Subs.Length" class="fw-bold bg-light">
-                                                        @mainTechCounter. @tech.Main
-                                                    </td>
-                                                    isFirst = false;
-                                                }
-                                                <td class="small pt-3 pb-3">
-                                                    @sub
-                                                    @if (sub.Contains("patented") || sub.Contains("Others"))
-                                                    {
-                                                        <div class="mt-2 pt-2 border-top border-light">
-                                                            <strong class="text-dark small mb-1 d-block">If yes, specify the type:</strong>
-                                                            @if (isLocked)
-                                                            {
-                                                                <input type="text" class="form-control form-control-sm" value="@existing?.TypeDetails" disabled />
-                                                                <input type="hidden" name="capabilities[@i].TypeDetails" value="@existing?.TypeDetails" />
-                                                            }
-                                                            else
-                                                            {
-                                                                <input type="text" name="capabilities[@i].TypeDetails" class="form-control form-control-sm tech-type-input" placeholder="__________________" value="@existing?.TypeDetails" />
-                                                            }
-                                                        </div>
-                                                    }
-                                                </td>
-                                                <td class="text-center bg-light">
-                                                    <input type="hidden" name="capabilities[@i].MainType" value="@tech.Main" />
-                                                    <input type="hidden" name="capabilities[@i].SubTech" value="@sub" />
-                                                    <div class="form-check d-flex justify-content-center mb-0">
-                                                        @if (isLocked)
-                                                        {
-                                                            <input type="checkbox" class="form-check-input mt-0" style="width: 1.25em; height: 1.25em;" checked disabled />
-                                                            <input type="hidden" name="capabilities[@i].IsManufactured" value="true" />
-                                                        }
-                                                        else
-                                                        {
-                                                            <input type="checkbox" name="capabilities[@i].IsManufactured" value="true" class="form-check-input mt-0 tech-mfg-checkbox" style="width: 1.25em; height: 1.25em;" @(existing?.IsManufactured == true ? "checked" : "") />
-                                                            <input type="hidden" name="capabilities[@i].IsManufactured" value="false" />
-                                                        }
-                                                    </div>
-                                                </td>
-                                                <td class="text-center bg-light">
-                                                    <div class="form-check d-flex justify-content-center mb-0">
-                                                        @if (isLocked)
-                                                        {
-                                                            <input type="checkbox" class="form-check-input mt-0" style="width: 1.25em; height: 1.25em;" checked disabled />
-                                                            <input type="hidden" name="capabilities[@i].IsAppliedForEmpanelment" value="true" data-tech-name="@sub" />
-                                                        }
-                                                        else
-                                                        {
-                                                            <input type="checkbox" name="capabilities[@i].IsAppliedForEmpanelment" value="true" class="form-check-input mt-0 tech-apply-checkbox" data-tech-name="@sub" style="width: 1.25em; height: 1.25em;" @(existing?.IsAppliedForEmpanelment == true ? "checked" : "") />
-                                                            <input type="hidden" name="capabilities[@i].IsAppliedForEmpanelment" value="false" />
-                                                        }
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    @if (isLocked)
-                                                    {
-                                                        <select class="form-select form-select-sm" disabled>
-                                                            <option value="@existing?.Category" selected>@existing?.Category</option>
-                                                        </select>
-                                                        <input type="hidden" name="capabilities[@i].Category" value="@existing?.Category" />
-                                                    }
-                                                    else
-                                                    {
-                                                        <select name="capabilities[@i].Category" class="form-select form-select-sm tech-category-select">
-                                                            <option value="">NA</option>
-                                                            <option value="1" selected="@(existing?.Category == "1")">1</option>
-                                                            <option value="2" selected="@(existing?.Category == "2")">2</option>
-                                                            <option value="both" selected="@(existing?.Category == "both")">Both</option>
-                                                        </select>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    @if (isLocked)
-                                                    {
-                                                        <input class="form-control form-control-sm" value="@existing?.DesignedCapacity" disabled />
-                                                        <input type="hidden" name="capabilities[@i].DesignedCapacity" value="@existing?.DesignedCapacity" />
-                                                    }
-                                                    else
-                                                    {
-                                                        <input name="capabilities[@i].DesignedCapacity" class="form-control form-control-sm tech-capacity-input" placeholder="e.g. 500-2000 CFM" value="@existing?.DesignedCapacity" />
-                                                    }
-                                                </td>
-                                            </tr>
-                                            i++;
-                                        }
-                                        mainTechCounter++;
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="alert alert-info py-3 small mb-5">
-                            <h6 class="fw-bold mb-2"><i class="bi bi-info-circle-fill me-2"></i>Note on Empanelment Categories:</h6>
-                            <b class="text-dark">Category 1:</b> APCDs installed on Boilers / Furnaces / Thermic Fluid Heaters (TFH) flue-gas emission control.<br/> 
-                            <b class="text-dark">Category 2:</b> APCDs installed on Non-Boiler / Non-Furnace / Non-TFH/ Non-heat dust/gas emission control.<br/>
-                            <span class="d-inline-block mt-2">If you have past experience in installing the relevant APCD under both Category 1 and Category 2, please select '<strong>Both</strong>' in the drop-down above. If not, please indicate category '1' or '2', as applicable.</span>
-                        </div>
-
-                        <!-- Point 22: Installations Table -->
-                        <div class="mb-5">
-                            <h5 class="fw-bold text-dark mb-3">26. Provide details of installations completed in the last three (3) years (minimun five) including:</h5>
-                            <div class="table-responsive border rounded-4 overflow-hidden shadow-sm">
-                                <table class="table table-bordered mb-0 align-middle">
-                                    <thead style="background-color: #f1f3f4;">
-                                        <tr class="text-center text-dark">
-                                            <th style="width: 5%;">SN</th>
-                                            <th style="width: 20%;">Client Name</th>
-                                            <th style="width: 10%;">Year</th>
-                                            <th style="width: 17%;">Type of APCD</th>
-                                            <th style="width: 16%;">Capacity/Size</th>
-                                            <th style="width: 15%;">Performance Result<br/><small>(if any)</small></th>
-                                            <th style="width: 17%;">Upload Certificate</th>
+                            <div class="table-responsive border rounded-4 overflow-hidden mb-4">
+                                <table class="table tech-matrix-table mb-0 align-middle">
+                                    <thead style="background-color: #c9daf8;">
+                                        <tr>
+                                            <th style="width: 18%;">Sl. No. & Main Technology</th>
+                                            <th style="width: 25%;">Type of APCDs based on technology</th>
+                                            <th class="text-center bg-light text-dark" style="width: 12%;">Pt 25: Mfgr.<br/><small class="fw-normal">Yes/No</small></th>
+                                            <th class="text-center bg-light text-dark" style="width: 12%;">Pt 26: Apply<br/><small class="fw-normal">Yes/No</small></th>
+                                            <th class="text-center" style="width: 15%;">Pt 25: Category<br/><small class="fw-normal">(1/2/Both)</small></th>
+                                            <th style="width: 18%;">Designed Capacity<br/><small class="fw-normal">(give range)</small></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @{
-                                            var instList = ViewBag.Installations as List<APCD.Web.Models.InstallationRecord> ?? new List<APCD.Web.Models.InstallationRecord>();
-                                            int maxRows = Math.Max(5, instList.Count);
+                                        @{ 
+                                            int i = 0; 
+                                            int mainTechCounter = 1;
                                         }
-                                        @for (int j = 0; j < maxRows; j++)
+                                        @foreach (var tech in technologies)
                                         {
-                                            var inst = j < instList.Count ? instList[j] : null;
-                                            <tr>
-                                                <td class="text-center fw-bold bg-light">
-                                                    @(j + 1)
-                                                </td>
-                                                <td><input type="text" name="installations[@j].ClientName" class="form-control form-control-sm border-0" value="@inst?.ClientName" @(j < 5 ? "required" : "") /></td>
-                                                <td><input type="number" name="installations[@j].Year" class="form-control form-control-sm border-0 text-center" value="@inst?.Year" @(j < 5 ? "required" : "") /></td>
-                                                <td><input type="text" name="installations[@j].ApcdType" class="form-control form-control-sm border-0" value="@inst?.ApcdType" @(j < 5 ? "required" : "") /></td>
-                                                <td><input type="text" name="installations[@j].Capacity" class="form-control form-control-sm border-0" value="@inst?.Capacity" @(j < 5 ? "required" : "") /></td>
-                                                <td><input type="text" name="installations[@j].PerformanceResult" class="form-control form-control-sm border-0" value="@inst?.PerformanceResult" /></td>
-                                                <td>
-                                                    <input type="hidden" name="installations[@j].PerformanceCertPath" value="@inst?.PerformanceCertPath" />
-                                                    <input type="file" name="PerformanceCertFile_@j" class="form-control form-control-sm border-0" accept=".pdf" @(j < 5 && string.IsNullOrEmpty(inst?.PerformanceCertPath) ? "required" : "") />
-                                                    @if (!string.IsNullOrEmpty(inst?.PerformanceCertPath)) {
-                                                        <a href="@inst.PerformanceCertPath" target="_blank" class="extra-small text-success mt-1 d-inline-block text-decoration-none"><i class="bi bi-file-earmark-check me-1"></i>View Uploaded</a>
+                                            bool isFirst = true;
+                                            @foreach (var sub in tech.Subs)
+                                            {
+                                                var existing = Model.FirstOrDefault(c => c.MainType == tech.Main && c.SubTech == sub);
+                                                bool isLocked = (ViewBag.IsSubmitted == true && (ViewBag.IsAddMoreMode != true || (existing != null && existing.IsAppliedForEmpanelment)));
+                                                
+                                                <tr class="data-grid-row @(isLocked ? "bg-light opacity-75" : "")">
+                                                    @if (isFirst)
+                                                    {
+                                                        <td rowspan="@tech.Subs.Length" class="fw-bold bg-light">
+                                                            @mainTechCounter. @tech.Main
+                                                        </td>
+                                                        isFirst = false;
                                                     }
-                                                </td>
-                                            </tr>
+                                                    <td class="small pt-3 pb-3">
+                                                        @sub
+                                                        @if (sub.Contains("patented") || sub.Contains("Others"))
+                                                        {
+                                                            <div class="mt-2 pt-2 border-top border-light">
+                                                                <strong class="text-dark small mb-1 d-block">If yes, specify the type:</strong>
+                                                                @if (isLocked)
+                                                                {
+                                                                    <input type="text" class="form-control form-control-sm" value="@existing?.TypeDetails" disabled />
+                                                                    <input type="hidden" name="capabilities[@i].TypeDetails" value="@existing?.TypeDetails" />
+                                                                }
+                                                                else
+                                                                {
+                                                                    <input type="text" name="capabilities[@i].TypeDetails" class="form-control form-control-sm tech-type-input" placeholder="__________________" value="@existing?.TypeDetails" />
+                                                                }
+                                                            </div>
+                                                        }
+                                                    </td>
+                                                    <td class="text-center bg-light">
+                                                        <input type="hidden" name="capabilities[@i].MainType" value="@tech.Main" />
+                                                        <input type="hidden" name="capabilities[@i].SubTech" value="@sub" />
+                                                        <div class="form-check d-flex justify-content-center mb-0">
+                                                            @if (isLocked)
+                                                            {
+                                                                <input type="checkbox" class="form-check-input mt-0" style="width: 1.25em; height: 1.25em;" @(existing?.IsManufactured == true ? "checked" : "") disabled />
+                                                                <input type="hidden" name="capabilities[@i].IsManufactured" value="@(existing?.IsManufactured == true ? "true" : "false")" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <input type="checkbox" name="capabilities[@i].IsManufactured" value="true" class="form-check-input mt-0 tech-mfg-checkbox" style="width: 1.25em; height: 1.25em;" @(existing?.IsManufactured == true ? "checked" : "") />
+                                                                <input type="hidden" name="capabilities[@i].IsManufactured" value="false" />
+                                                            }
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center bg-light">
+                                                        <div class="form-check d-flex justify-content-center mb-0">
+                                                            @if (isLocked)
+                                                            {
+                                                                <input type="checkbox" class="form-check-input mt-0" style="width: 1.25em; height: 1.25em;" @(existing?.IsAppliedForEmpanelment == true ? "checked" : "") disabled />
+                                                                <input type="hidden" name="capabilities[@i].IsAppliedForEmpanelment" value="@(existing?.IsAppliedForEmpanelment == true ? "true" : "false")" data-tech-name="@sub" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <input type="checkbox" name="capabilities[@i].IsAppliedForEmpanelment" value="true" class="form-check-input mt-0 tech-apply-checkbox" data-tech-name="@sub" style="width: 1.25em; height: 1.25em;" @(existing?.IsAppliedForEmpanelment == true ? "checked" : "") />
+                                                                <input type="hidden" name="capabilities[@i].IsAppliedForEmpanelment" value="false" />
+                                                            }
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        @if (isLocked)
+                                                        {
+                                                            <select class="form-select form-select-sm" disabled>
+                                                                <option value="@existing?.Category" selected>@(string.IsNullOrEmpty(existing?.Category) ? "NA" : existing.Category)</option>
+                                                            </select>
+                                                            <input type="hidden" name="capabilities[@i].Category" value="@existing?.Category" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <select name="capabilities[@i].Category" class="form-select form-select-sm tech-category-select">
+                                                                <option value="">NA</option>
+                                                                <option value="1" selected="@(existing?.Category == "1")">1</option>
+                                                                <option value="2" selected="@(existing?.Category == "2")">2</option>
+                                                                <option value="both" selected="@(existing?.Category == "both")">Both</option>
+                                                            </select>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (isLocked)
+                                                        {
+                                                            <input class="form-control form-control-sm" value="@existing?.DesignedCapacity" disabled />
+                                                            <input type="hidden" name="capabilities[@i].DesignedCapacity" value="@existing?.DesignedCapacity" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <input name="capabilities[@i].DesignedCapacity" class="form-control form-control-sm tech-capacity-input" placeholder="e.g. 500-2000 CFM" value="@existing?.DesignedCapacity" />
+                                                        }
+                                                    </td>
+                                                </tr>
+                                                i++;
+                                            }
+                                            mainTechCounter++;
                                         }
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
 
-                        <!-- Section E & F Summary -->
-                        <div class="row g-4 mt-5">
-                            <div class="col-md-12">
-                                <h5 class="fw-bold mb-1 text-primary"><i class="bi bi-file-earmark-pdf me-2"></i> Section E & F: Technical Documents & Experience</h5>
-                                <p class="text-muted small">Upload mandatory technical documents for each technology applied for empanelment.</p>
+                            <div class="alert alert-info py-3 small mb-5">
+                                <h6 class="fw-bold mb-2"><i class="bi bi-info-circle-fill me-2"></i>Note on Empanelment Categories:</h6>
+                                <b class="text-dark">Category 1:</b> APCDs installed on Boilers / Furnaces / Thermic Fluid Heaters (TFH) flue-gas emission control.<br/> 
+                                <b class="text-dark">Category 2:</b> APCDs installed on Non-Boiler / Non-Furnace / Non-TFH/ Non-heat dust/gas emission control.<br/>
+                                <span class="d-inline-block mt-2">If you have past experience in installing the relevant APCD under both Category 1 and Category 2, please select '<strong>Both</strong>' in the drop-down above. If not, please indicate category '1' or '2', as applicable.</span>
                             </div>
-                            
-                            @{ var docs = ViewBag.Documents as List<APCD.Web.Models.ApplicationDocument>; }
 
-                            <!-- Technical Catalogues (Global) -->
-                            <div class="col-md-6">
-                                <div class="p-3 border rounded-3 bg-light h-100 shadow-sm border-primary-subtle">
-                                    <label class="form-group-label fw-bold text-dark">27. Technical Catalogues / Brochures <span class="text-danger">*</span></label>
-                                    <input type="file" name="techCatalogueFile" class="form-control form-control-sm mt-3" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "TechnicalCatalogue") ? "" : "required") />
-                                    @if (docs != null && docs.Any(d => d.DocumentType == "TechnicalCatalogue"))
-                                    {
-                                        var tmpDoc = docs.First(d => d.DocumentType == "TechnicalCatalogue");
-                                        <div class="mt-2 pt-2 border-top border-white"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none fw-bold">@tmpDoc.FileName</a></div>
-                                    }
+                            <!-- Point 22: Installations Table -->
+                            <div class="mb-5">
+                                <h5 class="fw-bold text-dark mb-3">26. Provide details of installations completed in the last three (3) years (minimun five) including:</h5>
+                                <div class="table-responsive border rounded-4 overflow-hidden shadow-sm">
+                                    <table class="table table-bordered mb-0 align-middle">
+                                        <thead style="background-color: #f1f3f4;">
+                                            <tr class="text-center text-dark">
+                                                <th style="width: 5%;">SN</th>
+                                                <th style="width: 20%;">Client Name</th>
+                                                <th style="width: 10%;">Year</th>
+                                                <th style="width: 17%;">Type of APCD</th>
+                                                <th style="width: 16%;">Capacity/Size</th>
+                                                <th style="width: 15%;">Performance Result<br/><small>(if any)</small></th>
+                                                <th style="width: 17%;">Upload Certificate</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                var instList = ViewBag.Installations as List<APCD.Web.Models.InstallationRecord> ?? new List<APCD.Web.Models.InstallationRecord>();
+                                                int maxRows = Math.Max(5, instList.Count);
+                                            }
+                                            @for (int j = 0; j < maxRows; j++)
+                                            {
+                                                var inst = j < instList.Count ? instList[j] : null;
+                                                <tr>
+                                                    <td class="text-center fw-bold bg-light">
+                                                        @(j + 1)
+                                                    </td>
+                                                    <td><input type="text" name="installations[@j].ClientName" class="form-control form-control-sm border-0" value="@inst?.ClientName" @(j < 5 && ViewBag.IsSubmitted != true ? "required" : "") @(ViewBag.IsSubmitted == true ? "disabled" : "") /></td>
+                                                    <td><input type="number" name="installations[@j].Year" class="form-control form-control-sm border-0 text-center" value="@inst?.Year" @(j < 5 && ViewBag.IsSubmitted != true ? "required" : "") @(ViewBag.IsSubmitted == true ? "disabled" : "") /></td>
+                                                    <td><input type="text" name="installations[@j].ApcdType" class="form-control form-control-sm border-0" value="@inst?.ApcdType" @(j < 5 && ViewBag.IsSubmitted != true ? "required" : "") @(ViewBag.IsSubmitted == true ? "disabled" : "") /></td>
+                                                    <td><input type="text" name="installations[@j].Capacity" class="form-control form-control-sm border-0" value="@inst?.Capacity" @(j < 5 && ViewBag.IsSubmitted != true ? "required" : "") @(ViewBag.IsSubmitted == true ? "disabled" : "") /></td>
+                                                    <td><input type="text" name="installations[@j].PerformanceResult" class="form-control form-control-sm border-0" value="@inst?.PerformanceResult" @(ViewBag.IsSubmitted == true ? "disabled" : "") /></td>
+                                                    <td>
+                                                        <input type="hidden" name="installations[@j].PerformanceCertPath" value="@inst?.PerformanceCertPath" />
+                                                        <input type="file" name="PerformanceCertFile_@j" class="form-control form-control-sm border-0" accept=".pdf" @(j < 5 && string.IsNullOrEmpty(inst?.PerformanceCertPath) && ViewBag.IsSubmitted != true ? "required" : "") @(ViewBag.IsSubmitted == true ? "disabled" : "") />
+                                                        @if (!string.IsNullOrEmpty(inst?.PerformanceCertPath)) {
+                                                            <a href="@inst.PerformanceCertPath" target="_blank" class="extra-small text-success mt-1 d-inline-block text-decoration-none"><i class="bi bi-file-earmark-check me-1"></i>View Uploaded</a>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Dynamic Document Containers -->
-                        <div id="tech-docs-container" class="mt-4 animate-fade-in">
-                            <!-- JS will inject technical document sections here -->
-                        </div>
+                            <!-- Section E & F Summary -->
+                            <div class="row g-4 mt-5">
+                                <div class="col-md-12">
+                                    <h5 class="fw-bold mb-1 text-primary"><i class="bi bi-file-earmark-pdf me-2"></i> Section E & F: Technical Documents & Experience</h5>
+                                    <p class="text-muted small">Upload mandatory technical documents for each technology applied for empanelment.</p>
+                                </div>
+                                
+                                @{ var docs = ViewBag.Documents as List<APCD.Web.Models.ApplicationDocument>; }
+
+                                <!-- Technical Catalogues (Global) -->
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded-3 bg-light h-100 shadow-sm border-primary-subtle">
+                                        <label class="form-group-label fw-bold text-dark">27. Technical Catalogues / Brochures <span class="text-danger">*</span></label>
+                                        <input type="file" name="techCatalogueFile" class="form-control form-control-sm mt-3" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "TechnicalCatalogue") || ViewBag.IsSubmitted == true ? "" : "required") />
+                                        @if (docs != null && docs.Any(d => d.DocumentType == "TechnicalCatalogue"))
+                                        {
+                                            var tmpDoc = docs.First(d => d.DocumentType == "TechnicalCatalogue");
+                                            <div class="mt-2 pt-2 border-top border-white"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none fw-bold">@tmpDoc.FileName</a></div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Dynamic Document Containers -->
+                            <div id="tech-docs-container" class="mt-4 animate-fade-in">
+                                <!-- JS will inject technical document sections here -->
+                            </div>
+                        </fieldset>
+
                         <!-- Navigation -->
                         <div class="mt-5 pt-4 border-top d-flex justify-content-between">
                             <a asp-action="Step3" asp-route-id="@appId" class="btn btn-wizard-prev shadow-sm">
                                 <i class="bi bi-arrow-left me-2"></i> Previous
                             </a>
-                            <button type="submit" class="btn btn-wizard-next shadow-sm">
-                                Next Step: Financials <i class="bi bi-arrow-right ms-2"></i>
-                            </button>
+                            @if (ViewBag.IsAddMoreMode == true)
+                            {
+                                <button type="submit" class="btn btn-wizard-next shadow-sm">
+                                    Save & Continue <i class="bi bi-arrow-right ms-2"></i>
+                                </button>
+                            }
+                            else if (ViewBag.IsSubmitted == true)
+                            {
+                                <a asp-action="Step5" asp-route-id="@appId" class="btn btn-wizard-next shadow-sm">
+                                    Next Step: Financials <i class="bi bi-arrow-right ms-2"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-wizard-next shadow-sm">
+                                    Next Step: Financials <i class="bi bi-arrow-right ms-2"></i>
+                                </button>
+                            }
                         </div>
                     </form>
                 </div>
@@ -252,6 +282,8 @@
 
 @section Scripts {
     <script>
+        const isSubmitted = @(ViewBag.IsSubmitted == true ? "true" : "false");
+        const isAddMoreMode = @(ViewBag.IsAddMoreMode == true ? "true" : "false");
         const existingDocs = @Html.Raw(Json.Serialize(ViewBag.JsonDocuments));
         const docTypes = [
             { id: 'productDatasheetFile', label: '28. Product Datasheets', type: 'ProductDatasheet' },
@@ -286,7 +318,7 @@
 
             selectedTechs.forEach(techObj => {
                 const tech = techObj.name;
-                const isLocked = techObj.locked;
+                const isLocked = (isSubmitted && (!isAddMoreMode || techObj.locked));
                 const section = document.createElement('div');
                 section.className = 'tech-doc-section mb-5 p-4 border-start border-4 border-primary rounded-end-4 bg-light shadow-sm animate-fade-in';
                 const safeTechId = tech.replace(/\s+/g, '_').replace(/[\(\)\/]/g, '_');
@@ -296,7 +328,7 @@
                         <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px;">
                             <i class="bi bi-gear-fill small"></i>
                         </div>
-                        <h6 class="fw-bold text-dark mb-0">Documents for: <span class="text-primary">${tech}</span> ${isLocked ? '<span class="badge bg-success ms-2">Already Approved</span>' : ''}</h6>
+                        <h6 class="fw-bold text-dark mb-0">Documents for: <span class="text-primary">${tech}</span> ${isLocked && !isSubmitted ? '<span class="badge bg-success ms-2">Already Approved</span>' : ''}</h6>
                     </div>
                     <div class="row g-3">
                         ${docTypes.map(doc => {
@@ -309,8 +341,10 @@
                                     <div class="p-3 border rounded-3 h-100 bg-white shadow-sm opacity-75">
                                         <label class="form-label small fw-bold text-secondary mb-2">${doc.label}</label>
                                         <div class="mt-1 text-truncate">
-                                            <i class="bi bi-check-circle-fill text-success me-1"></i> <span class="text-success small fw-bold">Already Uploaded</span>
-                                            ${foundDoc ? `<br/><a href="${foundDoc.filePath}" target="_blank" class="extra-small text-primary text-decoration-none fw-bold ms-3">${foundDoc.fileName}</a>` : ''}
+                                            ${foundDoc ? `
+                                                <i class="bi bi-check-circle-fill text-success me-1"></i> <span class="text-success small fw-bold">Uploaded</span>
+                                                <br/><a href="${foundDoc.filePath}" target="_blank" class="extra-small text-primary text-decoration-none fw-bold ms-3">${foundDoc.fileName}</a>
+                                            ` : '<i class="bi bi-dash-circle text-muted me-1"></i> <span class="text-muted small">Not provided</span>'}
                                         </div>
                                     </div>
                                 </div>`;
@@ -341,6 +375,8 @@
         });
 
         function syncRowInputs(row) {
+            if (isSubmitted) return;
+
             const isMfg = row.querySelector('.tech-mfg-checkbox')?.checked || false;
             const isApply = row.querySelector('.tech-apply-checkbox')?.checked || false;
             const isActive = isMfg || isApply;

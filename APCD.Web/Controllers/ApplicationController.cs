@@ -71,10 +71,11 @@ namespace APCD.Web.Controllers
             var application = await _context.Applications.FindAsync(id);
             if (application == null || application.UserId != GetUserId()) return RedirectToAction("Index", "Dashboard");
             
-            // If already submitted (status isn't Draft), show the Success page
+            // If already submitted, we can still resume but maybe start at Step 1 for review
+            // or just follow the CurrentStep if they were in the middle of a post-submission view
             if (application.Status != "Draft") 
             {
-                return RedirectToAction("Submit", new { id });
+                return RedirectToAction("Step1", new { id });
             }
 
             return application.CurrentStep switch
@@ -84,6 +85,7 @@ namespace APCD.Web.Controllers
                 4 => RedirectToAction("Step4", new { id }),
                 5 => RedirectToAction("Step5", new { id }),
                 6 => RedirectToAction("Review", new { id }),
+                7 => RedirectToAction("Payment", new { id }),
                 _ => RedirectToAction("Step1", new { id })
             };
         }
@@ -93,6 +95,9 @@ namespace APCD.Web.Controllers
         public async Task<IActionResult> Step1(int id)
         {
             var userId = GetUserId();
+            var application = await _context.Applications.FindAsync(id);
+            if (application == null || application.UserId != userId) return NotFound();
+
             var profile = await _context.CompanyProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
             
             if (profile == null)
@@ -113,6 +118,8 @@ namespace APCD.Web.Controllers
             }
 
             ViewBag.AppId = id;
+            ViewBag.IsSubmitted = application.Status != "Draft";
+            ViewBag.ActualStep = application.Status == "Draft" ? application.CurrentStep : 8;
             return View(profile);
         }
 
@@ -120,6 +127,12 @@ namespace APCD.Web.Controllers
         public async Task<IActionResult> Step1(int id, CompanyProfile profile)
         {
             var userId = GetUserId();
+            var app = await _context.Applications.FindAsync(id);
+            if (app == null || app.UserId != userId) return NotFound();
+
+            // Guard: Prevent changes if already submitted
+            if (app.Status != "Draft") return RedirectToAction("Step2", new { id });
+
             profile.UserId = userId;
             profile.UpdatedAt = DateTime.UtcNow;
             
@@ -142,7 +155,6 @@ namespace APCD.Web.Controllers
             else
                 _context.CompanyProfiles.Add(profile);
 
-            var app = await _context.Applications.FindAsync(id);
             if (app != null) {
                 app.CurrentStep = Math.Max(app.CurrentStep, 2);
             }
@@ -163,6 +175,9 @@ namespace APCD.Web.Controllers
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (application == null || application.UserId != GetUserId()) return NotFound();
+            
+            ViewBag.IsSubmitted = application.Status != "Draft";
+            ViewBag.ActualStep = application.Status == "Draft" ? application.CurrentStep : 8;
             return View(application);
         }
 
@@ -171,6 +186,9 @@ namespace APCD.Web.Controllers
         {
             var application = await _context.Applications.FindAsync(id);
             if (application == null || application.UserId != GetUserId()) return NotFound();
+
+            // Guard: Prevent changes if already submitted
+            if (application.Status != "Draft") return RedirectToAction("Step3", new { id });
 
             application.ISOStandards = model.ISOStandards ?? string.Empty;
             application.IsBlacklisted = model.IsBlacklisted;
@@ -204,8 +222,13 @@ namespace APCD.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Step3(int id)
         {
+            var application = await _context.Applications.FindAsync(id);
+            if (application == null || application.UserId != GetUserId()) return NotFound();
+
             var staff = await _context.StaffDetails.Where(s => s.ApplicationId == id).ToListAsync();
             ViewBag.AppId = id;
+            ViewBag.IsSubmitted = application.Status != "Draft";
+            ViewBag.ActualStep = application.Status == "Draft" ? application.CurrentStep : 8;
             ViewBag.Documents = await _context.ApplicationDocuments.Where(d => d.ApplicationId == id).ToListAsync();
             return View(staff);
         }
@@ -213,6 +236,12 @@ namespace APCD.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> AddStaff(int id, StaffDetail staff)
         {
+            var application = await _context.Applications.FindAsync(id);
+            if (application == null || application.UserId != GetUserId()) return NotFound();
+
+            // Guard: Prevent changes if already submitted
+            if (application.Status != "Draft") return RedirectToAction("Step3", new { id });
+
             var existingStaff = await _context.StaffDetails
                 .FirstOrDefaultAsync(s => s.ApplicationId == id && s.StaffType == staff.StaffType);
 
@@ -246,11 +275,16 @@ namespace APCD.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveStep3Docs(int id)
         {
+            var application = await _context.Applications.FindAsync(id);
+            if (application == null || application.UserId != GetUserId()) return NotFound();
+
+            // Guard: Prevent changes if already submitted
+            if (application.Status != "Draft") return RedirectToAction("Step4", new { id });
+
             string oemFolder = await GetOEMFolderName(id);
             await ProcessFileUpload(id, "orgChartFile", "OrganizationalChart", oemFolder, 3, "Common");
             await ProcessFileUpload(id, "staffQualFile", "StaffQualification", oemFolder, 3, "Common");
-            var application = await _context.Applications.FindAsync(id);
-            if (application != null) application.CurrentStep = Math.Max(application.CurrentStep, 4);
+            application.CurrentStep = Math.Max(application.CurrentStep, 4);
             await _context.SaveChangesAsync();
             return RedirectToAction("Step4", new { id });
         }
@@ -262,6 +296,9 @@ namespace APCD.Web.Controllers
         {
             var application = await _context.Applications.FindAsync(id);
             if (application == null || (application.UserId != GetUserId() && !User.IsInRole("Admin"))) return RedirectToAction("Index", "Dashboard");
+
+            ViewBag.IsSubmitted = application.Status != "Draft";
+            ViewBag.ActualStep = application.Status == "Draft" ? application.CurrentStep : 8;
 
             var capabilities = await _context.APCDCapabilities.Where(c => c.ApplicationId == id).ToListAsync();
             var installations = await _context.InstallationRecords.Where(i => i.ApplicationId == id).ToListAsync();
@@ -286,11 +323,23 @@ namespace APCD.Web.Controllers
         public async Task<IActionResult> SaveCapabilities(int id, List<APCDCapability> capabilities, List<InstallationRecord> installations)
         {
             var application = await _context.Applications.Include(a => a.Capabilities).FirstOrDefaultAsync(a => a.Id == id);
-            if (application == null) return NotFound();
+            if (application == null || application.UserId != GetUserId()) return NotFound();
+
+            bool isAddMoreMode = application.Status != "Draft" && application.Status != "Rejected";
+
+            // Guard: Prevent changes if already submitted (except in Add More mode)
+            if (application.Status != "Draft" && !isAddMoreMode) return RedirectToAction("Step5", new { id });
 
             foreach (var cap in capabilities)
             {
                 var existingCap = application.Capabilities.FirstOrDefault(c => c.MainType == cap.MainType && c.SubTech == cap.SubTech);
+                
+                // If in Add More mode, DO NOT touch previously applied technologies
+                if (isAddMoreMode && existingCap != null && existingCap.IsAppliedForEmpanelment)
+                {
+                    continue;
+                }
+
                 if (existingCap != null)
                 {
                     existingCap.IsManufactured = cap.IsManufactured;
@@ -330,8 +379,8 @@ namespace APCD.Web.Controllers
                 }
             }
 
-            // Save installations
-            if (installations != null && installations.Any())
+            // Save installations - Skip if in Add More mode
+            if (!isAddMoreMode && installations != null && installations.Any())
             {
                 var existingInstalls = await _context.InstallationRecords.Where(i => i.ApplicationId == id).ToListAsync();
                 _context.InstallationRecords.RemoveRange(existingInstalls);
@@ -369,8 +418,11 @@ namespace APCD.Web.Controllers
             
             string oemFolder = await GetOEMFolderName(id);
             
-            // Common documents (Card 13 stays common)
-            await ProcessFileUpload(id, "techCatalogueFile", "TechnicalCatalogue", oemFolder, 4, "Common");
+            // Common documents (Card 13 stays common) - Skip if in Add More mode
+            if (!isAddMoreMode)
+            {
+                await ProcessFileUpload(id, "techCatalogueFile", "TechnicalCatalogue", oemFolder, 4, "Common");
+            }
 
             // Per-technology documents
             var appliedTechs = capabilities.Where(c => c.IsAppliedForEmpanelment).ToList();
@@ -389,6 +441,13 @@ namespace APCD.Web.Controllers
 
             foreach (var tech in appliedTechs)
             {
+                // In Add More mode, ONLY process documents for NEWLY applied technologies
+                if (isAddMoreMode)
+                {
+                    var wasAlreadyApplied = application.Capabilities.Any(c => c.SubTech == tech.SubTech && c.IsAppliedForEmpanelment);
+                    if (wasAlreadyApplied) continue;
+                }
+
                 string safeTechName = tech.SubTech.Replace(" ", "_").Replace("(", "").Replace(")", "").Replace("/", "_");
                 foreach (var docType in docTypes)
                 {
@@ -402,7 +461,10 @@ namespace APCD.Web.Controllers
                 .Where(c => c.IsAppliedForEmpanelment)
                 .Select(c => c.SubTech));
 
-            if (application != null) application.CurrentStep = Math.Max(application.CurrentStep, 5);
+            if (application.Status == "Draft")
+            {
+                application.CurrentStep = Math.Max(application.CurrentStep, 5);
+            }
 
             await _context.SaveChangesAsync();
             return RedirectToAction("Step5", new { id });
@@ -419,7 +481,10 @@ namespace APCD.Web.Controllers
                 .Include(a => a.Installations)
                 .FirstOrDefaultAsync(a => a.Id == id);
             
-            if (application == null) return NotFound();
+            if (application == null || application.UserId != GetUserId()) return NotFound();
+
+            ViewBag.IsSubmitted = application.Status != "Draft";
+            ViewBag.ActualStep = application.Status == "Draft" ? application.CurrentStep : 8;
 
             // Calculate dynamic financial years (Last 3 COMPLETED years)
             int currentYear = DateTime.Now.Year;
@@ -446,7 +511,10 @@ namespace APCD.Web.Controllers
                 .Include(a => a.Documents)
                 .FirstOrDefaultAsync(a => a.Id == id);
                 
-            if (application == null || (application.UserId != GetUserId() && !User.IsInRole("Admin"))) return NotFound();
+            if (application == null || application.UserId != GetUserId()) return NotFound();
+
+            // Guard: Prevent changes if already submitted
+            if (application.Status != "Draft") return RedirectToAction("Review", new { id });
 
             application.HasGrievanceSystem = hasGrievance;
 
@@ -603,6 +671,9 @@ namespace APCD.Web.Controllers
 
             if (application == null || application.UserId != GetUserId()) return NotFound();
 
+            ViewBag.IsSubmitted = application.Status != "Draft";
+            ViewBag.ActualStep = application.Status == "Draft" ? application.CurrentStep : 8;
+
             return View(application);
         }
 
@@ -615,7 +686,10 @@ namespace APCD.Web.Controllers
                 .Include(a => a.Documents)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
-            if (application == null) return NotFound();
+            if (application == null || application.UserId != GetUserId()) return NotFound();
+
+            ViewBag.IsSubmitted = application.Status != "Draft";
+            ViewBag.ActualStep = application.Status == "Draft" ? application.CurrentStep : 8;
 
             // Calculate Fees
             decimal baseAppFee = 25000;
@@ -641,12 +715,26 @@ namespace APCD.Web.Controllers
             var initialEmpFee = application.Payments.FirstOrDefault(p => p.Type == PaymentType.EmpFee);
             
             // BACKWARD COMPATIBILITY FIX: 
-            // If we have an EmpFee payment but devices aren't marked IsPaid, mark them now.
-            // This ensures "Previously Paid" doesn't show 0 for existing applications.
-            if (initialEmpFee != null && !application.Capabilities.Any(c => c.IsPaid))
+            // Ensure IsPaid flags match the total units paid in transaction history
+            // We sum up APCDTypesCount, with a fallback to inferring count from Amount (76700 per unit)
+            int totalUnitsPaidInHistory = application.Payments
+                .Where(p => (p.Type == PaymentType.EmpFee || p.Type == PaymentType.Supplemental) && p.Status != "Rejected")
+                .ToList()
+                .Sum(p => p.APCDTypesCount.HasValue && p.APCDTypesCount.Value > 0 
+                    ? p.APCDTypesCount.Value 
+                    : (p.Amount.HasValue ? (int)Math.Round((double)p.Amount.Value / 76700.0) : 0));
+
+            int currentMarkedAsPaid = application.Capabilities.Count(c => c.IsAppliedForEmpanelment && c.IsPaid);
+
+            if (totalUnitsPaidInHistory > currentMarkedAsPaid)
             {
-                var paidDevices = application.Capabilities.Where(c => c.IsAppliedForEmpanelment).Take(initialEmpFee.APCDTypesCount ?? 0).ToList();
-                foreach(var d in paidDevices) { d.IsPaid = true; d.PaymentId = initialEmpFee.Id; }
+                var unpaidButShouldBePaid = application.Capabilities
+                    .Where(c => c.IsAppliedForEmpanelment && !c.IsPaid)
+                    .OrderBy(c => c.Id) // Mark oldest ones first
+                    .Take(totalUnitsPaidInHistory - currentMarkedAsPaid)
+                    .ToList();
+                
+                foreach(var d in unpaidButShouldBePaid) { d.IsPaid = true; }
                 await _context.SaveChangesAsync();
             }
 
@@ -676,6 +764,7 @@ namespace APCD.Web.Controllers
             paymentDetail.SupplementalPayDate = null;
             
             // --- Supplemental Payment detection ---
+            ViewBag.PaidCount = application.Capabilities.Count(c => c.IsAppliedForEmpanelment && c.IsPaid);
             if (application.Status != "Draft")
             {
                 var unpaidDevices = application.Capabilities.Where(c => c.IsAppliedForEmpanelment && !c.IsPaid).ToList();
@@ -688,7 +777,6 @@ namespace APCD.Web.Controllers
                     ViewBag.BalanceDue = extraBase + extraGST;
                     ViewBag.IsSupplemental = true;
                     ViewBag.UnpaidCount = extraUnits;
-                    ViewBag.PaidCount = application.Capabilities.Count(c => c.IsAppliedForEmpanelment && c.IsPaid);
                     ViewBag.TotalCount = currentApcdCount;
 
                     // AUTO-CALCULATE amount for the NEW supplemental payment
@@ -700,6 +788,7 @@ namespace APCD.Web.Controllers
                 {
                     ViewBag.BalanceDue = 0;
                     ViewBag.IsSupplemental = false;
+                    ViewBag.UnpaidCount = 0;
                 }
             }
 
@@ -715,8 +804,11 @@ namespace APCD.Web.Controllers
             return View(paymentDetail);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Payment(int id, PaymentViewModel payment)
         {
+            string oemFolder = string.Empty;
             var application = await _context.Applications.Include(a => a.Payments).FirstOrDefaultAsync(a => a.Id == id);
             if (application == null) return NotFound();
 
@@ -756,6 +848,14 @@ namespace APCD.Web.Controllers
                 // Supplemental Payment logic
                 if (payment.SupplementalAmount > 0 && !string.IsNullOrEmpty(payment.SupplementalUTR))
                 {
+                    string receiptPath = string.Empty;
+                    var supFile = Request.Form.Files["supplementalReceiptFile"];
+                    if (supFile != null && supFile.Length > 0)
+                    {
+                        oemFolder = await GetOEMFolderName(id);
+                        receiptPath = await SaveFileAsync(supFile, oemFolder);
+                    }
+
                     var suppFee = new Payment 
                     { 
                         ApplicationId = id, 
@@ -765,7 +865,8 @@ namespace APCD.Web.Controllers
                         UTRNumber = payment.SupplementalUTR,
                         RemitterBank = "Unknown",
                         PaymentDate = payment.SupplementalPayDate ?? DateTime.UtcNow,
-                        Status = "Pending"
+                        Status = "Pending",
+                        ReceiptPath = receiptPath
                     };
                     _context.Payments.Add(suppFee);
                     await _context.SaveChangesAsync();
@@ -784,9 +885,9 @@ namespace APCD.Web.Controllers
                 }
             }
 
-            string oemFolder = await GetOEMFolderName(id);
+            oemFolder = await GetOEMFolderName(id);
             await ProcessFileUpload(id, "paymentReceiptFile", "PaymentReceipt", oemFolder, 5, "Common");
-            await ProcessFileUpload(id, "supplementalReceiptFile", "SupplementalReceipt", oemFolder, 5, "Common");
+            await ProcessFileUpload(id, "supplementalReceiptFile", "SupplementalPaymentReceipt", oemFolder, 5, "Common");
 
             await _context.SaveChangesAsync();
             return RedirectToAction("Submit", new { id });
@@ -812,6 +913,10 @@ namespace APCD.Web.Controllers
         {
             var application = await _context.Applications.FindAsync(id);
             if (application == null || application.UserId != GetUserId()) return NotFound();
+
+            ViewBag.IsSubmitted = application.Status != "Draft";
+            ViewBag.ActualStep = 8;
+            
             return View(application);
         }
 

@@ -14,12 +14,24 @@
         <div class="row g-0">
             <!-- Sidebar -->
             <div class="col-lg-3">
-                <partial name="_WizardSidebar" model="Model.CurrentStep" />
+                <partial name="_WizardSidebar" model="currentStep" />
             </div>
 
             <!-- Main Content -->
             <div class="col-lg-9 bg-white">
                 <div class="wizard-main">
+                    @if (ViewBag.IsSubmitted == true)
+                    {
+                        <div class="alert alert-info d-flex align-items-center border-0 shadow-sm mb-4 py-3" style="background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); border-left: 5px solid #0ea5e9 !important;">
+                            <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark">View Mode – Submission Completed</h6>
+                                <p class="small mb-0 text-muted">This application has been submitted and is currently in read-only mode. No further edits are allowed.</p>
+                            </div>
+                            <i class="bi bi-lock-fill ms-auto fs-3 text-info opacity-25"></i>
+                        </div>
+                    }
+
                     <div class="form-section-title">Step 6: Review Application Summary</div>
                     <p class="text-muted small mb-5">Please verify all the details provided across the 25 points of the application.</p>
 
@@ -29,9 +41,13 @@
                             <div class="p-4 rounded-4 border bg-light shadow-sm mb-4">
                                 <div class="d-flex justify-content-between align-items-center mb-4">
                                     <h5 class="fw-bold text-primary mb-0"><i class="bi bi-info-circle me-2"></i> Company & Firm Details</h5>
-                                    @if (Model.Status == "Draft")
+                                    @if (Model.Status == "Draft" || Model.Status == "AmendmentStarted")
                                     {
                                         <a asp-action="Step1" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary py-1 px-3">Edit</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-primary-subtle text-primary px-3 py-2 border border-primary-subtle rounded-pill small"><i class="bi bi-check-circle-fill me-1"></i> Verified</span>
                                     }
                                 </div>
                                 <div class="row g-4">
@@ -64,7 +80,7 @@
                             <div class="p-4 rounded-4 border bg-white shadow-sm mb-4">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="fw-bold text-primary mb-0"><i class="bi bi-tools me-2"></i> Selected APCD Technologies</h5>
-                                    @if (Model.Status == "Draft")
+                                    @if (Model.Status == "Draft" || Model.Status == "AmendmentStarted")
                                     {
                                         <a asp-action="Step4" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary py-1 px-3">Edit</a>
                                     }
@@ -102,7 +118,7 @@
                             <div class="p-4 rounded-4 border bg-light shadow-sm mb-4">
                                 <div class="d-flex justify-content-between align-items-center mb-4">
                                     <h5 class="fw-bold text-primary mb-0"><i class="bi bi-patch-check me-2"></i> Classifications & Discounts</h5>
-                                    @if (Model.Status == "Draft")
+                                    @if (Model.Status == "Draft" || Model.Status == "AmendmentStarted")
                                     {
                                         <a asp-action="Step2" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary py-1 px-3">Edit</a>
                                     }
@@ -135,7 +151,7 @@
                             <div class="p-4 rounded-4 border bg-white shadow-sm h-100">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="fw-bold text-primary mb-0"><i class="bi bi-people me-2"></i> Personnel Summary</h5>
-                                    @if (Model.Status == "Draft")
+                                    @if (Model.Status == "Draft" || Model.Status == "AmendmentStarted")
                                     {
                                         <a asp-action="Step3" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary py-1 px-3">Edit</a>
                                     }
@@ -155,7 +171,7 @@
                             <div class="p-4 rounded-4 border bg-white shadow-sm h-100">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="fw-bold text-primary mb-0"><i class="bi bi-clipboard-check me-2"></i> Documents Submitted</h5>
-                                    @if (Model.Status == "Draft")
+                                    @if (Model.Status == "Draft" || Model.Status == "AmendmentStarted")
                                     {
                                         <a asp-action="Step5" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary py-1 px-3">Edit</a>
                                     }
@@ -176,7 +192,19 @@
                         </div>
                     </div>
 
-                    @if (Model.Status == "Draft")
+                    @if (ViewBag.IsSubmitted == true)
+                    {
+                        <!-- Navigation for Submitted Applications -->
+                        <div class="mt-5 pt-4 border-top d-flex justify-content-between">
+                            <a asp-action="Step5" asp-route-id="@Model.Id" class="btn btn-wizard-prev shadow-sm">
+                                <i class="bi bi-arrow-left me-2"></i> Previous
+                            </a>
+                            <a asp-action="Payment" asp-route-id="@Model.Id" class="btn btn-wizard-next shadow-sm">
+                                View Payment Details <i class="bi bi-arrow-right ms-2"></i>
+                            </a>
+                        </div>
+                    }
+                    else if (Model.Status == "Draft")
                     {
                         <!-- Final Submission Notice -->
                         <div class="alert alert-warning border-warning border-3 mt-5 p-4 rounded-4 shadow-sm animate-fade-in">

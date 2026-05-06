@@ -21,225 +21,279 @@
             <!-- Main Content -->
             <div class="col-lg-9 bg-white">
                 <div class="wizard-main">
+                    @if (ViewBag.IsSubmitted == true)
+                    {
+                        <div class="alert alert-info d-flex align-items-center border-0 shadow-sm mb-4 py-3" style="background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); border-left: 5px solid #0ea5e9 !important;">
+                            <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark">View Mode – Submission Completed</h6>
+                                <p class="small mb-0 text-muted">This application has been submitted and is currently in read-only mode. No further edits are allowed.</p>
+                            </div>
+                            <i class="bi bi-lock-fill ms-auto fs-3 text-info opacity-25"></i>
+                        </div>
+                    }
+
                     <form asp-action="Payment" method="post" asp-route-id="@Model.ApplicationId" enctype="multipart/form-data">
                         <input type="hidden" asp-for="Amount" />
                         <input type="hidden" asp-for="APCDTypesCount" />
                         
-                        <div class="form-section-title">25. Online payment details</div>
-                        <p class="text-muted small mb-4">Provide details for both Application and Empanelment fee transactions.</p>
+                        <fieldset @(ViewBag.IsSubmitted == true && ViewBag.IsSupplemental != true ? "disabled" : "")>
+                            <div class="form-section-title">25. Online payment details</div>
+                            <p class="text-muted small mb-4">Provide details for both Application and Empanelment fee transactions.</p>
 
-                        <!-- APPLICATION FEES -->
-                        <div class="table-responsive mb-4 rounded border overflow-hidden">
-                            <table class="table table-bordered align-middle mb-0">
-                                <thead style="background-color: #c9daf8;">
-                                    <tr>
-                                        <th colspan="2" class="fw-bold py-2 text-dark border-0 d-flex justify-content-between align-items-center">
-                                            <span>Application Fees (₹25,000 plus applicable GST @@ 18%, non-refundable) *</span>
-                                            @if (isAmendment) { <span class="badge bg-secondary extra-small">PREVIOUS PAYMENT HISTORY</span> }
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if(ViewBag.AppFeeDiscount > 0)
-                                    {
+                            <!-- APPLICATION FEES -->
+                            <div class="table-responsive mb-4 rounded border overflow-hidden">
+                                <table class="table table-bordered align-middle mb-0">
+                                    <thead style="background-color: #c9daf8;">
                                         <tr>
-                                            <td colspan="2" class="text-success small bg-success bg-opacity-10 py-1">
-                                                <i class="bi bi-info-circle-fill me-1"></i> Eligible for ₹@ViewBag.AppFeeDiscount.ToString("N2") GoI Policy Discount (15%) - <strong>Will be reimbursed later.</strong> Full amount required upfront.
-                                            </td>
+                                            <th colspan="2" class="fw-bold py-2 text-dark border-0 d-flex justify-content-between align-items-center">
+                                                <span>Application Fees (₹25,000 plus applicable GST @@ 18%, non-refundable) *</span>
+                                                @if (isAmendment) { <span class="badge bg-secondary extra-small">PREVIOUS PAYMENT HISTORY</span> }
+                                            </th>
                                         </tr>
-                                    }
-                                    <tr>
-                                        <td style="width: 40%;">Amount required (in ₹)</td>
-                                        <td class="fw-bold text-primary">₹@ViewBag.AppFeeTotal.ToString("N2")</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Amount Deposited</td>
-                                        <td class="p-0"><input asp-for="AppFeeAmountDeposited" class="form-control border-0 rounded-0 shadow-none px-2 @bgClass" readonly="@isAmendment" disabled="@isAmendment" required /></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Name of the remitter Bank</td>
-                                        <td class="p-0"><input asp-for="AppFeeRemitterBank" class="form-control border-0 rounded-0 shadow-none px-2 @bgClass" readonly="@isAmendment" disabled="@isAmendment" required /></td>
-                                    </tr>
-                                    <tr>
-                                        <td>UTR / NEFT no</td>
-                                        <td class="p-0"><input asp-for="AppFeeUTRNumber" class="form-control border-0 rounded-0 shadow-none px-2 text-uppercase @bgClass" readonly="@isAmendment" disabled="@isAmendment" required /></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Date of payment</td>
-                                        <td class="p-0"><input asp-for="AppFeePaymentDate" type="date" class="form-control border-0 rounded-0 shadow-none px-2 @bgClass" readonly="@isAmendment" disabled="@isAmendment" required /></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- EMPANELMENT FEES -->
-                        <div class="table-responsive mb-4 rounded border overflow-hidden">
-                            <table class="table table-bordered align-middle mb-0">
-                                <thead style="background-color: #c9daf8;">
-                                    <tr>
-                                        <th colspan="2" class="fw-bold py-2 text-dark border-0 d-flex justify-content-between align-items-center">
-                                            <span>Empanelment Fees (₹65,000 plus applicable GST @@ 18% per unit, non-refundable) *</span>
-                                            @if (isAmendment) { <span class="badge bg-secondary extra-small">PREVIOUS PAYMENT HISTORY</span> }
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if(ViewBag.EmpFeeDiscount > 0)
-                                    {
-                                        <tr>
-                                            <td colspan="2" class="text-success small bg-success bg-opacity-10 py-1">
-                                                <i class="bi bi-info-circle-fill me-1"></i> Eligible for ₹@ViewBag.EmpFeeDiscount.ToString("N2") GoI Policy Discount (15%) - <strong>Will be reimbursed later.</strong> Full amount required upfront.
-                                            </td>
-                                        </tr>
-                                    }
-                                    <tr>
-                                        <td style="width: 40%;">Number of APCD types applied for empanelment.</td>
-                                        <td class="fw-bold fs-5 px-2">@(isAmendment ? Model.APCDTypesCount : ViewBag.APCDCount)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Amount required (in ₹)</td>
-                                        <td class="fw-bold text-primary px-2">₹@(isAmendment ? (Model.EmpFeeAmountDeposited > 0 ? Model.EmpFeeAmountDeposited.ToString("N2") : (Model.APCDTypesCount * 65000 * 1.18m).ToString("N2")) : ViewBag.EmpFeeTotal.ToString("N2"))</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Amount Deposited</td>
-                                        <td class="p-0"><input asp-for="EmpFeeAmountDeposited" class="form-control border-0 rounded-0 shadow-none px-2 @bgClass" readonly="@isAmendment" disabled="@isAmendment" required /></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Name of the remitter Bank</td>
-                                        <td class="p-0"><input asp-for="EmpFeeRemitterBank" class="form-control border-0 rounded-0 shadow-none px-2 @bgClass" readonly="@isAmendment" disabled="@isAmendment" required /></td>
-                                    </tr>
-                                    <tr>
-                                        <td>UTR / NEFT no</td>
-                                        <td class="p-0"><input asp-for="EmpFeeUTRNumber" class="form-control border-0 rounded-0 shadow-none px-2 text-uppercase @bgClass" readonly="@isAmendment" disabled="@isAmendment" required /></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Date of payment</td>
-                                        <td class="p-0"><input asp-for="EmpFeePaymentDate" type="date" class="form-control border-0 rounded-0 shadow-none px-2 @bgClass" readonly="@isAmendment" disabled="@isAmendment" required /></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- PAYMENT HISTORY (For Amendments) -->
-                        @if (isAmendment && Model.Application.Payments != null && Model.Application.Payments.Any())
-                        {
-                            <div class="mb-5">
-                                <h6 class="fw-bold text-muted text-uppercase extra-small letter-spacing mb-3">Transaction History</h6>
-                                <div class="table-responsive rounded-4 border overflow-hidden shadow-sm">
-                                    <table class="table table-sm table-hover mb-0 align-middle">
-                                        <thead class="bg-light">
-                                            <tr class="extra-small text-muted">
-                                                <th class="ps-3 py-2">Type</th>
-                                                <th>UTR Number</th>
-                                                <th>Amount</th>
-                                                <th>Date</th>
-                                                <th class="text-end pe-3">Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var p in Model.Application.Payments.OrderBy(x => x.PaymentDate))
-                                            {
-                                                <tr class="small">
-                                                    <td class="ps-3 fw-bold">@p.Type</td>
-                                                    <td class="text-uppercase">@p.UTRNumber</td>
-                                                    <td>₹@(p.Amount?.ToString("N2") ?? "0.00")</td>
-                                                    <td>@(p.PaymentDate?.ToShortDateString() ?? "N/A")</td>
-                                                    <td class="text-end pe-3"><span class="badge bg-secondary extra-small">@p.Status</span></td>
-                                                </tr>
-                                            }
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        }
-
-                        <!-- SUPPLEMENTAL PAYMENT SECTION -->
-                        @if (ViewBag.IsSupplemental == true)
-                        {
-                            <div class="form-section-title text-warning mt-5"><i class="bi bi-plus-circle-fill me-2"></i> New Supplemental Fee Required</div>
-                            <p class="text-muted small mb-4">You have added new APCD units after the initial submission. Please pay the incremental empanelment fee to proceed.</p>
-
-                            <div class="alert alert-warning border-warning border-3 mb-4 rounded-4 shadow-sm animate-fade-in bg-warning bg-opacity-10">
-                                <div class="d-flex align-items-center">
-                                    <div class="me-3 fs-2 text-warning"><i class="bi bi-info-circle-fill"></i></div>
-                                    <div>
-                                        <h6 class="fw-bold text-dark mb-1">Incremental Units Detection</h6>
-                                        <p class="small text-dark mb-0">Total Devices: <strong>@ViewBag.TotalCount</strong> | Previously Paid: <strong>@ViewBag.PaidCount</strong> | New Unpaid: <span class="badge bg-warning text-dark fs-6">@ViewBag.UnpaidCount</span></p>
-                                    </div>
-                                    <div class="ms-auto bg-white p-3 rounded-4 border border-warning shadow-sm text-center">
-                                        <div class="extra-small text-muted fw-bold text-uppercase">Supplemental Due</div>
-                                        <div class="fs-4 fw-bold text-primary">₹@ViewBag.BalanceDue.ToString("N2")</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="card border-warning border-2 rounded-4 mb-4 shadow-sm overflow-hidden">
-                                <div class="card-header bg-warning bg-opacity-10 py-3 border-bottom border-warning border-opacity-25">
-                                    <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-credit-card-2-front me-2"></i> Supplemental Payment Details</h6>
-                                </div>
-                                <div class="card-body p-0">
-                                    <table class="table table-bordered align-middle mb-0 border-0">
-                                        <tbody>
-                                            <tr class="border-bottom">
-                                                <td style="width: 40%;" class="ps-3 bg-light extra-small fw-bold text-muted text-uppercase">Supplemental UTR / NEFT No</td>
-                                                <td class="p-0"><input asp-for="SupplementalUTR" class="form-control border-0 rounded-0 shadow-none px-3 py-3 text-uppercase fw-bold" placeholder="ENTER NEW UTR NUMBER" required /></td>
-                                            </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if(ViewBag.AppFeeDiscount > 0)
+                                        {
                                             <tr>
-                                                <td class="ps-3 bg-light extra-small fw-bold text-muted text-uppercase">Amount to be Deposited (₹)</td>
-                                                <td class="p-0"><input asp-for="SupplementalAmount" class="form-control border-0 rounded-0 shadow-none px-3 py-3 fw-bold text-primary bg-light" readonly required /></td>
+                                                <td colspan="2" class="text-success small bg-success bg-opacity-10 py-1">
+                                                    <i class="bi bi-info-circle-fill me-1"></i> Eligible for ₹@ViewBag.AppFeeDiscount.ToString("N2") GoI Policy Discount (15%) - <strong>Will be reimbursed later.</strong> Full amount required upfront.
+                                                </td>
                                             </tr>
-                                        </tbody>
-                                    </table>
+                                        }
+                                        <tr>
+                                            <td style="width: 40%;">Amount required (in ₹)</td>
+                                            <td class="fw-bold text-primary">₹@ViewBag.AppFeeTotal.ToString("N2")</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Amount Deposited</td>
+                                            <td class="p-0"><input asp-for="AppFeeAmountDeposited" class="form-control border-0 rounded-0 shadow-none px-2 @bgClass" readonly="@(isAmendment || ViewBag.IsSubmitted == true)" disabled="@(isAmendment || ViewBag.IsSubmitted == true)" required /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Name of the remitter Bank</td>
+                                            <td class="p-0"><input asp-for="AppFeeRemitterBank" class="form-control border-0 rounded-0 shadow-none px-2 @bgClass" readonly="@(isAmendment || ViewBag.IsSubmitted == true)" disabled="@(isAmendment || ViewBag.IsSubmitted == true)" required /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>UTR / NEFT no</td>
+                                            <td class="p-0"><input asp-for="AppFeeUTRNumber" class="form-control border-0 rounded-0 shadow-none px-2 text-uppercase @bgClass" readonly="@(isAmendment || ViewBag.IsSubmitted == true)" disabled="@(isAmendment || ViewBag.IsSubmitted == true)" required /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Date of payment</td>
+                                            <td class="p-0"><input asp-for="AppFeePaymentDate" type="date" class="form-control border-0 rounded-0 shadow-none px-2 @bgClass" readonly="@(isAmendment || ViewBag.IsSubmitted == true)" disabled="@(isAmendment || ViewBag.IsSubmitted == true)" required /></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- EMPANELMENT FEES -->
+                            <div class="table-responsive mb-4 rounded border overflow-hidden">
+                                <table class="table table-bordered align-middle mb-0">
+                                    <thead style="background-color: #c9daf8;">
+                                        <tr>
+                                            <th colspan="2" class="fw-bold py-2 text-dark border-0 d-flex justify-content-between align-items-center">
+                                                <span>Empanelment Fees (₹65,000 plus applicable GST @@ 18% per unit, non-refundable) *</span>
+                                                @if (isAmendment) { <span class="badge bg-secondary extra-small">INITIAL PAYMENT HISTORY</span> }
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if(ViewBag.EmpFeeDiscount > 0)
+                                        {
+                                            <tr>
+                                                <td colspan="2" class="text-success small bg-success bg-opacity-10 py-1">
+                                                    <i class="bi bi-info-circle-fill me-1"></i> Eligible for ₹@ViewBag.EmpFeeDiscount.ToString("N2") GoI Policy Discount (15%) - <strong>Will be reimbursed later.</strong> Full amount required upfront.
+                                                </td>
+                                            </tr>
+                                        }
+                                        <tr>
+                                            <td style="width: 40%;">Number of APCD types applied for empanelment.</td>
+                                            <td class="fw-bold fs-5 px-2">@(isAmendment ? (ViewBag.PaidCount ?? Model.APCDTypesCount) : ViewBag.APCDCount)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Amount required (in ₹)</td>
+                                            <td class="fw-bold text-primary px-2">₹@(isAmendment ? (Model.EmpFeeAmountDeposited > 0 ? Model.EmpFeeAmountDeposited.ToString("N2") : ((ViewBag.PaidCount ?? Model.APCDTypesCount) * 65000 * 1.18m).ToString("N2")) : ViewBag.EmpFeeTotal.ToString("N2"))</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Amount Deposited</td>
+                                            <td class="p-0"><input asp-for="EmpFeeAmountDeposited" class="form-control border-0 rounded-0 shadow-none px-2 @bgClass" readonly="@(isAmendment || ViewBag.IsSubmitted == true)" disabled="@(isAmendment || ViewBag.IsSubmitted == true)" required /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Name of the remitter Bank</td>
+                                            <td class="p-0"><input asp-for="EmpFeeRemitterBank" class="form-control border-0 rounded-0 shadow-none px-2 @bgClass" readonly="@(isAmendment || ViewBag.IsSubmitted == true)" disabled="@(isAmendment || ViewBag.IsSubmitted == true)" required /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>UTR / NEFT no</td>
+                                            <td class="p-0"><input asp-for="EmpFeeUTRNumber" class="form-control border-0 rounded-0 shadow-none px-2 text-uppercase @bgClass" readonly="@(isAmendment || ViewBag.IsSubmitted == true)" disabled="@(isAmendment || ViewBag.IsSubmitted == true)" required /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Date of payment</td>
+                                            <td class="p-0"><input asp-for="EmpFeePaymentDate" type="date" class="form-control border-0 rounded-0 shadow-none px-2 @bgClass" readonly="@(isAmendment || ViewBag.IsSubmitted == true)" disabled="@(isAmendment || ViewBag.IsSubmitted == true)" required /></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- TRANSACTION HISTORY (Unified) -->
+                            @if (isAmendment && Model.Application.Payments != null && Model.Application.Payments.Any())
+                            {
+                                <div class="mb-5">
+                                    <h6 class="fw-bold text-muted text-uppercase extra-small letter-spacing mb-3">Transaction History</h6>
+                                    <div class="table-responsive rounded-4 border overflow-hidden shadow-sm">
+                                        <table class="table table-sm table-hover mb-0 align-middle">
+                                            <thead class="bg-light">
+                                                <tr class="extra-small text-muted">
+                                                    <th class="ps-3 py-2">Type</th>
+                                                    <th>UTR Number</th>
+                                                    <th>Amount</th>
+                                                    <th>Date</th>
+                                                    <th>Status</th>
+                                                    <th class="text-end pe-3">Proof</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var p in Model.Application.Payments.OrderBy(x => x.CreatedAt))
+                                                {
+                                                    <tr class="small">
+                                                        <td class="ps-3 fw-bold">@p.Type</td>
+                                                        <td class="text-uppercase">@p.UTRNumber</td>
+                                                        <td class="fw-bold">₹@((p.Amount ?? 0).ToString("N2"))</td>
+                                                        <td>@(p.PaymentDate?.ToString("dd MMM yyyy") ?? "N/A")</td>
+                                                        <td><span class="badge bg-@(p.Status == "Approved" ? "success" : (p.Status == "Rejected" ? "danger" : "secondary")) extra-small">@p.Status</span></td>
+                                                        <td class="text-end pe-3">
+                                                            @if (!string.IsNullOrEmpty(p.ReceiptPath))
+                                                            {
+                                                                <a href="@p.ReceiptPath" target="_blank" class="btn btn-sm btn-link p-0 extra-small"><i class="bi bi-file-earmark-pdf"></i> View</a>
+                                                            }
+                                                            else if (p.Type == APCD.Web.Models.PaymentType.AppFee || p.Type == APCD.Web.Models.PaymentType.EmpFee)
+                                                            {
+                                                                var baseDoc = Model.Application.Documents.FirstOrDefault(d => d.DocumentType == "PaymentReceipt");
+                                                                if (baseDoc != null) { <a href="@baseDoc.FilePath" target="_blank" class="btn btn-sm btn-link p-0 extra-small"><i class="bi bi-file-earmark-pdf"></i> View</a> }
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- SUPPLEMENTAL PAYMENT SECTION -->
+                            @if (ViewBag.IsSupplemental == true && ViewBag.UnpaidCount > 0)
+                            {
+                                <div class="form-section-title text-warning mt-5" id="supplemental-section"><i class="bi bi-plus-circle-fill me-2"></i> New Supplemental Fee Required</div>
+                                <p class="text-muted small mb-4">You have added new APCD units after the initial submission. Please pay the incremental empanelment fee to proceed.</p>
+
+                                <div class="alert alert-warning border-warning border-3 mb-4 rounded-4 shadow-sm animate-fade-in bg-warning bg-opacity-10">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3 fs-2 text-warning"><i class="bi bi-info-circle-fill"></i></div>
+                                        <div>
+                                            <h6 class="fw-bold text-dark mb-1">Incremental Units Detection</h6>
+                                            <p class="small text-dark mb-0">Total Devices: <strong>@ViewBag.TotalCount</strong> | Previously Paid: <strong>@ViewBag.PaidCount</strong> | New Unpaid: <span class="badge bg-warning text-dark fs-6">@ViewBag.UnpaidCount</span></p>
+                                        </div>
+                                        <div class="ms-auto bg-white p-3 rounded-4 border border-warning shadow-sm text-center">
+                                            <div class="extra-small text-muted fw-bold text-uppercase">Supplemental Due</div>
+                                            <div class="fs-4 fw-bold text-primary">₹@ViewBag.BalanceDue.ToString("N2")</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card border-warning border-2 rounded-4 mb-4 shadow-sm overflow-hidden">
+                                    <div class="card-header bg-warning bg-opacity-10 py-3 border-bottom border-warning border-opacity-25">
+                                        <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-credit-card-2-front me-2"></i> Supplemental Payment Details</h6>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <table class="table table-bordered align-middle mb-0 border-0">
+                                            <tbody>
+                                                <tr class="border-bottom">
+                                                    <td style="width: 40%;" class="ps-3 bg-light extra-small fw-bold text-muted text-uppercase">Supplemental UTR / NEFT No</td>
+                                                    <td class="p-0"><input asp-for="SupplementalUTR" class="form-control border-0 rounded-0 shadow-none px-3 py-3 text-uppercase fw-bold" placeholder="ENTER NEW UTR NUMBER" required /></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="ps-3 bg-light extra-small fw-bold text-muted text-uppercase">Amount to be Deposited (₹)</td>
+                                                    <td class="p-0"><input asp-for="SupplementalAmount" class="form-control border-0 rounded-0 shadow-none px-3 py-3 fw-bold text-primary bg-light" readonly required /></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="p-4 border border-2 border-dashed rounded-4 bg-light mb-4 text-center border-warning">
+                                    <h5 class="fw-bold text-dark mb-2"><i class="bi bi-cloud-arrow-up me-2 text-warning"></i> Proof of Supplemental Payment</h5>
+                                    <p class="small text-muted mb-3">Upload the bank transaction receipt for the supplemental amount.</p>
+                                    <input type="file" name="supplementalReceiptFile" class="form-control w-50 mx-auto mb-2" accept=".pdf" required />
+                                    <small class="text-muted italic">Only PDF files are accepted.</small>
+                                </div>
+                            }
+
+                            <div class="alert alert-info py-3 px-4 rounded-3 border-0 mt-2 small mb-4 shadow-sm">
+                                <h6 class="fw-bold mb-2"><i class="bi bi-info-square-fill me-2"></i> Bank Details for Payment</h6>
+                                <p class="mb-1"><strong>Account Name:</strong> National Productivity Council</p>
+                                <p class="mb-1"><strong>Bank Name:</strong> Axis Bank Ltd, Lodhi Road, New Delhi</p>
+                                <p class="mb-1"><strong>Account Number:</strong> 911010041400000 | <strong>IFSC Code:</strong> UTIB0000007</p>
+                            </div>
+
+                            <!-- Supplemental Proof History (Separated) -->
+                            @if (Model.Application.Payments.Any(p => p.IsSupplemental && !string.IsNullOrEmpty(p.ReceiptPath)))
+                            {
+                                <div class="p-4 border rounded-4 bg-white mb-4 shadow-sm border-warning border-opacity-50">
+                                    <h6 class="fw-bold text-dark mb-3"><i class="bi bi-files-alt me-2 text-warning"></i> Proof of Supplemental Payment History</h6>
+                                    <div class="list-group list-group-flush">
+                                        @foreach (var sp in Model.Application.Payments.Where(p => p.IsSupplemental && !string.IsNullOrEmpty(p.ReceiptPath)).OrderBy(p => p.CreatedAt))
+                                        {
+                                            <div class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent">
+                                                <div>
+                                                    <span class="small fw-bold text-dark">UTR: @sp.UTRNumber</span>
+                                                    <span class="ms-2 extra-small text-muted">Paid on: @(sp.PaymentDate?.ToString("dd MMM yyyy") ?? "N/A")</span>
+                                                </div>
+                                                <a href="@sp.ReceiptPath" target="_blank" class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1 extra-small fw-bold">
+                                                    <i class="bi bi-file-earmark-pdf me-1"></i> View Proof
+                                                </a>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Initial Payment Proof (Read-only for amendments) -->
+                            <div class="p-4 border rounded-3 bg-light mb-4 text-center @(isAmendment ? "opacity-75" : "")">
+                                <h5 class="fw-bold text-dark mb-2"><i class="bi bi-receipt me-2 text-primary"></i> 3. Proof of Initial Online Payment</h5>
+                                <p class="small text-muted mb-3">Receipt uploaded during initial submission.</p>
+                                
+                                @{
+                                    var isUploaded = Model.Application?.Documents?.Any(d => d.DocumentType == "PaymentReceipt") == true;
+                                    var paymentDoc = isUploaded ? Model.Application.Documents.First(d => d.DocumentType == "PaymentReceipt") : null;
+                                }
+                                
+                                <div class="d-flex flex-column align-items-center">
+                                    @if (!isAmendment && ViewBag.IsSubmitted != true)
+                                    {
+                                        <input type="file" name="paymentReceiptFile" class="form-control w-50 mb-2" accept=".pdf" @(isUploaded ? "" : "required") />
+                                    }
+                                    @if (isUploaded)
+                                    {
+                                        <div class="mt-2 text-center">
+                                            <i class="bi bi-check-circle-fill text-success"></i> 
+                                            <span class="small text-success fw-bold">Uploaded:</span> 
+                                            <a href="@paymentDoc.FilePath" target="_blank" class="small text-decoration-none fw-bold">@paymentDoc.FileName</a>
+                                        </div>
+                                    }
                                 </div>
                             </div>
-
-                            <div class="p-4 border border-2 border-dashed rounded-4 bg-light mb-4 text-center border-warning">
-                                <h5 class="fw-bold text-dark mb-2"><i class="bi bi-cloud-arrow-up me-2 text-warning"></i> Proof of Supplemental Payment</h5>
-                                <p class="small text-muted mb-3">Upload the bank transaction receipt for the supplemental amount.</p>
-                                <input type="file" name="supplementalReceiptFile" class="form-control w-50 mx-auto mb-2" accept=".pdf" required />
-                                <small class="text-muted italic">Only PDF files are accepted.</small>
-                            </div>
-                        }
-
-                        <div class="alert alert-info py-3 px-4 rounded-3 border-0 mt-2 small mb-4 shadow-sm">
-                            <h6 class="fw-bold mb-2"><i class="bi bi-info-square-fill me-2"></i> Bank Details for Payment</h6>
-                            <p class="mb-1"><strong>Account Name:</strong> National Productivity Council</p>
-                            <p class="mb-1"><strong>Bank Name:</strong> Axis Bank Ltd, Lodhi Road, New Delhi</p>
-                            <p class="mb-1"><strong>Account Number:</strong> 911010041400000 | <strong>IFSC Code:</strong> UTIB0000007</p>
-                        </div>
-
-                        <!-- Payment Proof (Base) -->
-                        <div class="p-4 border rounded-3 bg-light mb-4 text-center @(Model.Application?.Status == "Draft" ? "" : "opacity-75")">
-                            <h5 class="fw-bold text-dark mb-2"><i class="bi bi-receipt me-2 text-primary"></i> 3. Proof of Initial Online Payment</h5>
-                            <p class="small text-muted mb-3">Receipt uploaded during initial submission.</p>
-                            
-                            @{
-                                var isUploaded = Model.Application?.Documents?.Any(d => d.DocumentType == "PaymentReceipt") == true;
-                                var paymentDoc = isUploaded ? Model.Application.Documents.First(d => d.DocumentType == "PaymentReceipt") : null;
-                            }
-                            
-                            <div class="d-flex flex-column align-items-center">
-                                @if (!isAmendment)
-                                {
-                                    <input type="file" name="paymentReceiptFile" class="form-control w-50 mb-2" accept=".pdf" @(isUploaded ? "" : "required") />
-                                }
-                                @if (isUploaded)
-                                {
-                                    <div class="mt-2 text-center">
-                                        <i class="bi bi-check-circle-fill text-success"></i> 
-                                        <span class="small text-success fw-bold">Uploaded:</span> 
-                                        <a href="@paymentDoc.FilePath" target="_blank" class="small text-decoration-none">@paymentDoc.FileName</a>
-                                    </div>
-                                }
-                            </div>
-                        </div>
+                        </fieldset>
 
                         <!-- Navigation -->
                         <div class="mt-5 pt-4 border-top d-flex justify-content-between">
                             <a asp-action="Review" asp-route-id="@Model.ApplicationId" class="btn btn-wizard-prev shadow-sm">
                                 <i class="bi bi-arrow-left me-2"></i> @(Model.Application?.Status == "Draft" ? "Previous" : "Back to Review")
                             </a>
-                            @if (Model.Application?.Status == "Draft" || (ViewBag.IsSupplemental == true))
+                            @if (ViewBag.IsSubmitted == true)
+                            {
+                                <a asp-action="Submit" asp-route-id="@Model.ApplicationId" class="btn btn-wizard-next shadow-sm">
+                                    View Submission Summary <i class="bi bi-arrow-right ms-2"></i>
+                                </a>
+                            }
+                            else if (Model.Application?.Status == "Draft" || (ViewBag.IsSupplemental == true))
                             {
                                 <button type="submit" class="btn btn-wizard-next shadow-sm">
                                     @(Model.Application?.Status == "Draft" ? "Final Step: Finalize Submit" : "Save Supplemental Payment") <i class="bi bi-check2-all ms-2"></i>

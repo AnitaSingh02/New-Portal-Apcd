@@ -56,6 +56,7 @@ namespace APCD.Web.Controllers
             var application = await _context.Applications
                 .Include(a => a.Payments)
                 .Include(a => a.Documents)
+                .Include(a => a.Capabilities)
                 .Where(a => a.UserId == userId)
                 .OrderByDescending(a => a.CreatedAt)
                 .FirstOrDefaultAsync();

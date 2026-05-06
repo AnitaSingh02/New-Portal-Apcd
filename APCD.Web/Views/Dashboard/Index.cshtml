@@ -121,7 +121,7 @@
         </div>
 
         <!-- Recent Application Table -->
-        <h4 class="saas-section-title mb-3">Recent Application</h4>
+        <h4 class="saas-section-title mb-3">Initial Application Details</h4>
         
         @if (Model != null)
         {
@@ -130,8 +130,8 @@
                     <table class="table saas-table mb-0 align-middle">
                         <thead>
                             <tr>
-                                <th class="ps-4">Application</th>
-                                <th>Categories</th>
+                                <th class="ps-4">Original Application</th>
+                                <th>Initial Categories</th>
                                 <th>Status</th>
                                 <th class="text-end pe-4">Actions</th>
                             </tr>
@@ -141,17 +141,30 @@
                                 <td class="ps-4 py-4">
                                     <div class="d-flex flex-column">
                                         <span class="fw-semibold text-dark">@(Model.ApplicationId ?? "#" + Model.Id.ToString("0000"))</span>
-                                        <span class="text-muted small mt-1">@((Model.SubmittedAt ?? Model.CreatedAt).ToString("MMM dd, yyyy"))</span>
+                                        <span class="text-muted small mt-1">Submitted: @((Model.SubmittedAt ?? Model.CreatedAt).ToString("MMM dd, yyyy"))</span>
                                     </div>
                                 </td>
                                 <td class="py-4">
                                     <div class="d-flex flex-wrap gap-2">
-                                        @foreach (var cat in (Model.SelectedAPCDCategories ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries))
+                                        @{
+                                            var initialPayment = Model.Payments.FirstOrDefault(p => p.Type == APCD.Web.Models.PaymentType.EmpFee && !p.IsSupplemental);
+                                            // Fallback for legacy data: Include all paid devices that aren't linked to a supplemental payment
+                                            var initialCats = Model.Capabilities
+                                                .Where(c => c.IsPaid && (c.PaymentId == initialPayment?.Id || (c.PaymentId == null && Model.Payments.Any(p => p.Type == APCD.Web.Models.PaymentType.EmpFee && !p.IsSupplemental))))
+                                                .Select(c => c.SubTech)
+                                                .ToList();
+                                            
+                                            // Second fallback: If still empty, just show all paid devices (safest for old records)
+                                            if (!initialCats.Any()) {
+                                                initialCats = Model.Capabilities.Where(c => c.IsPaid).Select(c => c.SubTech).ToList();
+                                            }
+                                        }
+                                        @foreach (var cat in initialCats)
                                         {
                                             <span class="saas-tag">@cat</span>
                                         }
-                                        @if(string.IsNullOrEmpty(Model.SelectedAPCDCategories)) {
-                                            <span class="text-muted small">No categories selected</span>
+                                        @if(!initialCats.Any()) {
+                                            <span class="text-muted small">No initial categories</span>
                                         }
                                     </div>
                                 </td>
@@ -186,8 +199,8 @@
                                         {
                                             @if (Model.Status != "Draft" && Model.Status != "Rejected")
                                             {
-                                                <a asp-controller="Application" asp-action="Step4" asp-route-id="@Model.Id" class="saas-icon-btn text-warning bg-warning-subtle" title="Add APCD" data-bs-toggle="tooltip">
-                                                    <i class="bi bi-plus-lg"></i>
+                                                <a asp-controller="Application" asp-action="Step4" asp-route-id="@Model.Id" class="btn btn-sm btn-gov-gold rounded-pill px-3 fw-bold shadow-sm" title="Add More APCD">
+                                                    <i class="bi bi-plus-circle me-1"></i> Add More APCD
                                                 </a>
                                             }
                                             <a asp-controller="Application" asp-action="Print" asp-route-id="@Model.Id" target="_blank" class="saas-icon-btn text-secondary bg-secondary-subtle" title="Print" data-bs-toggle="tooltip">
@@ -204,6 +217,100 @@
                     </table>
                 </div>
             </div>
+            
+            @if (Model.Payments.Any(p => p.IsSupplemental))
+            {
+                <div class="d-flex justify-content-between align-items-center mb-3 mt-5">
+                    <h4 class="saas-section-title mb-0">Additional APCD / Supplemental History</h4>
+                    <span class="badge bg-gov-gold bg-opacity-10 text-gov-gold border border-gov-gold border-opacity-25 rounded-pill px-3 py-1 extra-small fw-bold">
+                        <i class="bi bi-info-circle me-1"></i>Linked to ID: @(Model.ApplicationId ?? "#" + Model.Id.ToString("0000"))
+                    </span>
+                </div>
+                
+                var supplementalPayments = Model.Payments.Where(p => p.IsSupplemental).OrderBy(p => p.CreatedAt).ToList();
+                int batchNo = 1;
+                foreach (APCD.Web.Models.Payment payment in supplementalPayments)
+                {
+                    var batchDevices = Model.Capabilities.Where(c => c.PaymentId == payment.Id).ToList();
+                    <div class="card saas-table-card border-0 mb-4 shadow-sm overflow-hidden">
+                        <div class="card-header bg-gov-gold bg-opacity-10 border-0 py-3 px-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="saas-icon-soft bg-white text-gov-gold" style="width: 32px; height: 32px; font-size: 0.9rem;">
+                                        <i class="bi bi-stack"></i>
+                                    </div>
+                                    <span class="fw-bold text-gov-blue">Batch @batchNo: Supplement Request</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="text-muted small">Added on: <strong>@(payment.CreatedAt?.ToString("MMM dd, yyyy") ?? "N/A")</strong></span>
+                                    @{
+                                        var pStatusColor = payment.Status == "Approved" ? "success" : (payment.Status == "Rejected" ? "danger" : "warning");
+                                    }
+                                    <span class="saas-badge bg-@pStatusColor bg-opacity-10 text-@pStatusColor border-@pStatusColor border-opacity-25 rounded-pill fw-bold text-uppercase" style="font-size: 0.65rem;">
+                                        @payment.Status
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table saas-table mb-0 align-middle">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="ps-4">Added Device</th>
+                                        <th>Fee Details</th>
+                                        <th>UTR / Payment Date</th>
+                                        <th class="text-end pe-4">Batch Proof</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (!batchDevices.Any())
+                                    {
+                                        <tr>
+                                            <td colspan="4" class="text-center py-3 text-muted small">No devices linked to this batch.</td>
+                                        </tr>
+                                    }
+                                    @foreach (var dev in batchDevices)
+                                    {
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="d-flex flex-column">
+                                                    <span class="fw-semibold text-dark">@dev.SubTech</span>
+                                                    <span class="text-muted small">@dev.MainType</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-column">
+                                                    <span class="fw-bold text-success">₹@((payment.Amount ?? 0).ToString("N0"))</span>
+                                                    <span class="extra-small text-muted">Empanelment Fee</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-column small">
+                                                    <span class="text-uppercase fw-medium text-dark">@payment.UTRNumber</span>
+                                                    <span class="text-muted">@(payment.PaymentDate.HasValue ? payment.PaymentDate.Value.ToString("MMM dd, yyyy") : "N/A")</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-end pe-4">
+                                                @if (!string.IsNullOrEmpty(payment.ReceiptPath))
+                                                {
+                                                    <a href="@payment.ReceiptPath" target="_blank" class="saas-icon-btn text-gov-blue bg-light border" title="View Supplemental Proof" data-bs-toggle="tooltip">
+                                                        <i class="bi bi-file-earmark-pdf"></i>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted small">No Proof</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    batchNo++;
+                }
+            }
         }
         else
         {

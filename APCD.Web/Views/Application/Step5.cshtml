@@ -20,212 +20,235 @@
             <!-- Main Content -->
             <div class="col-lg-9 bg-white">
                 <div class="wizard-main">
+                    @if (ViewBag.IsSubmitted == true)
+                    {
+                        <div class="alert alert-info d-flex align-items-center border-0 shadow-sm mb-4 py-3" style="background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); border-left: 5px solid #0ea5e9 !important;">
+                            <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark">View Mode – Submission Completed</h6>
+                                <p class="small mb-0 text-muted">This application has been submitted and is currently in read-only mode. No further edits are allowed.</p>
+                            </div>
+                            <i class="bi bi-lock-fill ms-auto fs-3 text-info opacity-25"></i>
+                        </div>
+                    }
+
                     <form asp-action="SaveFinancials" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
-                        <div class="form-section-title">Step 5: Financials, Audits & History</div>
-                        <p class="text-muted small mb-4">Provide certified financial data and client testimonials (Points 37, 38, 39, 40).</p>
+                        <fieldset @(ViewBag.IsSubmitted == true ? "disabled" : "")>
+                            <div class="form-section-title">Step 5: Financials, Audits & History</div>
+                            <p class="text-muted small mb-4">Provide certified financial data and client testimonials (Points 37, 38, 39, 40).</p>
 
-                        <div class="row g-5">
-                            <!-- Turnover (Point 17) -->
-                            <div class="col-md-12">
-                                <h6 class="fw-bold mb-3"><i class="bi bi-currency-dollar me-2 text-primary"></i> 37. Year wise Turnover (Last 3 years)</h6>
-                                <p class="extra-small text-muted mb-3">Attach audited certificates in the Documents section later.</p>
-                                <div class="table-responsive rounded-3 bg-light border">
-                                    <table class="table table-bordered mb-0">
-                                        <thead class="bg-gov-blue text-white">
-                                            <tr>
-                                                <th class="small py-2">Financial Year</th>
-                                                <th class="small py-2 text-center">Amount (₹ in Lakhs)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var year in turnoverYears)
-                                            {
-                                                var turnover = Model.Turnovers.FirstOrDefault(t => t.FinancialYear == year);
+                            <div class="row g-5">
+                                <!-- Turnover (Point 17) -->
+                                <div class="col-md-12">
+                                    <h6 class="fw-bold mb-3"><i class="bi bi-currency-dollar me-2 text-primary"></i> 37. Year wise Turnover (Last 3 years)</h6>
+                                    <p class="extra-small text-muted mb-3">Attach audited certificates in the Documents section later.</p>
+                                    <div class="table-responsive rounded-3 bg-light border">
+                                        <table class="table table-bordered mb-0">
+                                            <thead class="bg-gov-blue text-white">
                                                 <tr>
-                                                    <td class="fw-bold bg-white small">@year</td>
-                                                    <td class="bg-white">
-                                                        <input type="number" step="0.01" name="TurnoverAmount_@year" class="form-control form-control-sm border-0 text-center" placeholder="0.00" value="@turnover?.Amount" />
-                                                    </td>
+                                                    <th class="small py-2">Financial Year</th>
+                                                    <th class="small py-2 text-center">Amount (₹ in Lakhs)</th>
                                                 </tr>
-                                            }
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="mt-3 p-3 bg-light border rounded-3 text-center">
-                                    <label class="form-group-label fw-bold mb-2">Upload Consolidated Turnover Certificate (covers last 3 years)</label>
-                                    <input type="file" name="consolidatedTurnoverFile" class="form-control form-control-sm mb-2 w-50 mx-auto" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
-                                    @if (Model.Documents.Any(d => d.DocumentType == "ConsolidatedTurnover")) {
-                                        var tmpDoc = Model.Documents.First(d => d.DocumentType == "ConsolidatedTurnover");
-                                        <div class="mt-2 text-center"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-                                    }
-                                </div>
-                            </div>
-
-                            <!-- Bank Solvency (Point 18) -->
-                            <div class="col-md-6">
-                                <h6 class="fw-bold mb-3"><i class="bi bi-bank me-2 text-primary"></i> 38. Bank Solvency Certificate</h6>
-                                <div class="p-3 bg-light border rounded-3">
-                                    <p class="small mb-2">Issued within last 12 months?</p>
-                                    <input type="file" name="bankSolvencyFile" class="form-control form-control-sm mb-2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
-                                    @if (Model.Documents.Any(d => d.DocumentType == "BankSolvency")) {
-                                        var tmpDoc = Model.Documents.First(d => d.DocumentType == "BankSolvency");
-                                        <div class="alert alert-success py-2 px-3 small border-0 mb-0">
-                                            <i class="bi bi-check-circle-fill me-2"></i> Document Uploaded: <a href="@tmpDoc.FilePath" target="_blank" class="fw-bold text-success text-decoration-none text-truncate d-inline-block align-middle" style="max-width: 150px;" title="@tmpDoc.FileName">@tmpDoc.FileName</a>
-                                        </div>
-                                    } else {
-                                        <div class="alert alert-warning py-2 px-3 small border-0 mb-0">
-                                            <i class="bi bi-exclamation-triangle-fill me-2"></i> Certificate Pending Upload
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-
-                            <!-- Grievance (Point 23) -->
-                            <div class="col-md-6">
-                                <h6 class="fw-bold mb-3"><i class="bi bi-people me-2 text-primary"></i> 39. Grievance Redressal System</h6>
-                                <div class="p-3 bg-light border rounded-3 h-100">
-                                    <div class="form-check form-switch mt-2">
-                                        <input asp-for="HasGrievanceSystem" class="form-check-input" type="checkbox" id="grievanceSwitch">
-                                        <label class="form-check-label fw-semibold" for="grievanceSwitch">Does firm have a documented system?</label>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var year in turnoverYears)
+                                                {
+                                                    var turnover = Model.Turnovers.FirstOrDefault(t => t.FinancialYear == year);
+                                                    <tr>
+                                                        <td class="fw-bold bg-white small">@year</td>
+                                                        <td class="bg-white">
+                                                            <input type="number" step="0.01" name="TurnoverAmount_@year" class="form-control form-control-sm border-0 text-center" placeholder="0.00" value="@turnover?.Amount" />
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
                                     </div>
-                                    <span class="help-text d-block mt-2">If yes, details will be verified during visit.</span>
+                                    <div class="mt-3 p-3 bg-light border rounded-3 text-center">
+                                        <label class="form-group-label fw-bold mb-2">Upload Consolidated Turnover Certificate (covers last 3 years)</label>
+                                        <input type="file" name="consolidatedTurnoverFile" class="form-control form-control-sm mb-2 w-50 mx-auto" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+                                        @if (Model.Documents.Any(d => d.DocumentType == "ConsolidatedTurnover")) {
+                                            var tmpDoc = Model.Documents.First(d => d.DocumentType == "ConsolidatedTurnover");
+                                            <div class="mt-2 text-center"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+                                        }
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Testimonials (Point 24) -->
-                            <div class="col-md-12">
-                                <h6 class="fw-bold mb-3"><i class="bi bi-chat-right-quote me-2 text-primary"></i> 40. Client Testimonials (Annexure-12)</h6>
-                                <p class="small text-muted mb-3">Minimum 3 testimonials are required, preferably 1 from NCR region.</p>
-                                <div class="row g-3">
-                                    @for(int i = 1; i <= 3; i++)
-                                    {
-                                        <div class="col-md-4">
-                                            <div class="p-3 border rounded-3 bg-white text-center h-100 d-flex flex-column justify-content-between">
-                                                <div>
-                                                    <div class="mb-2"><i class="bi bi-file-earmark-pdf fs-3 text-muted"></i></div>
-                                                    <span class="small fw-bold d-block mb-2">Performance Cert @i</span>
-                                                    <input type="file" name="testimonialFile_@i" class="form-control form-control-sm mb-3" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
-                                                </div>
-                                                <div>
-                                                    @if (Model.Documents.Any(d => d.DocumentType == $"ClientTestimonial_{i}")) {
-                                                        var tst = Model.Documents.FirstOrDefault(d => d.DocumentType == $"ClientTestimonial_{i}");
-                                                        <span class="text-success small fw-bold"><i class="bi bi-check-circle"></i> Uploaded</span>
-                                                        <a href="@tst.FilePath" target="_blank" class="d-block extra-small text-decoration-none text-truncate mt-1" title="@tst.FileName">@tst.FileName</a>
-                                                    } else {
-                                                        <span class="text-danger small"><i class="bi bi-x-circle"></i> Required</span>
-                                                    }
+                                <!-- Bank Solvency (Point 18) -->
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold mb-3"><i class="bi bi-bank me-2 text-primary"></i> 38. Bank Solvency Certificate</h6>
+                                    <div class="p-3 bg-light border rounded-3">
+                                        <p class="small mb-2">Issued within last 12 months?</p>
+                                        <input type="file" name="bankSolvencyFile" class="form-control form-control-sm mb-2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+                                        @if (Model.Documents.Any(d => d.DocumentType == "BankSolvency")) {
+                                            var tmpDoc = Model.Documents.First(d => d.DocumentType == "BankSolvency");
+                                            <div class="alert alert-success py-2 px-3 small border-0 mb-0">
+                                                <i class="bi bi-check-circle-fill me-2"></i> Document Uploaded: <a href="@tmpDoc.FilePath" target="_blank" class="fw-bold text-success text-decoration-none text-truncate d-inline-block align-middle" style="max-width: 150px;" title="@tmpDoc.FileName">@tmpDoc.FileName</a>
+                                            </div>
+                                        } else if (ViewBag.IsSubmitted != true) {
+                                            <div class="alert alert-warning py-2 px-3 small border-0 mb-0">
+                                                <i class="bi bi-exclamation-triangle-fill me-2"></i> Certificate Pending Upload
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+
+                                <!-- Grievance (Point 23) -->
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold mb-3"><i class="bi bi-people me-2 text-primary"></i> 39. Grievance Redressal System</h6>
+                                    <div class="p-3 bg-light border rounded-3 h-100">
+                                        <div class="form-check form-switch mt-2">
+                                            <input asp-for="HasGrievanceSystem" class="form-check-input" type="checkbox" id="grievanceSwitch">
+                                            <label class="form-check-label fw-semibold" for="grievanceSwitch">Does firm have a documented system?</label>
+                                        </div>
+                                        <span class="help-text d-block mt-2">If yes, details will be verified during visit.</span>
+                                    </div>
+                                </div>
+
+                                <!-- Testimonials (Point 24) -->
+                                <div class="col-md-12">
+                                    <h6 class="fw-bold mb-3"><i class="bi bi-chat-right-quote me-2 text-primary"></i> 40. Client Testimonials (Annexure-12)</h6>
+                                    <p class="small text-muted mb-3">Minimum 3 testimonials are required, preferably 1 from NCR region.</p>
+                                    <div class="row g-3">
+                                        @for(int k = 1; k <= 3; k++)
+                                        {
+                                            <div class="col-md-4">
+                                                <div class="p-3 border rounded-3 bg-white text-center h-100 d-flex flex-column justify-content-between">
+                                                    <div>
+                                                        <div class="mb-2"><i class="bi bi-file-earmark-pdf fs-3 text-muted"></i></div>
+                                                        <span class="small fw-bold d-block mb-2">Performance Cert @k</span>
+                                                        <input type="file" name="testimonialFile_@k" class="form-control form-control-sm mb-3" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+                                                    </div>
+                                                    <div>
+                                                        @if (Model.Documents.Any(d => d.DocumentType == $"ClientTestimonial_{k}")) {
+                                                            var tst = Model.Documents.FirstOrDefault(d => d.DocumentType == $"ClientTestimonial_{k}");
+                                                            <span class="text-success small fw-bold"><i class="bi bi-check-circle"></i> Uploaded</span>
+                                                            <a href="@tst.FilePath" target="_blank" class="d-block extra-small text-decoration-none text-truncate mt-1" title="@tst.FileName">@tst.FileName</a>
+                                                        } else if (ViewBag.IsSubmitted != true) {
+                                                            <span class="text-danger small"><i class="bi bi-x-circle"></i> Required</span>
+                                                        }
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                            <!-- Additional Compliance Docs -->
-                            <div class="col-md-12 mt-4 border-top pt-4">
-                                <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-file-earmark-check me-2"></i> Section H & I: Undertakings, Compliance & Operations</h5>
-                                <div class="row g-4">
-                                    <div class="col-md-4">
-                                        <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">41. Bank Account Details (Annexure-10)</label>
-                                            <input type="file" name="bankAccountFile" class="form-control form-control-sm mt-2" accept=".pdf" />
-                                            @if (Model.Documents.Any(d => d.DocumentType == "BankAccountDetails")) {
-    var tmpDoc = Model.Documents.First(d => d.DocumentType == "BankAccountDetails");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">42. Service Support Undertaking (Annexure-4)</label>
-                                            <input type="file" name="serviceSupportFile" class="form-control form-control-sm mt-2" accept=".pdf" />
-                                            @if (Model.Documents.Any(d => d.DocumentType == "ServiceSupportUndertaking")) {
-    var tmpDoc = Model.Documents.First(d => d.DocumentType == "ServiceSupportUndertaking");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">43. Non-Blacklisting Undertaking (Annexure-5)</label>
-                                            <input type="file" name="nonBlacklistingFile" class="form-control form-control-sm mt-2" accept=".pdf" />
-                                            @if (Model.Documents.Any(d => d.DocumentType == "NonBlacklistingUndertaking")) {
-    var tmpDoc = Model.Documents.First(d => d.DocumentType == "NonBlacklistingUndertaking");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">44. Test Certificates of APCDs</label>
-                                            <input type="file" name="testCertificateFile" class="form-control form-control-sm mt-2" accept=".pdf" />
-                                            @if (Model.Documents.Any(d => d.DocumentType == "TestCertificate")) {
-    var tmpDoc = Model.Documents.First(d => d.DocumentType == "TestCertificate");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">45. GST Filing Proof (Last 1 year)</label>
-                                            <input type="file" name="gstFilingFile" class="form-control form-control-sm mt-2" accept=".pdf" />
-                                            @if (Model.Documents.Any(d => d.DocumentType == "GSTFiling")) {
-    var tmpDoc = Model.Documents.First(d => d.DocumentType == "GSTFiling");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">46. No Legal Disputes Declaration (Annexure-8)</label>
-                                            <input type="file" name="noLegalDisputesFile" class="form-control form-control-sm mt-2" accept=".pdf" />
-                                            @if (Model.Documents.Any(d => d.DocumentType == "NoLegalDisputes")) {
-    var tmpDoc = Model.Documents.First(d => d.DocumentType == "NoLegalDisputes");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">47. Complaint Handling Policy</label>
-                                            <input type="file" name="complaintPolicyFile" class="form-control form-control-sm mt-2" accept=".pdf" />
-                                            @if (Model.Documents.Any(d => d.DocumentType == "ComplaintPolicy")) {
-    var tmpDoc = Model.Documents.First(d => d.DocumentType == "ComplaintPolicy");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">48. Escalation Mechanism</label>
-                                            <input type="file" name="escalationMechFile" class="form-control form-control-sm mt-2" accept=".pdf" />
-                                            @if (Model.Documents.Any(d => d.DocumentType == "EscalationMechanism")) {
-    var tmpDoc = Model.Documents.First(d => d.DocumentType == "EscalationMechanism");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="p-3 border rounded-3 bg-light h-100">
-                                            <label class="form-group-label">49. Photographs of Unit (Geo-tagged)</label>
-                                            <input type="file" name="unitPhotographsFile" class="form-control form-control-sm mt-2" accept=".pdf" />
-                                            @if (Model.Documents.Any(d => d.DocumentType == "UnitPhotographs")) {
-    var tmpDoc = Model.Documents.First(d => d.DocumentType == "UnitPhotographs");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
-                                        </div>
+                                        }
                                     </div>
                                 </div>
+                                <!-- Additional Compliance Docs -->
+                                <div class="col-md-12 mt-4 border-top pt-4">
+                                    <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-file-earmark-check me-2"></i> Section H & I: Undertakings, Compliance & Operations</h5>
+                                    <div class="row g-4">
+                                        <div class="col-md-4">
+                                            <div class="p-3 border rounded-3 bg-light h-100">
+                                                <label class="form-group-label">41. Bank Account Details (Annexure-10)</label>
+                                                <input type="file" name="bankAccountFile" class="form-control form-control-sm mt-2" accept=".pdf" />
+                                                @if (Model.Documents.Any(d => d.DocumentType == "BankAccountDetails")) {
+                                                    var tmpDoc = Model.Documents.First(d => d.DocumentType == "BankAccountDetails");
+                                                    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-3 border rounded-3 bg-light h-100">
+                                                <label class="form-group-label">42. Service Support Undertaking (Annexure-4)</label>
+                                                <input type="file" name="serviceSupportFile" class="form-control form-control-sm mt-2" accept=".pdf" />
+                                                @if (Model.Documents.Any(d => d.DocumentType == "ServiceSupportUndertaking")) {
+                                                    var tmpDoc = Model.Documents.First(d => d.DocumentType == "ServiceSupportUndertaking");
+                                                    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-3 border rounded-3 bg-light h-100">
+                                                <label class="form-group-label">43. Non-Blacklisting Undertaking (Annexure-5)</label>
+                                                <input type="file" name="nonBlacklistingFile" class="form-control form-control-sm mt-2" accept=".pdf" />
+                                                @if (Model.Documents.Any(d => d.DocumentType == "NonBlacklistingUndertaking")) {
+                                                    var tmpDoc = Model.Documents.First(d => d.DocumentType == "NonBlacklistingUndertaking");
+                                                    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-3 border rounded-3 bg-light h-100">
+                                                <label class="form-group-label">44. Test Certificates of APCDs</label>
+                                                <input type="file" name="testCertificateFile" class="form-control form-control-sm mt-2" accept=".pdf" />
+                                                @if (Model.Documents.Any(d => d.DocumentType == "TestCertificate")) {
+                                                    var tmpDoc = Model.Documents.First(d => d.DocumentType == "TestCertificate");
+                                                    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-3 border rounded-3 bg-light h-100">
+                                                <label class="form-group-label">45. GST Filing Proof (Last 1 year)</label>
+                                                <input type="file" name="gstFilingFile" class="form-control form-control-sm mt-2" accept=".pdf" />
+                                                @if (Model.Documents.Any(d => d.DocumentType == "GSTFiling")) {
+                                                    var tmpDoc = Model.Documents.First(d => d.DocumentType == "GSTFiling");
+                                                    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-3 border rounded-3 bg-light h-100">
+                                                <label class="form-group-label">46. No Legal Disputes Declaration (Annexure-8)</label>
+                                                <input type="file" name="noLegalDisputesFile" class="form-control form-control-sm mt-2" accept=".pdf" />
+                                                @if (Model.Documents.Any(d => d.DocumentType == "NoLegalDisputes")) {
+                                                    var tmpDoc = Model.Documents.First(d => d.DocumentType == "NoLegalDisputes");
+                                                    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-3 border rounded-3 bg-light h-100">
+                                                <label class="form-group-label">47. Complaint Handling Policy</label>
+                                                <input type="file" name="complaintPolicyFile" class="form-control form-control-sm mt-2" accept=".pdf" />
+                                                @if (Model.Documents.Any(d => d.DocumentType == "ComplaintPolicy")) {
+                                                    var tmpDoc = Model.Documents.First(d => d.DocumentType == "ComplaintPolicy");
+                                                    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-3 border rounded-3 bg-light h-100">
+                                                <label class="form-group-label">48. Escalation Mechanism</label>
+                                                <input type="file" name="escalationMechFile" class="form-control form-control-sm mt-2" accept=".pdf" />
+                                                @if (Model.Documents.Any(d => d.DocumentType == "EscalationMechanism")) {
+                                                    var tmpDoc = Model.Documents.First(d => d.DocumentType == "EscalationMechanism");
+                                                    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-3 border rounded-3 bg-light h-100">
+                                                <label class="form-group-label">49. Photographs of Unit (Geo-tagged)</label>
+                                                <input type="file" name="unitPhotographsFile" class="form-control form-control-sm mt-2" accept=".pdf" />
+                                                @if (Model.Documents.Any(d => d.DocumentType == "UnitPhotographs")) {
+                                                    var tmpDoc = Model.Documents.First(d => d.DocumentType == "UnitPhotographs");
+                                                    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </fieldset>
 
                         <!-- Navigation -->
                         <div class="mt-5 pt-4 border-top d-flex justify-content-between">
                             <a asp-action="Step4" asp-route-id="@Model.Id" class="btn btn-wizard-prev">
                                 <i class="bi bi-arrow-left me-2"></i> Previous
                             </a>
-                            <button type="submit" name="hasGrievance" value="true" class="btn btn-wizard-next">
-                                Next Step: Final Review <i class="bi bi-arrow-right ms-2"></i>
-                            </button>
+                            @if (ViewBag.IsSubmitted == true)
+                            {
+                                <a asp-action="Review" asp-route-id="@Model.Id" class="btn btn-wizard-next">
+                                    Next Step: Final Review <i class="bi bi-arrow-right ms-2"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                <button type="submit" name="hasGrievance" value="true" class="btn btn-wizard-next">
+                                    Next Step: Final Review <i class="bi bi-arrow-right ms-2"></i>
+                                </button>
+                            }
                         </div>
                     </form>
                 </div>

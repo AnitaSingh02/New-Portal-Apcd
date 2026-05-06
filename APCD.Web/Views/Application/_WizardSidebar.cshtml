@@ -1,23 +1,24 @@
 @model int
 @{
     int currentStep = Model;
+    bool isSubmitted = ViewBag.IsSubmitted ?? false;
     var steps = new[]
     {
-        new { Name = "Applicant Details", Icon = "1" },
-        new { Name = "Classifications", Icon = "2" },
-        new { Name = "Key Personnel", Icon = "3" },
-        new { Name = "Technical Scope", Icon = "4" },
-        new { Name = "Financials", Icon = "5" },
-        new { Name = "Review", Icon = "6" },
-        new { Name = "Payment", Icon = "7" },
-        new { Name = "Final Submit", Icon = "8" }
+        new { Name = "Applicant Details", Icon = "1", Action = "Step1" },
+        new { Name = "Classifications", Icon = "2", Action = "Step2" },
+        new { Name = "Key Personnel", Icon = "3", Action = "Step3" },
+        new { Name = "Technical Scope", Icon = "4", Action = "Step4" },
+        new { Name = "Financials", Icon = "5", Action = "Step5" },
+        new { Name = "Review", Icon = "6", Action = "Review" },
+        new { Name = "Payment", Icon = "7", Action = "Payment" },
+        new { Name = "Final Submit", Icon = "8", Action = "Submit" }
     };
 }
 
 <div class="wizard-sidebar h-100">
     <div class="px-4 mb-4">
         <h5 class="fw-bold text-primary mb-0">Application Progress</h5>
-        <p class="extra-small text-muted">Complete all steps to submit</p>
+        <p class="extra-small text-muted">@(isSubmitted ? "Submission Completed" : "Complete all steps to submit")</p>
     </div>
     <div class="list-group list-group-flush">
         @for (int i = 0; i < steps.Length; i++)
@@ -27,30 +28,49 @@
             
             // Completion is based on ViewBag.ActualStep if provided, otherwise fallback to currentStep
             int actualStep = ViewBag.ActualStep ?? currentStep;
-            var isCompleted = stepNum < actualStep;
+            var isCompleted = isSubmitted || stepNum < actualStep;
             
             var stepClass = isActive ? "active" : (isCompleted ? "completed" : "");
-            var actionName = stepNum == 1 ? "Profile" : 
-                            stepNum == 6 ? "Review" : 
-                            stepNum == 7 ? "Payment" : 
-                            stepNum == 8 ? "Submit" : $"Step{stepNum}";
+            
+            // Step is clickable if it's completed, active, or the whole application is submitted
+            var isClickable = isSubmitted || isCompleted || isActive;
 
-            <div class="wizard-step @stepClass">
-                <div class="wizard-step-icon">
-                    @if (isCompleted)
-                    {
-                        <i class="bi bi-check-lg"></i>
-                    }
-                    else
-                    {
+            if (isClickable)
+            {
+                <a asp-action="@steps[i].Action" asp-route-id="@ViewContext.RouteData.Values["id"]" class="text-decoration-none">
+                    <div class="wizard-step @stepClass">
+                        <div class="wizard-step-icon">
+                            @if (isCompleted && !isActive)
+                            {
+                                <i class="bi bi-check-lg"></i>
+                            }
+                            else
+                            {
+                                @steps[i].Icon
+                            }
+                        </div>
+                        <div class="d-flex flex-column">
+                            <span class="small opacity-75">Step @stepNum</span>
+                            <span class="fw-semibold">
+                                @steps[i].Name
+                                @if (isSubmitted) { <i class="bi bi-lock-fill ms-1 small opacity-50"></i> }
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            }
+            else
+            {
+                <div class="wizard-step @stepClass">
+                    <div class="wizard-step-icon">
                         @steps[i].Icon
-                    }
+                    </div>
+                    <div class="d-flex flex-column">
+                        <span class="small opacity-75">Step @stepNum</span>
+                        <span class="fw-semibold">@steps[i].Name</span>
+                    </div>
                 </div>
-                <div class="d-flex flex-column">
-                    <span class="small opacity-75">Step @stepNum</span>
-                    <span class="fw-semibold">@steps[i].Name</span>
-                </div>
-            </div>
+            }
         }
     </div>
 </div>

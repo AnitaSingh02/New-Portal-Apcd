@@ -22,112 +22,135 @@
             <!-- Main Content -->
             <div class="col-lg-9 bg-white">
                 <div class="wizard-main">
-                    <div class="form-section-title">Step 3: Details of Key Personnel</div>
-                    <p class="text-muted small mb-5">Please provide contact details of the authorized persons for Commercial and Technical matters.</p>
-
-                    <div class="row g-5">
-                        <!-- Commercial In-charge -->
-                        <div class="col-md-6">
-                            <div class="p-4 rounded-4 border h-100" style="background-color: #f8fbff;">
-                                <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-briefcase me-2"></i> 21. Commercial In-charge</h5>
-                                <form asp-action="AddStaff" asp-route-id="@appId" method="post">
-                                    <input type="hidden" name="StaffType" value="Commercial" />
-                                    <div class="mb-3">
-                                        <label class="form-group-label small">Full Name</label>
-                                        <input name="Name" class="form-control custom-input" placeholder="e.g. John Doe" value="@commercial?.Name" required />
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-group-label small">Designation</label>
-                                        <input name="Designation" class="form-control custom-input" placeholder="e.g. Manager (Sales)" value="@commercial?.Designation" required />
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-group-label small">Mobile No.</label>
-                                        <input name="MobileNo" class="form-control custom-input" placeholder="10-digit number" value="@commercial?.MobileNo" required />
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-group-label small">E-mail ID</label>
-                                        <input name="Email" type="email" class="form-control custom-input" placeholder="official@email.com" value="@commercial?.Email" required />
-                                    </div>
-                                    @if (commercial == null) {
-                                        <button type="submit" class="btn btn-primary btn-sm px-4">Save Commercial Details</button>
-                                    } else {
-                                        <div class="text-success small fw-bold"><i class="bi bi-check-circle-fill"></i> Details Saved</div>
-                                    }
-                                </form>
+                    @if (ViewBag.IsSubmitted == true)
+                    {
+                        <div class="alert alert-info d-flex align-items-center border-0 shadow-sm mb-4 py-3" style="background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); border-left: 5px solid #0ea5e9 !important;">
+                            <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark">View Mode – Submission Completed</h6>
+                                <p class="small mb-0 text-muted">This application has been submitted and is currently in read-only mode. No further edits are allowed.</p>
                             </div>
+                            <i class="bi bi-lock-fill ms-auto fs-3 text-info opacity-25"></i>
                         </div>
+                    }
 
-                        <!-- Technical In-charge -->
-                        <div class="col-md-6">
-                            <div class="p-4 rounded-4 border h-100" style="background-color: #fdfdfd;">
-                                <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-tools me-2"></i> 22. Technical In-charge</h5>
-                                <form asp-action="AddStaff" asp-route-id="@appId" method="post">
-                                    <input type="hidden" name="StaffType" value="Technical" />
-                                    <div class="mb-3">
-                                        <label class="form-group-label small">Full Name</label>
-                                        <input name="Name" class="form-control custom-input" placeholder="e.g. Robert Smith" value="@technical?.Name" required />
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-group-label small">Designation</label>
-                                        <input name="Designation" class="form-control custom-input" placeholder="e.g. Chief Engineer" value="@technical?.Designation" required />
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-group-label small">Mobile No.</label>
-                                        <input name="MobileNo" class="form-control custom-input" placeholder="10-digit number" value="@technical?.MobileNo" required />
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-group-label small">E-mail ID</label>
-                                        <input name="Email" type="email" class="form-control custom-input" placeholder="tech@email.com" value="@technical?.Email" required />
-                                    </div>
-                                    @if (technical == null) {
-                                        <button type="submit" class="btn btn-primary btn-sm px-4">Save Technical Details</button>
-                                    } else {
-                                        <div class="text-success small fw-bold"><i class="bi bi-check-circle-fill"></i> Details Saved</div>
-                                    }
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+                    <fieldset @(ViewBag.IsSubmitted == true ? "disabled" : "")>
+                        <div class="form-section-title">Step 3: Details of Key Personnel</div>
+                        <p class="text-muted small mb-5">Please provide contact details of the authorized persons for Commercial and Technical matters.</p>
 
-                    <!-- Organization Documents -->
-                    <form asp-action="SaveStep3Docs" asp-route-id="@appId" method="post" enctype="multipart/form-data">
-                        <div class="row g-4 mt-4">
-                            <div class="col-md-12">
-                                <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-diagram-3 me-2"></i> Section G: Organization Documents</h5>
-                            </div>
+                        <div class="row g-5">
+                            <!-- Commercial In-charge -->
                             <div class="col-md-6">
-                                <div class="p-3 border rounded-3 bg-light h-100">
-                                    <label class="form-group-label">23. Organizational Chart</label>
-                                    <input type="file" name="orgChartFile" class="form-control form-control-sm mt-2" accept=".pdf" />
-                                    @{ var docs = ViewBag.Documents as List<APCD.Web.Models.ApplicationDocument>; }
-                                    @if (docs != null && docs.Any(d => d.DocumentType == "OrganizationalChart")) {
-    var tmpDoc = docs.First(d => d.DocumentType == "OrganizationalChart");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
+                                <div class="p-4 rounded-4 border h-100" style="background-color: #f8fbff;">
+                                    <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-briefcase me-2"></i> 21. Commercial In-charge</h5>
+                                    <form asp-action="AddStaff" asp-route-id="@appId" method="post">
+                                        <input type="hidden" name="StaffType" value="Commercial" />
+                                        <div class="mb-3">
+                                            <label class="form-group-label small">Full Name</label>
+                                            <input name="Name" class="form-control custom-input" placeholder="e.g. John Doe" value="@commercial?.Name" required />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-group-label small">Designation</label>
+                                            <input name="Designation" class="form-control custom-input" placeholder="e.g. Manager (Sales)" value="@commercial?.Designation" required />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-group-label small">Mobile No.</label>
+                                            <input name="MobileNo" class="form-control custom-input" placeholder="10-digit number" value="@commercial?.MobileNo" required />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-group-label small">E-mail ID</label>
+                                            <input name="Email" type="email" class="form-control custom-input" placeholder="official@email.com" value="@commercial?.Email" required />
+                                        </div>
+                                        @if (commercial == null) {
+                                            <button type="submit" class="btn btn-primary btn-sm px-4">Save Commercial Details</button>
+                                        } else if (ViewBag.IsSubmitted != true) {
+                                            <div class="text-success small fw-bold"><i class="bi bi-check-circle-fill"></i> Details Saved</div>
+                                        }
+                                    </form>
                                 </div>
                             </div>
+
+                            <!-- Technical In-charge -->
                             <div class="col-md-6">
-                                <div class="p-3 border rounded-3 bg-light h-100">
-                                    <label class="form-group-label">24. Staff Qualification Details (Annexure-7)</label>
-                                    <input type="file" name="staffQualFile" class="form-control form-control-sm mt-2" accept=".pdf" />
-                                    @if (docs != null && docs.Any(d => d.DocumentType == "StaffQualification")) {
-    var tmpDoc = docs.First(d => d.DocumentType == "StaffQualification");
-    <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-}
+                                <div class="p-4 rounded-4 border h-100" style="background-color: #fdfdfd;">
+                                    <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-tools me-2"></i> 22. Technical In-charge</h5>
+                                    <form asp-action="AddStaff" asp-route-id="@appId" method="post">
+                                        <input type="hidden" name="StaffType" value="Technical" />
+                                        <div class="mb-3">
+                                            <label class="form-group-label small">Full Name</label>
+                                            <input name="Name" class="form-control custom-input" placeholder="e.g. Robert Smith" value="@technical?.Name" required />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-group-label small">Designation</label>
+                                            <input name="Designation" class="form-control custom-input" placeholder="e.g. Chief Engineer" value="@technical?.Designation" required />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-group-label small">Mobile No.</label>
+                                            <input name="MobileNo" class="form-control custom-input" placeholder="10-digit number" value="@technical?.MobileNo" required />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-group-label small">E-mail ID</label>
+                                            <input name="Email" type="email" class="form-control custom-input" placeholder="tech@email.com" value="@technical?.Email" required />
+                                        </div>
+                                        @if (technical == null) {
+                                            <button type="submit" class="btn btn-primary btn-sm px-4">Save Technical Details</button>
+                                        } else if (ViewBag.IsSubmitted != true) {
+                                            <div class="text-success small fw-bold"><i class="bi bi-check-circle-fill"></i> Details Saved</div>
+                                        }
+                                    </form>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Navigation -->
-                        <div class="mt-5 pt-4 border-top d-flex justify-content-between">
-                            <a asp-action="Step2" asp-route-id="@appId" class="btn btn-wizard-prev">
-                                <i class="bi bi-arrow-left me-2"></i> Previous
-                            </a>
-                            <button type="submit" class="btn btn-wizard-next">
-                                Save & Next Step: Technical Scope <i class="bi bi-arrow-right ms-2"></i>
-                            </button>
-                        </div>
-                    </form>
+                        <!-- Organization Documents -->
+                        <form asp-action="SaveStep3Docs" asp-route-id="@appId" method="post" enctype="multipart/form-data">
+                            <div class="row g-4 mt-4">
+                                <div class="col-md-12">
+                                    <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-diagram-3 me-2"></i> Section G: Organization Documents</h5>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded-3 bg-light h-100">
+                                        <label class="form-group-label">23. Organizational Chart</label>
+                                        <input type="file" name="orgChartFile" class="form-control form-control-sm mt-2" accept=".pdf" />
+                                        @{ var docs = ViewBag.Documents as List<APCD.Web.Models.ApplicationDocument>; }
+                                        @if (docs != null && docs.Any(d => d.DocumentType == "OrganizationalChart")) {
+                                            var tmpDoc = docs.First(d => d.DocumentType == "OrganizationalChart");
+                                            <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded-3 bg-light h-100">
+                                        <label class="form-group-label">24. Staff Qualification Details (Annexure-7)</label>
+                                        <input type="file" name="staffQualFile" class="form-control form-control-sm mt-2" accept=".pdf" />
+                                        @if (docs != null && docs.Any(d => d.DocumentType == "StaffQualification")) {
+                                            var tmpDoc = docs.First(d => d.DocumentType == "StaffQualification");
+                                            <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Navigation -->
+                            <div class="mt-5 pt-4 border-top d-flex justify-content-between">
+                                <a asp-action="Step2" asp-route-id="@appId" class="btn btn-wizard-prev">
+                                    <i class="bi bi-arrow-left me-2"></i> Previous
+                                </a>
+                                @if (ViewBag.IsSubmitted == true)
+                                {
+                                    <a asp-action="Step4" asp-route-id="@appId" class="btn btn-wizard-next">
+                                        Next Step: Technical Scope <i class="bi bi-arrow-right ms-2"></i>
+                                    </a>
+                                }
+                                else
+                                {
+                                    <button type="submit" class="btn btn-wizard-next">
+                                        Save & Next Step: Technical Scope <i class="bi bi-arrow-right ms-2"></i>
+                                    </button>
+                                }
+                            </div>
+                        </form>
+                    </fieldset>
                 </div>
             </div>
         </div>

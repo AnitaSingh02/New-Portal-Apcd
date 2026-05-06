@@ -19,120 +19,143 @@
             <!-- Main Content -->
             <div class="col-lg-9 bg-white">
                 <div class="wizard-main">
-                    <form asp-action="Step1" method="post" asp-route-id="@ViewBag.AppId">
-                        <div class="form-section-title">Step 1: Applicant Details</div>
-                        <p class="text-muted small mb-4">(To whom certification will be provided)</p>
-
-                        <div class="row g-4">
-                            <!-- Basic Info -->
-                            <div class="col-md-12">
-                                <label asp-for="CompanyName" class="form-group-label">1. Company Name</label>
-                                <input asp-for="CompanyName" class="form-control custom-input bg-light" placeholder="Enter company name" readonly required />
+                    @if (ViewBag.IsSubmitted == true)
+                    {
+                        <div class="alert alert-info d-flex align-items-center border-0 shadow-sm mb-4 py-3" style="background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); border-left: 5px solid #0ea5e9 !important;">
+                            <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark">View Mode – Submission Completed</h6>
+                                <p class="small mb-0 text-muted">This application has been submitted and is currently in read-only mode. No further edits are allowed.</p>
                             </div>
-
-                            <div class="col-md-12">
-                                <label asp-for="OfficeAddress" class="form-group-label">2. Full Address (Office)</label>
-                                <textarea asp-for="OfficeAddress" class="form-control custom-input" rows="2" placeholder="Full office address" required></textarea>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label asp-for="State" class="form-group-label">3. State</label>
-                                <input asp-for="State" class="form-control custom-input" placeholder="e.g. Haryana" required />
-                            </div>
-                            <div class="col-md-4">
-                                <label asp-for="Country" class="form-group-label">4. Country</label>
-                                <input asp-for="Country" class="form-control custom-input" value="India" readonly />
-                            </div>
-                            <div class="col-md-4">
-                                <label asp-for="PinCode" class="form-group-label">5. PIN Code</label>
-                                <input asp-for="PinCode" class="form-control custom-input" placeholder="6-digit PIN" required />
-                            </div>
-
-                            <div class="col-md-6">
-                                <label asp-for="ContactNo" class="form-group-label">6. Contact No.</label>
-                                <input asp-for="ContactNo" class="form-control custom-input" placeholder="Phone or Mobile" required />
-                            </div>
-
-                            <div class="col-md-6">
-                                <label asp-for="GSTNumber" class="form-group-label">7. GST Registration No.</label>
-                                <input asp-for="GSTNumber" class="form-control custom-input bg-light" placeholder="15-digit GSTIN" readonly required />
-                            </div>
-
-                            <div class="col-md-6">
-                                <label asp-for="PANNumber" class="form-group-label">8. PAN No.</label>
-                                <input asp-for="PANNumber" class="form-control custom-input" placeholder="10-digit PAN" required />
-                            </div>
-
-                            <!-- Firm Details -->
-                            <div class="col-md-6">
-                                <label asp-for="FirmType" class="form-group-label">9. Type of Firm</label>
-                                <select asp-for="FirmType" class="form-select custom-input" required>
-                                    <option value="">Select type</option>
-                                    <option value="Proprietary">Proprietary</option>
-                                    <option value="Limited">Limited Company</option>
-                                    <option value="Society">Society</option>
-                                    <option value="PSU">PSU</option>
-                                </select>
-                                <span class="help-text">Proprietary/ Limited Company/ Society/ PSU</span>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label asp-for="AreaSqm" class="form-group-label">10. Area of the firm (sqm)</label>
-                                <input asp-for="AreaSqm" type="number" step="0.01" class="form-control custom-input" placeholder="e.g. 500" required />
-                            </div>
-
-                            <div class="col-md-6">
-                                <label asp-for="EmployeeCount" class="form-group-label">11. No. of workers/employees</label>
-                                <input asp-for="EmployeeCount" type="number" class="form-control custom-input" placeholder="Including contractual staff" required />
-                            </div>
-
-                            <div class="col-md-12">
-                                <label class="form-group-label">12. GPS Locations of the Unit</label>
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light border-end-0">Latitude:</span>
-                                            <input asp-for="Latitude" class="form-control border-start-0 custom-input" placeholder="e.g. 28.5912" required />
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light border-end-0">Longitude:</span>
-                                            <input asp-for="Longitude" class="form-control border-start-0 custom-input" placeholder="e.g. 77.2435" required />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label asp-for="FirmSize" class="form-group-label">13. Size</label>
-                                <select asp-for="FirmSize" class="form-select custom-input" required>
-                                    <option value="">Select size</option>
-                                    <option value="Micro">Micro</option>
-                                    <option value="Small">Small</option>
-                                    <option value="Medium">Medium</option>
-                                    <option value="Large">Large</option>
-                                </select>
-                                <span class="help-text">Based on investment/turnover</span>
-                            </div>
-
-                            <div class="col-md-12">
-                                <div class="d-flex align-items-center justify-content-between mb-2">
-                                    <label asp-for="FactoryAddress" class="form-group-label mb-0">Factory Address (Same as unit location)</label>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="sameAsOffice">
-                                        <label class="form-check-label small text-muted" for="sameAsOffice">Same as Office Address</label>
-                                    </div>
-                                </div>
-                                <textarea asp-for="FactoryAddress" class="form-control custom-input" rows="2" placeholder="Full factory address" required></textarea>
-                            </div>
+                            <i class="bi bi-lock-fill ms-auto fs-3 text-info opacity-25"></i>
                         </div>
+                    }
+
+                    <form asp-action="Step1" method="post" asp-route-id="@ViewBag.AppId">
+                        <fieldset @(ViewBag.IsSubmitted == true ? "disabled" : "")>
+                            <div class="form-section-title">Step 1: Applicant Details</div>
+                            <p class="text-muted small mb-4">(To whom certification will be provided)</p>
+
+                            <div class="row g-4">
+                                <!-- Basic Info -->
+                                <div class="col-md-12">
+                                    <label asp-for="CompanyName" class="form-group-label">1. Company Name</label>
+                                    <input asp-for="CompanyName" class="form-control custom-input bg-light" placeholder="Enter company name" readonly required />
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label asp-for="OfficeAddress" class="form-group-label">2. Full Address (Office)</label>
+                                    <textarea asp-for="OfficeAddress" class="form-control custom-input" rows="2" placeholder="Full office address" required></textarea>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label asp-for="State" class="form-group-label">3. State</label>
+                                    <input asp-for="State" class="form-control custom-input" placeholder="e.g. Haryana" required />
+                                </div>
+                                <div class="col-md-4">
+                                    <label asp-for="Country" class="form-group-label">4. Country</label>
+                                    <input asp-for="Country" class="form-control custom-input" value="India" readonly />
+                                </div>
+                                <div class="col-md-4">
+                                    <label asp-for="PinCode" class="form-group-label">5. PIN Code</label>
+                                    <input asp-for="PinCode" class="form-control custom-input" placeholder="6-digit PIN" required />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="ContactNo" class="form-group-label">6. Contact No.</label>
+                                    <input asp-for="ContactNo" class="form-control custom-input" placeholder="Phone or Mobile" required />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="GSTNumber" class="form-group-label">7. GST Registration No.</label>
+                                    <input asp-for="GSTNumber" class="form-control custom-input bg-light" placeholder="15-digit GSTIN" readonly required />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="PANNumber" class="form-group-label">8. PAN No.</label>
+                                    <input asp-for="PANNumber" class="form-control custom-input" placeholder="10-digit PAN" required />
+                                </div>
+
+                                <!-- Firm Details -->
+                                <div class="col-md-6">
+                                    <label asp-for="FirmType" class="form-group-label">9. Type of Firm</label>
+                                    <select asp-for="FirmType" class="form-select custom-input" required>
+                                        <option value="">Select type</option>
+                                        <option value="Proprietary">Proprietary</option>
+                                        <option value="Limited">Limited Company</option>
+                                        <option value="Society">Society</option>
+                                        <option value="PSU">PSU</option>
+                                    </select>
+                                    <span class="help-text">Proprietary/ Limited Company/ Society/ PSU</span>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="AreaSqm" class="form-group-label">10. Area of the firm (sqm)</label>
+                                    <input asp-for="AreaSqm" type="number" step="0.01" class="form-control custom-input" placeholder="e.g. 500" required />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="EmployeeCount" class="form-group-label">11. No. of workers/employees</label>
+                                    <input asp-for="EmployeeCount" type="number" class="form-control custom-input" placeholder="Including contractual staff" required />
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label class="form-group-label">12. GPS Locations of the Unit</label>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">Latitude:</span>
+                                                <input asp-for="Latitude" class="form-control border-start-0 custom-input" placeholder="e.g. 28.5912" required />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">Longitude:</span>
+                                                <input asp-for="Longitude" class="form-control border-start-0 custom-input" placeholder="e.g. 77.2435" required />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="FirmSize" class="form-group-label">13. Size</label>
+                                    <select asp-for="FirmSize" class="form-select custom-input" required>
+                                        <option value="">Select size</option>
+                                        <option value="Micro">Micro</option>
+                                        <option value="Small">Small</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Large">Large</option>
+                                    </select>
+                                    <span class="help-text">Based on investment/turnover</span>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <label asp-for="FactoryAddress" class="form-group-label mb-0">Factory Address (Same as unit location)</label>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="sameAsOffice">
+                                            <label class="form-check-label small text-muted" for="sameAsOffice">Same as Office Address</label>
+                                        </div>
+                                    </div>
+                                    <textarea asp-for="FactoryAddress" class="form-control custom-input" rows="2" placeholder="Full factory address" required></textarea>
+                                </div>
+                            </div>
+                        </fieldset>
 
                         <!-- Form Actions -->
                         <div class="mt-5 pt-4 border-top d-flex justify-content-end">
-                            <button type="submit" class="btn btn-wizard-next">
-                                Next Step: Classification <i class="bi bi-arrow-right ms-2"></i>
-                            </button>
+                            @if (ViewBag.IsSubmitted == true)
+                            {
+                                <a asp-action="Step2" asp-route-id="@ViewBag.AppId" class="btn btn-wizard-next">
+                                    Next Step: Classification <i class="bi bi-arrow-right ms-2"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-wizard-next">
+                                    Next Step: Classification <i class="bi bi-arrow-right ms-2"></i>
+                                </button>
+                            }
                         </div>
                     </form>
                 </div>
