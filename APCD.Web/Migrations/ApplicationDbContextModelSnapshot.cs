@@ -628,6 +628,200 @@ namespace APCD.Web.Migrations
                     b.ToTable("StaffDetails");
                 });
 
+            modelBuilder.Entity("APCD.Web.Models.SupplementalDevice", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DesignedCapacity")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MainType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("SubTech")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SupplementalRequestId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SupplementalRequestId");
+
+                    b.ToTable("SupplementalDevices");
+                });
+
+            modelBuilder.Entity("APCD.Web.Models.SupplementalDocument", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("APCDType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DocumentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SupplementalRequestId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SupplementalRequestId");
+
+                    b.ToTable("SupplementalDocuments");
+                });
+
+            modelBuilder.Entity("APCD.Web.Models.SupplementalPayment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("GST")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReceiptPath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SupplementalRequestId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("UTRNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SupplementalRequestId");
+
+                    b.ToTable("SupplementalPayments");
+                });
+
+            modelBuilder.Entity("APCD.Web.Models.SupplementalRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("ApplicationId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FinalSubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsFinalSubmitted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LastCompletedStep")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationId");
+
+                    b.ToTable("SupplementalRequests");
+                });
+
+            modelBuilder.Entity("APCD.Web.Models.SupplementalTransactionHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ActionBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ApplicationId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SupplementalRequestId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SupplementalTransactionHistories");
+                });
+
             modelBuilder.Entity("APCD.Web.Models.TurnoverRecord", b =>
                 {
                     b.Property<int>("Id")
@@ -756,6 +950,50 @@ namespace APCD.Web.Migrations
                     b.Navigation("Application");
                 });
 
+            modelBuilder.Entity("APCD.Web.Models.SupplementalDevice", b =>
+                {
+                    b.HasOne("APCD.Web.Models.SupplementalRequest", "SupplementalRequest")
+                        .WithMany("Devices")
+                        .HasForeignKey("SupplementalRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SupplementalRequest");
+                });
+
+            modelBuilder.Entity("APCD.Web.Models.SupplementalDocument", b =>
+                {
+                    b.HasOne("APCD.Web.Models.SupplementalRequest", "SupplementalRequest")
+                        .WithMany("Documents")
+                        .HasForeignKey("SupplementalRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SupplementalRequest");
+                });
+
+            modelBuilder.Entity("APCD.Web.Models.SupplementalPayment", b =>
+                {
+                    b.HasOne("APCD.Web.Models.SupplementalRequest", "SupplementalRequest")
+                        .WithMany("Payments")
+                        .HasForeignKey("SupplementalRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SupplementalRequest");
+                });
+
+            modelBuilder.Entity("APCD.Web.Models.SupplementalRequest", b =>
+                {
+                    b.HasOne("APCD.Web.Models.EmpanelmentApplication", "Application")
+                        .WithMany("SupplementalRequests")
+                        .HasForeignKey("ApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Application");
+                });
+
             modelBuilder.Entity("APCD.Web.Models.TurnoverRecord", b =>
                 {
                     b.HasOne("APCD.Web.Models.EmpanelmentApplication", "Application")
@@ -791,7 +1029,18 @@ namespace APCD.Web.Migrations
 
                     b.Navigation("StaffDetails");
 
+                    b.Navigation("SupplementalRequests");
+
                     b.Navigation("Turnovers");
+                });
+
+            modelBuilder.Entity("APCD.Web.Models.SupplementalRequest", b =>
+                {
+                    b.Navigation("Devices");
+
+                    b.Navigation("Documents");
+
+                    b.Navigation("Payments");
                 });
 #pragma warning restore 612, 618
         }

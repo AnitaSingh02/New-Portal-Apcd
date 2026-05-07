@@ -42,8 +42,19 @@
                         </div>
                     }
 
-                    <form asp-action="SaveCapabilities" asp-route-id="@appId" method="post" enctype="multipart/form-data">
+                    <form asp-action="SaveCapabilities" asp-route-id="@appId" asp-route-supplementalId="@ViewBag.SupplementalId" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="supplementalId" value="@ViewBag.SupplementalId" />
                         <fieldset @(ViewBag.IsSubmitted == true && ViewBag.IsAddMoreMode != true ? "disabled" : "")>
+                            @if (ViewBag.IsSupplementalMode == true)
+                            {
+                                <div class="alert alert-warning border-0 shadow-sm mb-4 d-flex align-items-center">
+                                    <i class="bi bi-pencil-square fs-4 me-3"></i>
+                                    <div>
+                                        <h6 class="fw-bold mb-0">Supplemental Mode – Add More APCD</h6>
+                                        <p class="small mb-0">You are adding new devices to your existing empanelment. Previously submitted devices are locked.</p>
+                                    </div>
+                                </div>
+                            }
                             <div class="form-section-title">Step 4: Installation Experience (APCD Technologies)</div>
                             <p class="text-muted small mb-4"><strong>Point 25: Specify the APCDs currently manufactured and those for which empanelment is sought.</strong></p>
                             <div class="alert alert-info py-3 small mb-5">
@@ -206,12 +217,32 @@
                                                     <td><input type="text" name="installations[@j].ApcdType" class="form-control form-control-sm border-0" value="@inst?.ApcdType" @(j < 5 && ViewBag.IsSubmitted != true ? "required" : "") @(ViewBag.IsSubmitted == true ? "disabled" : "") /></td>
                                                     <td><input type="text" name="installations[@j].Capacity" class="form-control form-control-sm border-0" value="@inst?.Capacity" @(j < 5 && ViewBag.IsSubmitted != true ? "required" : "") @(ViewBag.IsSubmitted == true ? "disabled" : "") /></td>
                                                     <td><input type="text" name="installations[@j].PerformanceResult" class="form-control form-control-sm border-0" value="@inst?.PerformanceResult" @(ViewBag.IsSubmitted == true ? "disabled" : "") /></td>
-                                                    <td>
+                                                    <td id="card_PerformanceCertFile_@j">
                                                         <input type="hidden" name="installations[@j].PerformanceCertPath" value="@inst?.PerformanceCertPath" />
-                                                        <input type="file" name="PerformanceCertFile_@j" class="form-control form-control-sm border-0" accept=".pdf" @(j < 5 && string.IsNullOrEmpty(inst?.PerformanceCertPath) && ViewBag.IsSubmitted != true ? "required" : "") @(ViewBag.IsSubmitted == true ? "disabled" : "") />
-                                                        @if (!string.IsNullOrEmpty(inst?.PerformanceCertPath)) {
-                                                            <a href="@inst.PerformanceCertPath" target="_blank" class="extra-small text-success mt-1 d-inline-block text-decoration-none"><i class="bi bi-file-earmark-check me-1"></i>View Uploaded</a>
-                                                        }
+                                                        
+                                                        <div class="upload-zone @(!string.IsNullOrEmpty(inst?.PerformanceCertPath) ? "d-none" : "")">
+                                                            <input type="file" name="PerformanceCertFile_@j" class="form-control form-control-sm border-0" accept=".pdf" 
+                                                                   onchange="uploadFileAjax(this, '@appId', 'Installation_@j', 'PerformanceCertificate', 'PerformanceCertFile_@j', 4)"
+                                                                   @(j < 5 && string.IsNullOrEmpty(inst?.PerformanceCertPath) && ViewBag.IsSubmitted != true ? "required" : "") @(ViewBag.IsSubmitted == true ? "disabled" : "") />
+                                                        </div>
+
+                                                        <div class="status-zone @(!string.IsNullOrEmpty(inst?.PerformanceCertPath) ? "" : "d-none")">
+                                                            <div class="d-flex flex-column gap-1">
+                                                                <a href="@(inst?.PerformanceCertPath ?? "#")" target="_blank" class="extra-small text-success d-inline-block text-decoration-none fw-bold status-view-link">
+                                                                    <i class="bi bi-file-earmark-check me-1"></i><span class="status-filename">View Uploaded</span>
+                                                                </a>
+                                                                @if (ViewBag.IsSubmitted != true) {
+                                                                    <button type="button" class="btn btn-xs btn-link text-danger p-0 extra-small text-decoration-none text-start" 
+                                                                            onclick="deleteFileAjax('@appId', 'Installation_@j', 'PerformanceCertificate', 'PerformanceCertFile_@j')">
+                                                                        <i class="bi bi-trash me-1"></i>Remove
+                                                                    </button>
+                                                                }
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="loading-zone d-none text-center">
+                                                            <div class="spinner-border spinner-border-sm text-primary" role="status" style="width: 1rem; height: 1rem;"></div>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             }
@@ -227,18 +258,45 @@
                                     <p class="text-muted small">Upload mandatory technical documents for each technology applied for empanelment.</p>
                                 </div>
                                 
-                                @{ var docs = ViewBag.Documents as List<APCD.Web.Models.ApplicationDocument>; }
+                                @{ 
+                                    var docs = ViewBag.Documents as List<APCD.Web.Models.ApplicationDocument>;
+                                    var supDocs = ViewBag.SupplementalDocuments as List<APCD.Web.Models.SupplementalDocument>;
+                                }
 
                                 <!-- Technical Catalogues (Global) -->
                                 <div class="col-md-6">
-                                    <div class="p-3 border rounded-3 bg-light h-100 shadow-sm border-primary-subtle">
-                                        <label class="form-group-label fw-bold text-dark">27. Technical Catalogues / Brochures <span class="text-danger">*</span></label>
-                                        <input type="file" name="techCatalogueFile" class="form-control form-control-sm mt-3" accept=".pdf" @(docs != null && docs.Any(d => d.DocumentType == "TechnicalCatalogue") || ViewBag.IsSubmitted == true ? "" : "required") />
-                                        @if (docs != null && docs.Any(d => d.DocumentType == "TechnicalCatalogue"))
-                                        {
-                                            var tmpDoc = docs.First(d => d.DocumentType == "TechnicalCatalogue");
-                                            <div class="mt-2 pt-2 border-top border-white"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none fw-bold">@tmpDoc.FileName</a></div>
+                                    <div id="card_techCatalogueFile" class="p-3 border rounded-3 bg-light h-100 shadow-sm border-primary-subtle">
+                                        <label class="form-group-label fw-bold text-dark mb-2">27. Technical Catalogues / Brochures <span class="text-danger">*</span></label>
+                                        
+                                        @{
+                                            var catalogueDoc = docs?.FirstOrDefault(d => d.DocumentType == "TechnicalCatalogue");
                                         }
+
+                                        <div class="upload-zone @(catalogueDoc != null ? "d-none" : "")">
+                                            <input type="file" name="techCatalogueFile" class="form-control form-control-sm" accept=".pdf" 
+                                                   onchange="uploadFileAjax(this, '@appId', '', 'TechnicalCatalogue', 'techCatalogueFile', 4)"
+                                                   @(ViewBag.IsSubmitted == true ? "disabled" : "") />
+                                        </div>
+
+                                        <div class="status-zone @(catalogueDoc != null ? "" : "d-none")">
+                                            <div class="d-flex flex-column gap-2">
+                                                <div class="d-flex align-items-center gap-2 text-success small fw-bold">
+                                                    <i class="bi bi-file-earmark-check-fill fs-5"></i>
+                                                    <span class="text-truncate status-filename">Uploaded: @(catalogueDoc?.FileName)</span>
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <a href="@(catalogueDoc?.FilePath ?? "#")" target="_blank" class="btn btn-xs btn-outline-primary py-0 px-2 small status-view-link">View</a>
+                                                    @if (ViewBag.IsSubmitted != true) {
+                                                        <button type="button" class="btn btn-xs btn-outline-danger py-0 px-2 small" onclick="deleteFileAjax('@appId', '', 'TechnicalCatalogue', 'techCatalogueFile')">Remove</button>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="loading-zone d-none text-center py-2">
+                                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                            <span class="small ms-2">Uploading...</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -281,10 +339,28 @@
 </div>
 
 @section Scripts {
+    <partial name="_DocumentUploadScripts" />
     <script>
         const isSubmitted = @(ViewBag.IsSubmitted == true ? "true" : "false");
         const isAddMoreMode = @(ViewBag.IsAddMoreMode == true ? "true" : "false");
         const existingDocs = @Html.Raw(Json.Serialize(ViewBag.JsonDocuments));
+        const existingSupDocs = @Html.Raw(Json.Serialize(ViewBag.SupplementalDocuments != null ? ((List<APCD.Web.Models.SupplementalDocument>)ViewBag.SupplementalDocuments).Select(d => new { documentType = d.DocumentType, apcdType = d.APCDType, fileName = d.FileName, filePath = d.FilePath }) : new List<object>()));
+        const appId = '@appId';
+
+        function onUploadSuccess(docType, tech, fileName, filePath) {
+            const existingIdx = existingDocs.findIndex(d => d.documentType === docType && d.associatedTech === tech);
+            if (existingIdx > -1) {
+                existingDocs[existingIdx] = { documentType: docType, associatedTech: tech, fileName: fileName, filePath: filePath };
+            } else {
+                existingDocs.push({ documentType: docType, associatedTech: tech, fileName: fileName, filePath: filePath });
+            }
+        }
+
+        function onDeleteSuccess(docType, tech) {
+            const existingIdx = existingDocs.findIndex(d => d.documentType === docType && d.associatedTech === tech);
+            if (existingIdx > -1) existingDocs.splice(existingIdx, 1);
+        }
+
         const docTypes = [
             { id: 'productDatasheetFile', label: '28. Product Datasheets', type: 'ProductDatasheet' },
             { id: 'gaDrawingFile', label: '29. General Arrangement (GA) Drawing', type: 'GADrawing' },
@@ -332,37 +408,40 @@
                     </div>
                     <div class="row g-3">
                         ${docTypes.map(doc => {
-                            const foundDoc = existingDocs.find(d => d.documentType === doc.type && d.associatedTech === tech);
+                            const foundDoc = existingDocs.find(d => d.documentType === doc.type && d.associatedTech === tech) || 
+                                             existingSupDocs.find(d => d.documentType === doc.type && d.apcdType === tech);
                             const fileInputKey = `${doc.id}_${safeTechId}`;
                             
-                            if (isLocked) {
-                                return `
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="p-3 border rounded-3 h-100 bg-white shadow-sm opacity-75">
-                                        <label class="form-label small fw-bold text-secondary mb-2">${doc.label}</label>
-                                        <div class="mt-1 text-truncate">
-                                            ${foundDoc ? `
-                                                <i class="bi bi-check-circle-fill text-success me-1"></i> <span class="text-success small fw-bold">Uploaded</span>
-                                                <br/><a href="${foundDoc.filePath}" target="_blank" class="extra-small text-primary text-decoration-none fw-bold ms-3">${foundDoc.fileName}</a>
-                                            ` : '<i class="bi bi-dash-circle text-muted me-1"></i> <span class="text-muted small">Not provided</span>'}
+                            return `
+                            <div class="col-md-6 col-lg-4">
+                                <div id="card_${fileInputKey}" class="p-3 border rounded-3 h-100 bg-white shadow-sm hover-elevate transition-all ${isLocked ? 'opacity-75' : ''}">
+                                    <label class="form-label small fw-bold text-secondary mb-2">${doc.label} <span class="text-danger">*</span></label>
+                                    
+                                    <div class="upload-zone ${foundDoc ? 'd-none' : ''}">
+                                        <input type="file" name="${fileInputKey}" class="form-control form-control-sm" accept=".pdf" 
+                                               onchange="uploadFileAjax(this, '@appId', '${tech}', '${doc.type}', '${fileInputKey}', 4)"
+                                               ${isLocked ? 'disabled' : ''} />
+                                    </div>
+
+                                    <div class="status-zone ${foundDoc ? '' : 'd-none'}">
+                                        <div class="d-flex flex-column gap-2">
+                                            <div class="d-flex align-items-center gap-2 text-success small fw-bold">
+                                                <i class="bi bi-file-earmark-check-fill fs-5"></i>
+                                                <span class="text-truncate status-filename" style="max-width: 150px;">Uploaded: ${foundDoc ? foundDoc.fileName : ''}</span>
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <a href="${foundDoc ? foundDoc.filePath : '#'}" target="_blank" class="btn btn-xs btn-outline-primary py-0 px-2 small status-view-link">View</a>
+                                                ${!isLocked ? `<button type="button" class="btn btn-xs btn-outline-danger py-0 px-2 small" onclick="deleteFileAjax('${appId}', '${tech}', '${doc.type}', '${fileInputKey}')">Remove</button>` : ''}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>`;
-                            } else {
-                                return `
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="p-3 border rounded-3 h-100 bg-white shadow-sm hover-elevate transition-all">
-                                        <label class="form-label small fw-bold text-secondary mb-2">${doc.label} <span class="text-danger">*</span></label>
-                                        <input type="file" name="${fileInputKey}" class="form-control form-control-sm" accept=".pdf" ${foundDoc ? '' : 'required'} />
-                                        ${foundDoc ? `
-                                            <div class="mt-2 text-truncate">
-                                                <a href="${foundDoc.filePath}" target="_blank" class="extra-small text-success text-decoration-none fw-bold">
-                                                    <i class="bi bi-file-earmark-check-fill me-1"></i>${foundDoc.fileName}
-                                                </a>
-                                            </div>` : ''}
+
+                                    <div class="loading-zone d-none text-center py-2">
+                                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                        <span class="small ms-2">Uploading...</span>
                                     </div>
-                                </div>`;
-                            }
+                                </div>
+                            </div>`;
                         }).join('')}
                     </div>
                 `;

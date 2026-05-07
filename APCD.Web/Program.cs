@@ -177,9 +177,36 @@ using (var scope = app.Services.CreateScope())
                 ALTER TABLE [Users] ADD [ResetPasswordTokenExpiry] datetime2 NULL;
             END";
 
+        var sqlSupplementalPaymentFix = @"
+            IF COL_LENGTH('SupplementalPayments', 'AmountDeposited') IS NULL
+            BEGIN
+                ALTER TABLE [SupplementalPayments] ADD [AmountDeposited] decimal(18,2) NOT NULL DEFAULT 0;
+            END
+            IF COL_LENGTH('SupplementalPayments', 'BankName') IS NULL
+            BEGIN
+                ALTER TABLE [SupplementalPayments] ADD [BankName] nvarchar(max) NOT NULL DEFAULT '';
+            END
+            IF COL_LENGTH('SupplementalPayments', 'NewlyAddedAPCDCount') IS NULL
+            BEGIN
+                ALTER TABLE [SupplementalPayments] ADD [NewlyAddedAPCDCount] int NOT NULL DEFAULT 0;
+            END
+            IF COL_LENGTH('SupplementalPayments', 'NewlyAddedAPCDTypes') IS NULL
+            BEGIN
+                ALTER TABLE [SupplementalPayments] ADD [NewlyAddedAPCDTypes] nvarchar(max) NOT NULL DEFAULT '';
+            END
+            IF COL_LENGTH('SupplementalPayments', 'CreatedAt') IS NULL
+            BEGIN
+                ALTER TABLE [SupplementalPayments] ADD [CreatedAt] datetime2 NOT NULL DEFAULT GETUTCDATE();
+            END
+            IF COL_LENGTH('SupplementalPayments', 'UpdatedAt') IS NULL
+            BEGIN
+                ALTER TABLE [SupplementalPayments] ADD [UpdatedAt] datetime2 NOT NULL DEFAULT GETUTCDATE();
+            END";
+
         context.Database.ExecuteSqlRaw(sqlRemarks);
         context.Database.ExecuteSqlRaw(sqlPayment);
         context.Database.ExecuteSqlRaw(sqlAddResetTokens);
+        context.Database.ExecuteSqlRaw(sqlSupplementalPaymentFix);
         // ---------------------------------------------------------
     } catch (Exception ex) {
         // Log error if table doesn't exist yet

@@ -104,6 +104,7 @@ namespace APCD.Web.Models
         public virtual ICollection<TurnoverRecord> Turnovers { get; set; } = new List<TurnoverRecord>();
         public virtual ICollection<APCDCapability> Capabilities { get; set; } = new List<APCDCapability>();
         public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        public virtual ICollection<SupplementalRequest> SupplementalRequests { get; set; } = new List<SupplementalRequest>();
     }
 
     public class TurnoverRecord
@@ -322,9 +323,99 @@ namespace APCD.Web.Models
         // Supplemental / Amendment Fees
         public decimal? SupplementalAmount { get; set; }
         public string SupplementalUTR { get; set; } = string.Empty;
+        public string SupplementalBankName { get; set; } = string.Empty;
+        public decimal? SupplementalAmountDeposited { get; set; }
         public string SupplementalReceiptPath { get; set; } = string.Empty;
         public DateTime? SupplementalPayDate { get; set; }
         
         public EmpanelmentApplication Application { get; set; }
+    }
+
+    public class SupplementalRequest
+    {
+        [Key]
+        public int Id { get; set; }
+        public int ApplicationId { get; set; }
+        public int UserId { get; set; }
+        
+        [StringLength(50)]
+        public string Status { get; set; } = "Draft"; // Draft, Submitted, Approved, Rejected
+        public bool IsFinalSubmitted { get; set; } = false;
+        public int LastCompletedStep { get; set; } = 4; // Supplemental flow starts at 4
+        
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? FinalSubmittedAt { get; set; }
+
+        public virtual EmpanelmentApplication Application { get; set; }
+        public virtual ICollection<SupplementalDevice> Devices { get; set; } = new List<SupplementalDevice>();
+        public virtual ICollection<SupplementalDocument> Documents { get; set; } = new List<SupplementalDocument>();
+        public virtual ICollection<SupplementalPayment> Payments { get; set; } = new List<SupplementalPayment>();
+    }
+
+    public class SupplementalDevice
+    {
+        [Key]
+        public int Id { get; set; }
+        public int SupplementalRequestId { get; set; }
+        public string MainType { get; set; } = string.Empty;
+        public string SubTech { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;
+        public string DesignedCapacity { get; set; } = string.Empty;
+        [StringLength(50)]
+        public string Status { get; set; } = "Pending";
+
+        public virtual SupplementalRequest SupplementalRequest { get; set; }
+    }
+
+    public class SupplementalDocument
+    {
+        [Key]
+        public int Id { get; set; }
+        public int SupplementalRequestId { get; set; }
+        public string APCDType { get; set; } = string.Empty;
+        public string DocumentType { get; set; } = string.Empty;
+        public string FileName { get; set; } = string.Empty;
+        public string FilePath { get; set; } = string.Empty;
+        public string Status { get; set; } = "Pending";
+
+        public virtual SupplementalRequest SupplementalRequest { get; set; }
+    }
+
+    public class SupplementalPayment
+    {
+        [Key]
+        public int Id { get; set; }
+        public int SupplementalRequestId { get; set; }
+        public decimal Amount { get; set; }
+        public decimal GST { get; set; }
+        public decimal TotalAmount { get; set; }
+        public decimal AmountDeposited { get; set; }
+        public string BankName { get; set; } = string.Empty;
+        public string UTRNumber { get; set; } = string.Empty;
+        public DateTime PaymentDate { get; set; }
+        public string ReceiptPath { get; set; } = string.Empty;
+        public string Status { get; set; } = "Pending";
+        
+        // Metadata for tracking
+        public int NewlyAddedAPCDCount { get; set; }
+        public string NewlyAddedAPCDTypes { get; set; } = string.Empty; // Comma separated list
+        
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        public virtual SupplementalRequest SupplementalRequest { get; set; }
+    }
+
+    public class SupplementalTransactionHistory
+    {
+        [Key]
+        public int Id { get; set; }
+        public int ApplicationId { get; set; }
+        public int SupplementalRequestId { get; set; }
+        public string Action { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string ActionBy { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

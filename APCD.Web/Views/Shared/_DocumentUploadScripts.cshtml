@@ -1,0 +1,112 @@
+<script>
+    async function uploadFileAjax(input, appId, tech, docType, key, step = 0) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const card = document.getElementById(`card_${key}`);
+        if (!card) return;
+        
+        const uploadZone = card.querySelector('.upload-zone');
+        const statusZone = card.querySelector('.status-zone');
+        const loadingZone = card.querySelector('.loading-zone');
+
+        uploadZone.classList.add('d-none');
+        loadingZone.classList.remove('d-none');
+
+        const formData = new FormData();
+        formData.append('applicationId', appId);
+        formData.append('documentType', docType);
+        formData.append('associatedTech', tech);
+        formData.append('stepNumber', step);
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('/Application/UploadDocument', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                // Update local state if needed (handled by view-specific logic)
+                if (typeof onUploadSuccess === 'function') {
+                    onUploadSuccess(docType, tech, result.fileName, result.filePath);
+                }
+
+                loadingZone.classList.add('d-none');
+                statusZone.classList.remove('d-none');
+                statusZone.querySelector('.status-filename').innerText = `Uploaded: ${result.fileName}`;
+                statusZone.querySelector('.status-view-link').href = result.filePath;
+            } else {
+                alert('Upload failed: ' + result.message);
+                loadingZone.classList.add('d-none');
+                uploadZone.classList.remove('d-none');
+                input.value = '';
+            }
+        } catch (err) {
+            console.error(err);
+            alert('An error occurred during upload.');
+            loadingZone.classList.add('d-none');
+            uploadZone.classList.remove('d-none');
+            input.value = '';
+        }
+    }
+
+    async function deleteFileAjax(appId, tech, docType, key) {
+        if (!confirm('Are you sure you want to remove this document?')) return;
+
+        const card = document.getElementById(`card_${key}`);
+        if (!card) return;
+
+        const uploadZone = card.querySelector('.upload-zone');
+        const statusZone = card.querySelector('.status-zone');
+        const loadingZone = card.querySelector('.loading-zone');
+
+        statusZone.classList.add('d-none');
+        loadingZone.classList.remove('d-none');
+        const loadingText = loadingZone.querySelector('span');
+        if (loadingText) loadingText.innerText = 'Deleting...';
+
+        const formData = new FormData();
+        formData.append('applicationId', appId);
+        formData.append('documentType', docType);
+        formData.append('associatedTech', tech);
+
+        try {
+            const response = await fetch('/Application/DeleteDocument', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                if (typeof onDeleteSuccess === 'function') {
+                    onDeleteSuccess(docType, tech);
+                }
+
+                loadingZone.classList.add('d-none');
+                uploadZone.classList.remove('d-none');
+                const fileInput = uploadZone.querySelector('input');
+                if (fileInput) fileInput.value = '';
+                
+                const loadingText = loadingZone.querySelector('span');
+                if (loadingText) loadingText.innerText = 'Uploading...';
+            } else {
+                alert('Delete failed: ' + result.message);
+                loadingZone.classList.add('d-none');
+                statusZone.classList.remove('d-none');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('An error occurred during deletion.');
+            loadingZone.classList.add('d-none');
+            statusZone.classList.remove('d-none');
+        }
+    }
+</script>

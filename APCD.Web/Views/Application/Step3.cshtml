@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Key Personnel";
     int currentStep = 3;
-    var appId = ViewBag.AppId;
+    var appId = ViewBag.AppId ?? ViewContext.RouteData.Values["id"];
     var commercial = Model.FirstOrDefault(s => s.StaffType == "Commercial");
     var technical = Model.FirstOrDefault(s => s.StaffType == "Technical");
 }
@@ -109,50 +109,103 @@
                                     <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-diagram-3 me-2"></i> Section G: Organization Documents</h5>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="p-3 border rounded-3 bg-light h-100">
-                                        <label class="form-group-label">23. Organizational Chart</label>
-                                        <input type="file" name="orgChartFile" class="form-control form-control-sm mt-2" accept=".pdf" />
+                                    <div id="card_orgChartFile" class="p-3 border rounded-3 bg-light h-100 shadow-sm transition-all hover-elevate">
+                                        <label class="form-group-label fw-bold small mb-2">23. Organizational Chart</label>
                                         @{ var docs = ViewBag.Documents as List<APCD.Web.Models.ApplicationDocument>; }
-                                        @if (docs != null && docs.Any(d => d.DocumentType == "OrganizationalChart")) {
-                                            var tmpDoc = docs.First(d => d.DocumentType == "OrganizationalChart");
-                                            <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-                                        }
+                                        @{ var orgDoc = docs?.FirstOrDefault(d => d.DocumentType == "OrganizationalChart"); }
+                                        
+                                        <div class="upload-zone @(orgDoc != null ? "d-none" : "")">
+                                            <input type="file" name="orgChartFile" class="form-control form-control-sm mt-2" accept=".pdf" 
+                                                   onchange="uploadFileAjax(this, '@appId', '', 'OrganizationalChart', 'orgChartFile', 3)" />
+                                        </div>
+
+                                        <div class="status-zone @(orgDoc != null ? "" : "d-none")">
+                                            <div class="d-flex flex-column gap-2 mt-2">
+                                                <div class="d-flex align-items-center gap-2 text-success small fw-bold">
+                                                    <i class="bi bi-file-earmark-check-fill fs-5"></i>
+                                                    <span class="text-truncate status-filename" style="max-width: 180px;">Uploaded: @(orgDoc?.FileName)</span>
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <a href="@(orgDoc?.FilePath ?? "#")" target="_blank" class="btn btn-xs btn-outline-primary py-0 px-2 small status-view-link">View</a>
+                                                    @if (ViewBag.IsSubmitted != true) {
+                                                        <button type="button" class="btn btn-xs btn-outline-danger py-0 px-2 small" onclick="deleteFileAjax('@appId', '', 'OrganizationalChart', 'orgChartFile')">Remove</button>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="loading-zone d-none text-center py-2">
+                                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="p-3 border rounded-3 bg-light h-100">
-                                        <label class="form-group-label">24. Staff Qualification Details (Annexure-7)</label>
-                                        <input type="file" name="staffQualFile" class="form-control form-control-sm mt-2" accept=".pdf" />
-                                        @if (docs != null && docs.Any(d => d.DocumentType == "StaffQualification")) {
-                                            var tmpDoc = docs.First(d => d.DocumentType == "StaffQualification");
-                                            <div class="mt-2"><i class="bi bi-check-circle-fill text-success"></i> <span class="small text-success fw-bold">Uploaded:</span> <a href="@tmpDoc.FilePath" target="_blank" class="small text-decoration-none">@tmpDoc.FileName</a></div>
-                                        }
+                                    <div id="card_staffQualFile" class="p-3 border rounded-3 bg-light h-100 shadow-sm transition-all hover-elevate">
+                                        <label class="form-group-label fw-bold small mb-2">24. Staff Qualification Details (Annexure-7)</label>
+                                        @{ var qualDoc = docs?.FirstOrDefault(d => d.DocumentType == "StaffQualification"); }
+                                        
+                                        <div class="upload-zone @(qualDoc != null ? "d-none" : "")">
+                                            <input type="file" name="staffQualFile" class="form-control form-control-sm mt-2" accept=".pdf" 
+                                                   onchange="uploadFileAjax(this, '@appId', '', 'StaffQualification', 'staffQualFile', 3)" />
+                                        </div>
+
+                                        <div class="status-zone @(qualDoc != null ? "" : "d-none")">
+                                            <div class="d-flex flex-column gap-2 mt-2">
+                                                <div class="d-flex align-items-center gap-2 text-success small fw-bold">
+                                                    <i class="bi bi-file-earmark-check-fill fs-5"></i>
+                                                    <span class="text-truncate status-filename" style="max-width: 180px;">Uploaded: @(qualDoc?.FileName)</span>
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <a href="@(qualDoc?.FilePath ?? "#")" target="_blank" class="btn btn-xs btn-outline-primary py-0 px-2 small status-view-link">View</a>
+                                                    @if (ViewBag.IsSubmitted != true) {
+                                                        <button type="button" class="btn btn-xs btn-outline-danger py-0 px-2 small" onclick="deleteFileAjax('@appId', '', 'StaffQualification', 'staffQualFile')">Remove</button>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="loading-zone d-none text-center py-2">
+                                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Navigation -->
-                            <div class="mt-5 pt-4 border-top d-flex justify-content-between">
-                                <a asp-action="Step2" asp-route-id="@appId" class="btn btn-wizard-prev">
-                                    <i class="bi bi-arrow-left me-2"></i> Previous
-                                </a>
-                                @if (ViewBag.IsSubmitted == true)
-                                {
-                                    <a asp-action="Step4" asp-route-id="@appId" class="btn btn-wizard-next">
-                                        Next Step: Technical Scope <i class="bi bi-arrow-right ms-2"></i>
-                                    </a>
-                                }
-                                else
-                                {
-                                    <button type="submit" class="btn btn-wizard-next">
-                                        Save & Next Step: Technical Scope <i class="bi bi-arrow-right ms-2"></i>
-                                    </button>
-                                }
-                            </div>
                         </form>
                     </fieldset>
+
+                    <!-- Navigation -->
+                    <div class="mt-5 pt-4 border-top d-flex justify-content-between" style="position: relative; z-index: 1000;">
+                        <a href="@Url.Action("Step2", new { id = appId })" class="btn btn-wizard-prev shadow-sm">
+                            <i class="bi bi-arrow-left me-2"></i> Previous
+                        </a>
+                        <a href="@Url.Action("Step4", new { id = appId })" class="btn btn-wizard-next shadow-sm">
+                            Next Step: Technical Scope <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_DocumentUploadScripts" />
+    <script>
+        const existingDocs = @Html.Raw(Json.Serialize(ViewBag.JsonDocuments));
+        
+        function onUploadSuccess(docType, tech, fileName, filePath) {
+            const existingIdx = existingDocs.findIndex(d => d.documentType === docType && d.associatedTech === tech);
+            if (existingIdx > -1) {
+                existingDocs[existingIdx] = { documentType: docType, associatedTech: tech, fileName: fileName, filePath: filePath };
+            } else {
+                existingDocs.push({ documentType: docType, associatedTech: tech, fileName: fileName, filePath: filePath });
+            }
+        }
+
+        function onDeleteSuccess(docType, tech) {
+            const existingIdx = existingDocs.findIndex(d => d.documentType === docType && d.associatedTech === tech);
+            if (existingIdx > -1) existingDocs.splice(existingIdx, 1);
+        }
+    </script>
+}

@@ -57,9 +57,19 @@ namespace APCD.Web.Controllers
                 .Include(a => a.Payments)
                 .Include(a => a.Documents)
                 .Include(a => a.Capabilities)
+                .Include(a => a.SupplementalRequests)
+                    .ThenInclude(r => r.Devices)
+                .Include(a => a.SupplementalRequests)
+                    .ThenInclude(r => r.Payments)
                 .Where(a => a.UserId == userId)
                 .OrderByDescending(a => a.CreatedAt)
                 .FirstOrDefaultAsync();
+
+            if (application != null)
+            {
+                ViewBag.PendingSupplemental = application.SupplementalRequests
+                    .FirstOrDefault(r => r.Status == "Draft");
+            }
 
             ViewBag.User = user;
             return View(application);

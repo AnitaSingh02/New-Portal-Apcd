@@ -66,6 +66,33 @@ namespace APCD.Web.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> AddMoreAPCD(int id)
+        {
+            var userId = GetUserId();
+            var application = await _context.Applications.FindAsync(id);
+            if (application == null || application.UserId != userId) return NotFound();
+
+            // Check if there's already a Draft SupplementalRequest
+            var existingDraft = await _context.SupplementalRequests
+                .FirstOrDefaultAsync(r => r.ApplicationId == id && r.Status == "Draft");
+
+            if (existingDraft == null)
+            {
+                existingDraft = new SupplementalRequest
+                {
+                    ApplicationId = id,
+                    UserId = userId,
+                    Status = "Draft",
+                    LastCompletedStep = 4
+                };
+                _context.SupplementalRequests.Add(existingDraft);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Step4", new { id, supplementalId = existingDraft.Id });
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Resume(int id)
         {
             var application = await _context.Applications.FindAsync(id);
@@ -178,6 +205,7 @@ namespace APCD.Web.Controllers
             
             ViewBag.IsSubmitted = application.Status != "Draft";
             ViewBag.ActualStep = application.Status == "Draft" ? application.CurrentStep : 8;
+            ViewBag.JsonDocuments = application.Documents.Select(d => new { d.DocumentType, d.AssociatedTech, d.FileName, d.FilePath }).ToList();
             return View(application);
         }
 
@@ -229,7 +257,9 @@ namespace APCD.Web.Controllers
             ViewBag.AppId = id;
             ViewBag.IsSubmitted = application.Status != "Draft";
             ViewBag.ActualStep = application.Status == "Draft" ? application.CurrentStep : 8;
-            ViewBag.Documents = await _context.ApplicationDocuments.Where(d => d.ApplicationId == id).ToListAsync();
+            var allDocs = await _context.ApplicationDocuments.Where(d => d.ApplicationId == id).ToListAsync();
+            ViewBag.Documents = allDocs;
+            ViewBag.JsonDocuments = allDocs.Select(d => new { d.DocumentType, d.AssociatedTech, d.FileName, d.FilePath }).ToList();
             return View(staff);
         }
 
@@ -292,19 +322,61 @@ namespace APCD.Web.Controllers
 
         #region Step 4: Technical Scope (Points 21, 22)
         [HttpGet]
-        public async Task<IActionResult> Step4(int id, string mode = null)
+        public async Task<IActionResult> Step4(int id, int? supplementalId = null)
         {
             var application = await _context.Applications.FindAsync(id);
             if (application == null || (application.UserId != GetUserId() && !User.IsInRole("Admin"))) return RedirectToAction("Index", "Dashboard");
 
+            if (application.Status == "Draft" && application.CurrentStep < 4)
+            {
+                application.CurrentStep = 4;
+                await _context.SaveChangesAsync();
+            }
+
             ViewBag.IsSubmitted = application.Status != "Draft";
             ViewBag.ActualStep = application.Status == "Draft" ? application.CurrentStep : 8;
+            ViewBag.SupplementalId = supplementalId;
+            ViewBag.IsSupplementalMode = supplementalId.HasValue;
 
             var capabilities = await _context.APCDCapabilities.Where(c => c.ApplicationId == id).ToListAsync();
+            
+            if (supplementalId.HasValue)
+            {
+                var supRequest = await _context.SupplementalRequests
+                    .Include(r => r.Devices)
+                    .Include(r => r.Documents)
+                    .FirstOrDefaultAsync(r => r.Id == supplementalId && r.ApplicationId == id);
+                
+                if (supRequest == null) return NotFound();
+                
+                // Map SupplementalDevices back to capabilities for the view to show drafts
+                foreach(var supDev in supRequest.Devices)
+                {
+                    var existing = capabilities.FirstOrDefault(c => c.MainType == supDev.MainType && c.SubTech == supDev.SubTech);
+                    if (existing != null)
+                    {
+                        existing.IsAppliedForEmpanelment = true;
+                        existing.Category = supDev.Category;
+                        existing.DesignedCapacity = supDev.DesignedCapacity;
+                    }
+                    else
+                    {
+                        capabilities.Add(new APCDCapability {
+                            MainType = supDev.MainType,
+                            SubTech = supDev.SubTech,
+                            IsAppliedForEmpanelment = true,
+                            Category = supDev.Category,
+                            DesignedCapacity = supDev.DesignedCapacity
+                        });
+                    }
+                }
+                ViewBag.SupplementalDocuments = supRequest.Documents.ToList();
+            }
+
             var installations = await _context.InstallationRecords.Where(i => i.ApplicationId == id).ToListAsync();
             
             ViewBag.AppId = id;
-            ViewBag.IsAddMoreMode = application.Status != "Draft" && application.Status != "Rejected";
+            ViewBag.IsAddMoreMode = supplementalId.HasValue;
             var allDocs = await _context.ApplicationDocuments.Where(d => d.ApplicationId == id).ToListAsync();
             ViewBag.Documents = allDocs;
             ViewBag.JsonDocuments = allDocs.Select(d => new { 
@@ -320,12 +392,75 @@ namespace APCD.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SaveCapabilities(int id, List<APCDCapability> capabilities, List<InstallationRecord> installations)
+        public async Task<IActionResult> SaveCapabilities(int id, List<APCDCapability> capabilities, List<InstallationRecord> installations, int? supplementalId = null)
         {
             var application = await _context.Applications.Include(a => a.Capabilities).FirstOrDefaultAsync(a => a.Id == id);
             if (application == null || application.UserId != GetUserId()) return NotFound();
 
-            bool isAddMoreMode = application.Status != "Draft" && application.Status != "Rejected";
+            if (supplementalId.HasValue)
+            {
+                var supRequest = await _context.SupplementalRequests
+                    .Include(r => r.Devices)
+                    .Include(r => r.Documents)
+                    .FirstOrDefaultAsync(r => r.Id == supplementalId && r.ApplicationId == id);
+
+                if (supRequest == null) return NotFound();
+
+                // Save selections to SupplementalDevices (Draft)
+                _context.SupplementalDevices.RemoveRange(supRequest.Devices);
+                var newDevices = capabilities.Where(c => c.IsAppliedForEmpanelment).ToList();
+                
+                // Don't allow re-submitting already paid devices in supplemental flow
+                var alreadyPaid = application.Capabilities.Where(c => c.IsPaid).Select(c => c.SubTech).ToList();
+                
+                foreach (var cap in newDevices)
+                {
+                    if (alreadyPaid.Contains(cap.SubTech)) continue;
+
+                    var supDev = new SupplementalDevice
+                    {
+                        SupplementalRequestId = supplementalId.Value,
+                        MainType = cap.MainType ?? string.Empty,
+                        SubTech = cap.SubTech ?? string.Empty,
+                        Category = cap.Category ?? string.Empty,
+                        DesignedCapacity = cap.DesignedCapacity ?? string.Empty,
+                        Status = "Draft"
+                    };
+                    _context.SupplementalDevices.Add(supDev);
+
+                    // Process files for this new device
+                    var supDocTypes = new[] { "ProductDatasheet", "GADrawing", "ProcessFlowDiagram", "DesignCalculation", 
+                                          "MaterialOfConstruction", "WarrantyDocument", "InstallationExperience", 
+                                          "ClientPerformanceCertificate", "TestCertificate" };
+                    
+                    var supFormTypes = new Dictionary<string, string>
+                    {
+                        { "ProductDatasheet", "productDatasheetFile" },
+                        { "GADrawing", "gaDrawingFile" },
+                        { "ProcessFlowDiagram", "processFlowFile" },
+                        { "DesignCalculation", "designCalcFile" },
+                        { "MaterialOfConstruction", "materialConstructionFile" },
+                        { "WarrantyDocument", "warrantyFile" },
+                        { "InstallationExperience", "installationExpFile" },
+                        { "ClientPerformanceCertificate", "clientPerformanceFile" },
+                        { "TestCertificate", "testCertificateFile" } 
+                    };
+
+                    string safeTechName = cap.SubTech.Replace(" ", "_").Replace("(", "").Replace(")", "").Replace("/", "_");
+                    foreach (var dt in supDocTypes)
+                    {
+                        string fileKey = $"{supFormTypes[dt]}_{safeTechName}";
+                        await ProcessSupplementalFileUpload(id, supplementalId.Value, fileKey, dt, cap.SubTech);
+                    }
+                }
+
+                supRequest.LastCompletedStep = 4;
+                supRequest.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Payment", new { id, supplementalId });
+            }
+
+            bool isAddMoreMode = supplementalId.HasValue;
 
             // Guard: Prevent changes if already submitted (except in Add More mode)
             if (application.Status != "Draft" && !isAddMoreMode) return RedirectToAction("Step5", new { id });
@@ -499,6 +634,7 @@ namespace APCD.Web.Controllers
                 years.Add($"{y}-{(y + 1) % 100:D2}");
             }
             ViewBag.FinancialYears = years;
+            ViewBag.JsonDocuments = application.Documents.Select(d => new { d.DocumentType, d.AssociatedTech, d.FileName, d.FilePath }).ToList();
             
             return View(application);
         }
@@ -608,50 +744,258 @@ namespace APCD.Web.Controllers
             var file = Request.Form.Files[fileKey];
             if (file != null && file.Length > 0)
             {
-                var path = await SaveFileAsync(file, folderName);
-                await AddOrUpdateDocument(id, docType, file.FileName, path, step, category, associatedTech);
+                // Strict path requirement: /wwwroot/uploads/applications/{ApplicationId}/initial/{APCDType}/{DocumentType}/
+                string safeTechName = string.IsNullOrEmpty(associatedTech) ? "Common" : associatedTech.Replace(" ", "_").Replace("(", "").Replace(")", "").Replace("/", "_");
+                string safeDocType = docType.Replace(" ", "_");
+                
+                string subPath = $"applications/{id}/initial/{safeTechName}/{safeDocType}";
+                string fullPath = Path.Combine(_environment.WebRootPath, "uploads", subPath);
+                
+                if (!Directory.Exists(fullPath)) Directory.CreateDirectory(fullPath);
+
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                string filePath = Path.Combine(fullPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                string webPath = $"/uploads/{subPath}/{fileName}";
+                
+                // For Installation certificates in Step 4, we use a different table
+                if (docType == "PerformanceCertificate" && associatedTech.StartsWith("Installation_"))
+                {
+                    int index = int.Parse(associatedTech.Split('_')[1]);
+                    var installations = await _context.InstallationRecords
+                        .Where(i => i.ApplicationId == id)
+                        .OrderBy(i => i.Id)
+                        .ToListAsync();
+
+                    if (index < installations.Count)
+                    {
+                        installations[index].PerformanceCertPath = webPath;
+                    }
+                    else
+                    {
+                        var newInst = new InstallationRecord { ApplicationId = id, PerformanceCertPath = webPath };
+                        _context.InstallationRecords.Add(newInst);
+                    }
+                }
+                else
+                {
+                    var query = _context.ApplicationDocuments.Where(d => d.ApplicationId == id && d.DocumentType == docType && d.AssociatedTech == (associatedTech ?? ""));
+                    
+                    var doc = await query.FirstOrDefaultAsync();
+                    if (doc == null)
+                    {
+                        doc = new ApplicationDocument
+                        {
+                            ApplicationId = id,
+                            DocumentType = docType,
+                            AssociatedTech = associatedTech,
+                            DocumentCategory = string.IsNullOrEmpty(associatedTech) ? "Common" : "APCD",
+                            StepNumber = step
+                        };
+                        _context.ApplicationDocuments.Add(doc);
+                    }
+
+                    doc.FileName = file.FileName;
+                    doc.FilePath = webPath;
+                    doc.UploadedAt = DateTime.UtcNow;
+                    doc.IsActive = true;
+                }
             }
         }
 
-        private async Task AddOrUpdateDocument(int applicationId, string documentType, string fileName, string filePath, int step, string category, string associatedTech = "")
+        private async Task ProcessSupplementalFileUpload(int applicationId, int supplementalId, string fileKey, string docType, string apcdType)
         {
-            var query = _context.ApplicationDocuments
-                .Where(d => d.ApplicationId == applicationId && d.DocumentType == documentType);
-
-            if (!string.IsNullOrEmpty(associatedTech))
+            var file = Request.Form.Files[fileKey];
+            if (file != null && file.Length > 0)
             {
-                query = query.Where(d => d.AssociatedTech == associatedTech);
-            }
-            else
-            {
-                // For common documents, also check step to distinguish duplicates like TestCertificate in Step 4 vs 5
-                query = query.Where(d => d.StepNumber == step || d.StepNumber == 0);
-            }
-
-            var doc = await query.FirstOrDefaultAsync();
-            
-            if (doc != null)
-            {
-                doc.FileName = fileName;
-                doc.FilePath = filePath;
-                doc.UploadedAt = DateTime.UtcNow;
-                doc.AssociatedTech = associatedTech;
-                doc.StepNumber = step;
-                doc.DocumentCategory = category;
-            }
-            else
-            {
-                _context.ApplicationDocuments.Add(new ApplicationDocument
+                // Custom path: /uploads/applications/{ApplicationId}/supplemental/{SupplementalRequestId}/{APCDType}/{DocumentType}/
+                string safeTechName = apcdType.Replace(" ", "_").Replace("(", "").Replace(")", "").Replace("/", "_");
+                string subPath = $"applications/{applicationId}/supplemental/{supplementalId}/{safeTechName}/{docType}";
+                var path = await SaveFileAsync(file, subPath);
+                
+                var supDoc = await _context.SupplementalDocuments
+                    .FirstOrDefaultAsync(d => d.SupplementalRequestId == supplementalId && d.DocumentType == docType && d.APCDType == apcdType);
+                
+                if (supDoc == null)
                 {
-                    ApplicationId = applicationId,
-                    DocumentType = documentType,
-                    FileName = fileName,
-                    FilePath = filePath,
-                    AssociatedTech = associatedTech,
-                    StepNumber = step,
-                    DocumentCategory = category
-                });
+                    supDoc = new SupplementalDocument
+                    {
+                        SupplementalRequestId = supplementalId,
+                        APCDType = apcdType,
+                        DocumentType = docType
+                    };
+                    _context.SupplementalDocuments.Add(supDoc);
+                }
+                
+                supDoc.FileName = file.FileName;
+                supDoc.FilePath = path;
+                supDoc.Status = "Draft";
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadDocument(int applicationId, string documentType, string associatedTech, int stepNumber, IFormFile file)
+        {
+            var userId = GetUserId();
+            var application = await _context.Applications.FindAsync(applicationId);
+            if (application == null || application.UserId != userId) return Json(new { success = false, message = "Application not found or unauthorized." });
+
+            if (file == null || file.Length == 0) return Json(new { success = false, message = "No file selected." });
+
+            try
+            {
+                // Strict path requirement: /wwwroot/uploads/applications/{ApplicationId}/initial/{APCDType}/{DocumentType}/
+                string safeTechName = string.IsNullOrEmpty(associatedTech) ? "Common" : associatedTech.Replace(" ", "_").Replace("(", "").Replace(")", "").Replace("/", "_");
+                string safeDocType = documentType.Replace(" ", "_");
+                
+                string subPath = $"applications/{applicationId}/initial/{safeTechName}/{safeDocType}";
+                string fullPath = Path.Combine(_environment.WebRootPath, "uploads", subPath);
+                
+                if (!Directory.Exists(fullPath)) Directory.CreateDirectory(fullPath);
+
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                string filePath = Path.Combine(fullPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                string webPath = $"/uploads/{subPath}/{fileName}";
+
+                if (documentType == "PerformanceCertificate" && associatedTech.StartsWith("Installation_"))
+                {
+                    int index = int.Parse(associatedTech.Split('_')[1]);
+                    var installations = await _context.InstallationRecords
+                        .Where(i => i.ApplicationId == applicationId)
+                        .OrderBy(i => i.Id)
+                        .ToListAsync();
+
+                    // If we have enough installations, update the existing one. 
+                    // If not, we might need to create placeholders or wait for SaveCapabilities.
+                    // But for autosave, we should at least try to update if it exists.
+                    if (index < installations.Count)
+                    {
+                        installations[index].PerformanceCertPath = webPath;
+                    }
+                    else
+                    {
+                        // Create a placeholder installation if it doesn't exist yet to hold the path
+                        var newInst = new InstallationRecord { ApplicationId = applicationId, PerformanceCertPath = webPath };
+                        _context.InstallationRecords.Add(newInst);
+                    }
+                }
+                else if (documentType == "SupplementalPaymentReceipt")
+                {
+                    // associatedTech will contain the SupplementalRequestId as "Supplemental_ID"
+                    if (string.IsNullOrEmpty(associatedTech) || !associatedTech.StartsWith("Supplemental_"))
+                        return Json(new { success = false, message = "Invalid supplemental ID." });
+
+                    int supId = int.Parse(associatedTech.Split('_')[1]);
+                    var supPay = await _context.SupplementalPayments
+                        .FirstOrDefaultAsync(p => p.SupplementalRequestId == supId);
+
+                    if (supPay == null)
+                    {
+                        supPay = new SupplementalPayment { SupplementalRequestId = supId };
+                        _context.SupplementalPayments.Add(supPay);
+                    }
+                    supPay.ReceiptPath = webPath;
+                    supPay.UpdatedAt = DateTime.UtcNow;
+                }
+                else
+                {
+                    // Update or Create ApplicationDocument
+                    var query = _context.ApplicationDocuments.Where(d => d.ApplicationId == applicationId && d.DocumentType == documentType && d.AssociatedTech == (associatedTech ?? ""));
+                    
+                    var doc = await query.FirstOrDefaultAsync();
+                    if (doc == null)
+                    {
+                        doc = new ApplicationDocument
+                        {
+                            ApplicationId = applicationId,
+                            DocumentType = documentType,
+                            AssociatedTech = associatedTech ?? "",
+                            DocumentCategory = string.IsNullOrEmpty(associatedTech) ? "Common" : "APCD",
+                            StepNumber = stepNumber > 0 ? stepNumber : 4
+                        };
+                        _context.ApplicationDocuments.Add(doc);
+                    }
+
+                    doc.FileName = file.FileName;
+                    doc.FilePath = webPath;
+                    doc.UploadedAt = DateTime.UtcNow;
+                    doc.IsActive = true;
+                }
+
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, fileName = file.FileName, filePath = webPath });
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
+                if (ex.InnerException != null) msg += " -> " + ex.InnerException.Message;
+                return Json(new { success = false, message = msg });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteDocument(int applicationId, string documentType, string associatedTech)
+        {
+            var userId = GetUserId();
+            var application = await _context.Applications.FindAsync(applicationId);
+            if (application == null || application.UserId != userId) return Json(new { success = false, message = "Application not found or unauthorized." });
+
+            if (documentType == "PerformanceCertificate" && associatedTech.StartsWith("Installation_"))
+            {
+                int index = int.Parse(associatedTech.Split('_')[1]);
+                var installations = await _context.InstallationRecords
+                    .Where(i => i.ApplicationId == applicationId)
+                    .OrderBy(i => i.Id)
+                    .ToListAsync();
+
+                if (index < installations.Count)
+                {
+                    installations[index].PerformanceCertPath = string.Empty;
+                    await _context.SaveChangesAsync();
+                    return Json(new { success = true });
+                }
+            }
+            else if (documentType == "SupplementalPaymentReceipt")
+            {
+                if (string.IsNullOrEmpty(associatedTech) || !associatedTech.StartsWith("Supplemental_"))
+                    return Json(new { success = false, message = "Invalid supplemental ID." });
+
+                int supId = int.Parse(associatedTech.Split('_')[1]);
+                var supPay = await _context.SupplementalPayments
+                    .FirstOrDefaultAsync(p => p.SupplementalRequestId == supId);
+
+                if (supPay != null)
+                {
+                    supPay.ReceiptPath = string.Empty;
+                    await _context.SaveChangesAsync();
+                }
+                return Json(new { success = true });
+            }
+            else
+            {
+                var query = _context.ApplicationDocuments.Where(d => d.ApplicationId == applicationId && d.DocumentType == documentType && d.AssociatedTech == (associatedTech ?? ""));
+                
+                var doc = await query.FirstOrDefaultAsync();
+                if (doc != null)
+                {
+                    _context.ApplicationDocuments.Remove(doc);
+                    await _context.SaveChangesAsync();
+                    return Json(new { success = true });
+                }
+            }
+
+            return Json(new { success = false, message = "Document not found." });
         }
         #endregion
 
@@ -678,7 +1022,7 @@ namespace APCD.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Payment(int id)
+        public async Task<IActionResult> Payment(int id, int? supplementalId = null)
         {
             var application = await _context.Applications
                 .Include(a => a.Capabilities)
@@ -690,6 +1034,7 @@ namespace APCD.Web.Controllers
 
             ViewBag.IsSubmitted = application.Status != "Draft";
             ViewBag.ActualStep = application.Status == "Draft" ? application.CurrentStep : 8;
+            ViewBag.SupplementalId = supplementalId;
 
             // Calculate Fees
             decimal baseAppFee = 25000;
@@ -711,37 +1056,74 @@ namespace APCD.Web.Controllers
             ViewBag.AppFeeTotal = appFeeTotal;
             ViewBag.DiscountPercent = (int)(discountPercent * 100);
 
-            // Fetch the primary EmpFee record to show its specific count in history
-            var initialEmpFee = application.Payments.FirstOrDefault(p => p.Type == PaymentType.EmpFee);
-            
-            // BACKWARD COMPATIBILITY FIX: 
-            // Ensure IsPaid flags match the total units paid in transaction history
-            // We sum up APCDTypesCount, with a fallback to inferring count from Amount (76700 per unit)
-            int totalUnitsPaidInHistory = application.Payments
-                .Where(p => (p.Type == PaymentType.EmpFee || p.Type == PaymentType.Supplemental) && p.Status != "Rejected")
-                .ToList()
-                .Sum(p => p.APCDTypesCount.HasValue && p.APCDTypesCount.Value > 0 
-                    ? p.APCDTypesCount.Value 
-                    : (p.Amount.HasValue ? (int)Math.Round((double)p.Amount.Value / 76700.0) : 0));
+            var paymentDetail = new PaymentViewModel { ApplicationId = id, Application = application };
 
-            int currentMarkedAsPaid = application.Capabilities.Count(c => c.IsAppliedForEmpanelment && c.IsPaid);
-
-            if (totalUnitsPaidInHistory > currentMarkedAsPaid)
+            if (supplementalId.HasValue)
             {
-                var unpaidButShouldBePaid = application.Capabilities
-                    .Where(c => c.IsAppliedForEmpanelment && !c.IsPaid)
-                    .OrderBy(c => c.Id) // Mark oldest ones first
-                    .Take(totalUnitsPaidInHistory - currentMarkedAsPaid)
-                    .ToList();
+                var supRequest = await _context.SupplementalRequests
+                    .Include(r => r.Devices)
+                    .Include(r => r.Payments)
+                    .Include(r => r.Documents)
+                    .FirstOrDefaultAsync(r => r.Id == supplementalId && r.ApplicationId == id);
                 
-                foreach(var d in unpaidButShouldBePaid) { d.IsPaid = true; }
-                await _context.SaveChangesAsync();
+                if (supRequest == null) return NotFound();
+
+                int extraUnits = supRequest.Devices.Count;
+                decimal extraBase = extraUnits * 65000;
+                decimal extraGST = extraBase * 0.18m;
+
+                ViewBag.BalanceDue = extraBase + extraGST;
+                ViewBag.IsSupplemental = true;
+                ViewBag.UnpaidCount = extraUnits;
+                ViewBag.PaidCount = application.Capabilities.Count(c => c.IsAppliedForEmpanelment && c.IsPaid);
+                ViewBag.TotalCount = currentApcdCount + extraUnits;
+
+                paymentDetail.SupplementalAmount = extraBase + extraGST;
+                paymentDetail.APCDTypesCount = extraUnits;
+                ViewBag.NewApcdTypes = string.Join(", ", supRequest.Devices.Select(d => d.SubTech));
+                ViewBag.NewApcdCount = extraUnits;
+                ViewBag.ExtraBase = extraBase;
+                ViewBag.ExtraGST = extraGST;
+                
+                var existingSupPay = supRequest.Payments.OrderByDescending(p => p.Id).FirstOrDefault();
+                if (existingSupPay != null)
+                {
+                    paymentDetail.SupplementalUTR = existingSupPay.UTRNumber;
+                    paymentDetail.SupplementalPayDate = existingSupPay.PaymentDate;
+                    paymentDetail.SupplementalBankName = existingSupPay.BankName;
+                    paymentDetail.SupplementalAmountDeposited = existingSupPay.AmountDeposited;
+                    paymentDetail.SupplementalReceiptPath = existingSupPay.ReceiptPath;
+                    ViewBag.SupplementalPaymentSaved = !string.IsNullOrEmpty(existingSupPay.UTRNumber);
+                }
+            }
+            else
+            {
+                // BACKWARD COMPATIBILITY FIX: 
+                // Ensure IsPaid flags match the total units paid in transaction history
+                int totalUnitsPaidInHistory = application.Payments
+                    .Where(p => (p.Type == PaymentType.EmpFee || p.Type == PaymentType.Supplemental) && p.Status != "Rejected")
+                    .ToList()
+                    .Sum(p => p.APCDTypesCount.HasValue && p.APCDTypesCount.Value > 0 
+                        ? p.APCDTypesCount.Value 
+                        : (p.Amount.HasValue ? (int)Math.Round((double)p.Amount.Value / 76700.0) : 0));
+
+                int currentMarkedAsPaid = application.Capabilities.Count(c => c.IsAppliedForEmpanelment && c.IsPaid);
+
+                if (totalUnitsPaidInHistory > currentMarkedAsPaid)
+                {
+                    var unpaidButShouldBePaid = application.Capabilities
+                        .Where(c => c.IsAppliedForEmpanelment && !c.IsPaid)
+                        .OrderBy(c => c.Id)
+                        .Take(totalUnitsPaidInHistory - currentMarkedAsPaid)
+                        .ToList();
+                    
+                    foreach(var d in unpaidButShouldBePaid) { d.IsPaid = true; }
+                    await _context.SaveChangesAsync();
+                }
             }
 
-            var paymentDetail = new PaymentViewModel { ApplicationId = id, Application = application };
             var appFee = application.Payments.FirstOrDefault(p => p.Type == PaymentType.AppFee);
             var empFee = application.Payments.FirstOrDefault(p => p.Type == PaymentType.EmpFee);
-            var suppFeeList = application.Payments.Where(p => p.Type == PaymentType.Supplemental).ToList();
 
             if (appFee != null)
             {
@@ -756,44 +1138,11 @@ namespace APCD.Web.Controllers
                 paymentDetail.EmpFeeRemitterBank = empFee.RemitterBank;
                 paymentDetail.EmpFeeUTRNumber = empFee.UTRNumber;
                 paymentDetail.EmpFeePaymentDate = empFee.PaymentDate;
-                paymentDetail.APCDTypesCount = empFee.APCDTypesCount ?? 0;
-            }
-            // Supplemental payments are handled as a new entry below
-            paymentDetail.SupplementalAmount = null;
-            paymentDetail.SupplementalUTR = string.Empty;
-            paymentDetail.SupplementalPayDate = null;
-            
-            // --- Supplemental Payment detection ---
-            ViewBag.PaidCount = application.Capabilities.Count(c => c.IsAppliedForEmpanelment && c.IsPaid);
-            if (application.Status != "Draft")
-            {
-                var unpaidDevices = application.Capabilities.Where(c => c.IsAppliedForEmpanelment && !c.IsPaid).ToList();
-                int extraUnits = unpaidDevices.Count;
-                
-                if (extraUnits > 0)
-                {
-                    decimal extraBase = extraUnits * 65000;
-                    decimal extraGST = extraBase * 0.18m;
-                    ViewBag.BalanceDue = extraBase + extraGST;
-                    ViewBag.IsSupplemental = true;
-                    ViewBag.UnpaidCount = extraUnits;
-                    ViewBag.TotalCount = currentApcdCount;
-
-                    // AUTO-CALCULATE amount for the NEW supplemental payment
-                    paymentDetail.SupplementalAmount = extraBase + extraGST;
-                    paymentDetail.SupplementalUTR = string.Empty;
-                    paymentDetail.SupplementalPayDate = null;
-                }
-                else
-                {
-                    ViewBag.BalanceDue = 0;
-                    ViewBag.IsSupplemental = false;
-                    ViewBag.UnpaidCount = 0;
-                }
+                if (!supplementalId.HasValue) paymentDetail.APCDTypesCount = empFee.APCDTypesCount ?? 0;
             }
 
             // Initial calculation for Draft
-            if (application.Status == "Draft")
+            if (application.Status == "Draft" && !supplementalId.HasValue)
             {
                 paymentDetail.Amount = total;
                 paymentDetail.APCDTypesCount = currentApcdCount;
@@ -801,16 +1150,128 @@ namespace APCD.Web.Controllers
                 if (paymentDetail.EmpFeeAmountDeposited == 0) paymentDetail.EmpFeeAmountDeposited = empFeeTotal;
             }
 
+            ViewBag.JsonDocuments = application.Documents.Select(d => new { d.DocumentType, d.AssociatedTech, d.FileName, d.FilePath }).ToList();
             return View(paymentDetail);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Payment(int id, PaymentViewModel payment)
+        public async Task<IActionResult> SaveSupplementalPayment(int id, int supplementalId, PaymentViewModel payment)
+        {
+            var application = await _context.Applications.FindAsync(id);
+            if (application == null || application.UserId != GetUserId()) return NotFound();
+
+            var supRequest = await _context.SupplementalRequests
+                .Include(r => r.Payments)
+                .Include(r => r.Devices)
+                .FirstOrDefaultAsync(r => r.Id == supplementalId && r.ApplicationId == id);
+            if (supRequest == null) return NotFound();
+
+            var supPay = supRequest.Payments.OrderByDescending(p => p.Id).FirstOrDefault();
+            if (supPay == null)
+            {
+                supPay = new SupplementalPayment { SupplementalRequestId = supplementalId };
+                _context.SupplementalPayments.Add(supPay);
+            }
+
+            // Calculations
+            int count = supRequest.Devices.Count;
+            decimal baseAmount = count * 65000;
+            decimal gstAmount = baseAmount * 0.18m;
+
+            supPay.Amount = baseAmount;
+            supPay.GST = gstAmount;
+            supPay.TotalAmount = baseAmount + gstAmount;
+            supPay.AmountDeposited = payment.SupplementalAmountDeposited ?? 0;
+            supPay.BankName = payment.SupplementalBankName ?? string.Empty;
+            supPay.UTRNumber = payment.SupplementalUTR ?? string.Empty;
+            supPay.PaymentDate = payment.SupplementalPayDate ?? DateTime.UtcNow;
+            supPay.NewlyAddedAPCDCount = count;
+            supPay.NewlyAddedAPCDTypes = string.Join(", ", supRequest.Devices.Select(d => d.SubTech));
+            supPay.UpdatedAt = DateTime.UtcNow;
+
+            // File Upload
+            var proofFile = Request.Form.Files["supplementalReceiptFile"];
+            if (proofFile != null && proofFile.Length > 0)
+            {
+                string folder = Path.Combine(_environment.WebRootPath, "uploads", "applications", id.ToString(), "supplemental", supplementalId.ToString(), "payments");
+                if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
+                string fileName = $"PaymentProof_{DateTime.Now:yyyyMMddHHmmss}{Path.GetExtension(proofFile.FileName)}";
+                string filePath = Path.Combine(folder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await proofFile.CopyToAsync(stream);
+                }
+
+                supPay.ReceiptPath = $"/uploads/applications/{id}/supplemental/{supplementalId}/payments/{fileName}";
+            }
+
+            await _context.SaveChangesAsync();
+
+            string deviceNames = supPay.NewlyAddedAPCDTypes;
+            TempData["SuccessMessage"] = $"{deviceNames} added successfully. Payment details saved successfully on {DateTime.Now:dd MMM yyyy, hh:mm tt}.";
+
+            return RedirectToAction("Payment", new { id, supplementalId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Payment(int id, PaymentViewModel payment, int? supplementalId = null)
         {
             string oemFolder = string.Empty;
             var application = await _context.Applications.Include(a => a.Payments).FirstOrDefaultAsync(a => a.Id == id);
             if (application == null) return NotFound();
+
+            if (supplementalId.HasValue)
+            {
+                var supRequest = await _context.SupplementalRequests
+                    .Include(r => r.Payments)
+                    .Include(r => r.Devices)
+                    .FirstOrDefaultAsync(r => r.Id == supplementalId && r.ApplicationId == id);
+                
+                if (supRequest == null) return NotFound();
+
+                // Save Supplemental Payment
+                var supPay = supRequest.Payments.FirstOrDefault();
+                if (supPay == null)
+                {
+                    supPay = new SupplementalPayment { SupplementalRequestId = supplementalId.Value };
+                    _context.SupplementalPayments.Add(supPay);
+                }
+
+                supPay.Amount = payment.SupplementalAmount ?? 0;
+                supPay.GST = supPay.Amount * 0.18m / 1.18m;
+                supPay.TotalAmount = payment.SupplementalAmount ?? 0;
+                supPay.UTRNumber = payment.SupplementalUTR ?? string.Empty;
+                supPay.PaymentDate = payment.SupplementalPayDate ?? DateTime.UtcNow;
+                supPay.Status = "Submitted";
+
+                // Save Proof
+                var proofFile = Request.Form.Files["supplementalReceiptFile"];
+                if (proofFile != null && proofFile.Length > 0)
+                {
+                    string subPath = $"applications/{id}/supplemental/{supplementalId}/PaymentProof";
+                    supPay.ReceiptPath = await SaveFileAsync(proofFile, subPath);
+                }
+
+                supRequest.Status = "Submitted";
+                supRequest.IsFinalSubmitted = true;
+                supRequest.FinalSubmittedAt = DateTime.UtcNow;
+                
+                // Log transaction
+                _context.SupplementalTransactionHistories.Add(new SupplementalTransactionHistory {
+                    ApplicationId = id,
+                    SupplementalRequestId = supplementalId.Value,
+                    Action = "Final Submit",
+                    Description = $"Submitted Add More APCD request with {supRequest.Devices.Count} devices.",
+                    ActionBy = User.Identity.Name ?? "OEM"
+                });
+
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Submit", new { id, isSupplemental = true });
+            }
 
             if (application.Status == "Draft")
             {
@@ -909,13 +1370,14 @@ namespace APCD.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Submit(int id)
+        public async Task<IActionResult> Submit(int id, bool isSupplemental = false)
         {
             var application = await _context.Applications.FindAsync(id);
             if (application == null || application.UserId != GetUserId()) return NotFound();
 
             ViewBag.IsSubmitted = application.Status != "Draft";
             ViewBag.ActualStep = 8;
+            ViewBag.IsSupplemental = isSupplemental;
             
             return View(application);
         }

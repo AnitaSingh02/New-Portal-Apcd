@@ -68,6 +68,12 @@ namespace APCD.Web.Controllers
                 .Include(a => a.Installations)
                 .Include(a => a.Payments)
                 .Include(a => a.Remarks)
+                .Include(a => a.SupplementalRequests)
+                    .ThenInclude(r => r.Devices)
+                .Include(a => a.SupplementalRequests)
+                    .ThenInclude(r => r.Payments)
+                .Include(a => a.SupplementalRequests)
+                    .ThenInclude(r => r.Documents)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (application == null) return NotFound();
