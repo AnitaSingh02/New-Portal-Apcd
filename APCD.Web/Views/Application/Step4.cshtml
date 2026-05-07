@@ -44,18 +44,23 @@
 
                     <form asp-action="SaveCapabilities" asp-route-id="@appId" method="post" enctype="multipart/form-data">
                         <fieldset @(ViewBag.IsSubmitted == true && ViewBag.IsAddMoreMode != true ? "disabled" : "")>
-                            <div class="form-section-title">Step 4: Technical Scope (APCD Technologies)</div>
-                            <p class="text-muted small mb-4">Point 25: Specify the APCDs currently manufactured and those for which empanelment is sought.</p>
-
+                            <div class="form-section-title">Step 4: Installation Experience (APCD Technologies)</div>
+                            <p class="text-muted small mb-4"><strong>Point 25: Specify the APCDs currently manufactured and those for which empanelment is sought.</strong></p>
+                            <div class="alert alert-info py-3 small mb-5">
+                                <h6 class="fw-bold mb-2"><i class="bi bi-info-circle-fill me-2"></i>Note on Empanelment Categories:</h6>
+                                <b class="text-dark">Category 1:</b> APCDs installed on Boilers / Furnaces / Thermic Fluid Heaters (TFH) flue-gas emission control.<br />
+                                <b class="text-dark">Category 2:</b> APCDs installed on Non-Boiler / Non-Furnace / Non-TFH/ Non-heat dust/gas emission control.<br />
+                                <span class="d-inline-block mt-2">If you have past experience in installing the relevant APCD under both Category 1 and Category 2, please select '<strong>Both</strong>' in the drop-down above. If not, please indicate category '1' or '2', as applicable.</span>
+                            </div>
                             <div class="table-responsive border rounded-4 overflow-hidden mb-4">
                                 <table class="table tech-matrix-table mb-0 align-middle">
                                     <thead style="background-color: #c9daf8;">
                                         <tr>
-                                            <th style="width: 18%;">Sl. No. & Main Technology</th>
-                                            <th style="width: 25%;">Type of APCDs based on technology</th>
-                                            <th class="text-center bg-light text-dark" style="width: 12%;">Pt 25: Mfgr.<br/><small class="fw-normal">Yes/No</small></th>
-                                            <th class="text-center bg-light text-dark" style="width: 12%;">Pt 26: Apply<br/><small class="fw-normal">Yes/No</small></th>
-                                            <th class="text-center" style="width: 15%;">Pt 25: Category<br/><small class="fw-normal">(1/2/Both)</small></th>
+                                            <th style="width: 18%;">Type of APCD</th>
+                                            <th style="width: 25%;">Technology Type</th>
+                                            <th class="text-center bg-light text-dark" style="width: 12%;">Manufactured by OEMs.<br/><small class="fw-normal">Yes/No</small></th>
+                                            <th class="text-center bg-light text-dark" style="width: 12%;">Applied for Empanelment<br/><small class="fw-normal">Yes/No</small></th>
+                                            <th class="text-center" style="width: 15%;">Category<br/><small class="fw-normal">(1/2/Both)</small></th>
                                             <th style="width: 18%;">Designed Capacity<br/><small class="fw-normal">(give range)</small></th>
                                         </tr>
                                     </thead>
@@ -166,16 +171,11 @@
                                 </table>
                             </div>
 
-                            <div class="alert alert-info py-3 small mb-5">
-                                <h6 class="fw-bold mb-2"><i class="bi bi-info-circle-fill me-2"></i>Note on Empanelment Categories:</h6>
-                                <b class="text-dark">Category 1:</b> APCDs installed on Boilers / Furnaces / Thermic Fluid Heaters (TFH) flue-gas emission control.<br/> 
-                                <b class="text-dark">Category 2:</b> APCDs installed on Non-Boiler / Non-Furnace / Non-TFH/ Non-heat dust/gas emission control.<br/>
-                                <span class="d-inline-block mt-2">If you have past experience in installing the relevant APCD under both Category 1 and Category 2, please select '<strong>Both</strong>' in the drop-down above. If not, please indicate category '1' or '2', as applicable.</span>
-                            </div>
+                           
 
                             <!-- Point 22: Installations Table -->
                             <div class="mb-5">
-                                <h5 class="fw-bold text-dark mb-3">26. Provide details of installations completed in the last three (3) years (minimun five) including:</h5>
+                                <h5 class="fw-bold text-dark mb-3">26. Provide details of minimum 3 installations completed in the last 3 years including:</h5>
                                 <div class="table-responsive border rounded-4 overflow-hidden shadow-sm">
                                     <table class="table table-bordered mb-0 align-middle">
                                         <thead style="background-color: #f1f3f4;">
